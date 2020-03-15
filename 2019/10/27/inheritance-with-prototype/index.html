@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>[JS 프로토타입] 프로토타입을 사용하여 상속하기 - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="이번 포스팅에서는 이전 포스팅에 이어, 프로토타입을 사용한 다양한 상속 패턴에 대한 이야기를 해볼까 한다. 사실 자바스크립트에는 상속이나 캡슐화와 같은 개념이 명시적으로 존재하지는 않기 때문에 자바나 C++ 같은 클래스 기반 언어를 사용하던 개발자들은 자바스크립트에 클래스가 없다는 사실에 혼란스러워한다.">
+<meta name="keywords" content="JavaScript,프로토타입,자바스크립트,Prototype">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[JS 프로토타입] 프로토타입을 사용하여 상속하기">
+<meta property="og:url" content="https://evan-moon.github.io/2019/10/27/inheritance-with-prototype/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="이번 포스팅에서는 이전 포스팅에 이어, 프로토타입을 사용한 다양한 상속 패턴에 대한 이야기를 해볼까 한다. 사실 자바스크립트에는 상속이나 캡슐화와 같은 개념이 명시적으로 존재하지는 않기 때문에 자바나 C++ 같은 클래스 기반 언어를 사용하던 개발자들은 자바스크립트에 클래스가 없다는 사실에 혼란스러워한다.">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2019/10/27/inheritance-with-prototype/thumbnail.png">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.423Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[JS 프로토타입] 프로토타입을 사용하여 상속하기">
+<meta name="twitter:description" content="이번 포스팅에서는 이전 포스팅에 이어, 프로토타입을 사용한 다양한 상속 패턴에 대한 이야기를 해볼까 한다. 사실 자바스크립트에는 상속이나 캡슐화와 같은 개념이 명시적으로 존재하지는 않기 때문에 자바나 C++ 같은 클래스 기반 언어를 사용하던 개발자들은 자바스크립트에 클래스가 없다는 사실에 혼란스러워한다.">
+<meta name="twitter:image" content="https://evan-moon.github.io/2019/10/27/inheritance-with-prototype/thumbnail.png">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2019/10/27/inheritance-with-prototype/">
+
+
+<link rel="alternative" href="/feed.xml" title="[JS 프로토타입] 프로토타입을 사용하여 상속하기" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="[JS 프로토타입] 프로토타입을 사용하여 상속하기" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2019/10/27/inheritance-with-prototype/thumbnail.png" alt="[JS 프로토타입] 프로토타입을 사용하여 상속하기">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-10-26T15:55:05.000Z">2019-10-27</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/programming/">Programming</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/programming/javascript/">JavaScript</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                [JS 프로토타입] 프로토타입을 사용하여 상속하기
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>이번 포스팅에서는 <a href="/2019/10/23/js-prototype/" title="이전 포스팅">이전 포스팅</a>에 이어, 프로토타입을 사용한 다양한 상속 패턴에 대한 이야기를 해볼까 한다.</p>
+<p>사실 자바스크립트에는 상속이나 캡슐화와 같은 개념이 명시적으로 존재하지는 않기 때문에 자바나 C++ 같은 클래스 기반 언어를 사용하던 개발자들은 자바스크립트에 클래스가 없다는 사실에 혼란스러워한다.</p>
+<a id="more"></a>
+<p>즉, 자바스크립트에서의 상속이나 캡슐화 등은 <code>OOP(객체지향프로그래밍)</code>에 익숙한 개발자들이 자바스크립트에서도 이런 개념들을 가져다 사용하기 위해 프토토타입을 사용하여 이를 유사하게 구현한 일종의 디자인 패턴이라고 할 수 있다.</p>
+<p>자바스크립트에서의 상속은 프로토타입 체인을 사용하여 구현하고, 캡슐화는 클로저를 사용해서 구현하게 되는데, 이번 포스팅에서는 이 중 프로토타입을 사용한 상속 패턴에 집중해서 설명해볼까 한다.</p>
+<h2 id="프로퍼티와-메소드는-원본-객체를-통해-공유될-수-있다"><a href="#프로퍼티와-메소드는-원본-객체를-통해-공유될-수-있다" class="headerlink" title="프로퍼티와 메소드는 원본 객체를 통해 공유될 수 있다"></a>프로퍼티와 메소드는 원본 객체를 통해 공유될 수 있다</h2><p>객체의 상속을 알아보기 전에 객체를 생성할 때 프로퍼티와 메소드를 부여하는 방법에 대해서 알아보도록 하자. <a href="/2019/10/23/js-prototype/" title="이전 포스팅">이전 포스팅</a>에서 필자는 자바스크립트는 클래스가 아닌 <code>함수</code>를 사용하여 객체를 생성한다고 이야기 했었다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">User</span> (<span class="hljs-params"></span>) </span>{}</span><br><span class="line"><span class="hljs-keyword">const</span> evan = <span class="hljs-keyword">new</span> User();</span><br></pre></td></tr></tbody></table></figure>
+<p>이때 <code>User</code> 함수를 생성자로 호출하면서 생성된 <code>evan</code> 객체는 <code>User.prototype</code> 객체를 원본 객체로 하여 복제된 객체이다.</p>
+<p>이때 두 가지 방법을 사용하여 새롭게 생성되는 객체들에게 프로퍼티나 메소드를 부여할 수 있는데, 첫 번째는 생성자 함수 내에서 <code>this</code>를 사용하여 선언하는 방법, 두 번째는 새롭게 생성되는 객체들이 복사할 원본 객체인 <code>프로토타입 객체</code>에 선언하는 방법이다.</p>
+<p>먼저, <code>this</code>를 사용하여 프로퍼티나 메소드를 정의하는 방법에 대해서 살펴보자.</p>
+<h3 id="생성자-함수-내에서-this를-사용하는-방법"><a href="#생성자-함수-내에서-this를-사용하는-방법" class="headerlink" title="생성자 함수 내에서 this를 사용하는 방법"></a>생성자 함수 내에서 this를 사용하는 방법</h3><p>자바스크립트도 생성자 역할을 하는 함수 내에서 <code>this</code>를 사용하여 다른 언어와 비슷한 느낌으로 객체들에게 프로퍼티나 메소드를 부여할 수 있다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">User</span> (<span class="hljs-params">name</span>) </span>{</span><br><span class="line"><span class="hljs-meta">  'use strict'</span>;</span><br><span class="line">  <span class="hljs-keyword">this</span>.say = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{</span><br><span class="line">    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Hello, World!'</span>);</span><br><span class="line">  };</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">const</span> evan = <span class="hljs-keyword">new</span> User();</span><br><span class="line"><span class="hljs-built_in">console</span>.log(evan.say());</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight plain hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Hello, World!</span><br></pre></td></tr></tbody></table></figure>
+<p>참고로 생성자 함수 내에서 <code>strict</code> 모드를 사용한 이유는, 해당 생성자 함수가 실수로 <code>new</code> 예약어 없이 호출되어 <code>this</code>가 전역 객체로 평가되는 불상사를 방어하기 위해서이다.<small>(이 내용은 프로토타입과는 관련이 없기 때문에 자세히 다루지는 않겠다)</small></p>
+<p>이 방법은 일반적인 생성자의 사용 방법과 비슷해서 직관적으로 이해가 되는 편이다. 이때 생성자 함수 안의 <code>this</code>는 새롭게 생성된 객체를 의미하기 때문에, 함수 내에서 <code>this</code>를 통해 정의한 프로퍼티나 메소드는 이 생성자 함수를 사용하여 객체가 생성될 때마다 새롭게 정의된다.</p>
+<p>무슨 말인지 조금 더 쉽게 알아보기 위해 생성자 함수를 통해 두 개의 새로운 객체를 생성하고, 이 객체들의 메소드를 비교해도록 하자.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> evan = <span class="hljs-keyword">new</span> User();</span><br><span class="line"><span class="hljs-keyword">const</span> john = <span class="hljs-keyword">new</span> User();</span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.log(evan.say === john.say);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-literal">false</span></span><br></pre></td></tr></tbody></table></figure>
+<p>생성자 함수가 호출될 때 <code>this</code>는 각각 <code>evan</code> 객체와 <code>john</code> 객체를 의미했을 것이고, <code>say</code> 메소드 또한 이 객체들에게 직접 할당되었을 것이다. 자바스크립트의 <code>완전할당연산자(===)</code>는 다른 메모리에 적재된 객체는 다르다고 평가하므로 이 두 객체의 메소드들은 각자 다른 메모리에 담긴, 전혀 다른 함수라고 할 수 있다.</p>
+<p>이때 <code>evan</code> 객체나 <code>john</code> 객체를 출력해보면, 객체 내부에 <code>say</code> 메소드가 정의되어 있는 모습 또한 확인해볼 수 있다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-built_in">console</span>.log(evan);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">User {<span class="hljs-attr">say</span>: <span class="hljs-function"><span class="hljs-keyword">function</span>}</span></span><br></pre></td></tr></tbody></table></figure>
+<p>이 당연한 이야기를 하는 이유는 바로 밑에서 후술할 <code>프로토타입 객체에 정의하는 방법</code>과 차이점을 분명히 하기 위해서이다. 프로토타입 객체를 사용해서 프로퍼티나 메소드를 정의하게되면 지금과는 전혀 다른 결과가 나온다.</p>
+<h3 id="프로토타입-객체에-정의하는-방법"><a href="#프로토타입-객체에-정의하는-방법" class="headerlink" title="프로토타입 객체에 정의하는 방법"></a>프로토타입 객체에 정의하는 방법</h3><p>이번에는 <code>User</code> 생성자 함수의 프로토타입 객체인 <code>User.prototype</code>을 사용하여 메소드를 한번 정의해보도록 하자. <code>this</code>를 통해서 정의하는 방법과 어떤 차이가 있을까?</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">User</span> (<span class="hljs-params">name</span>) </span>{}</span><br><span class="line">User.prototype.say = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{</span><br><span class="line">  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'Hello, World!'</span>);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">const</span> evan = <span class="hljs-keyword">new</span> User();</span><br><span class="line"><span class="hljs-built_in">console</span>.log(evan.say());</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight plain hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Hello, World!</span><br></pre></td></tr></tbody></table></figure>
+<p>일단 <code>this</code>를 사용하여 정의했던 메소드와 동일한 느낌으로 작동하고 있다. 그래서 동일한 동작이라고 생각할 수도 있지만, 사실 두 방법들 사이에는 중요한 차이가 존재한다.</p>
+<p>바로 생성자 함수를 통해 생성된 모든 객체들이 해당 메소드를 <code>공유하고 있냐, 없냐</code>의 차이이다. 이전과 마찬가지로 두 개의 객체를 생성하고, 두 객체의 메소드를 비교해보자.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> evan = <span class="hljs-keyword">new</span> User();</span><br><span class="line"><span class="hljs-keyword">const</span> john = <span class="hljs-keyword">new</span> User();</span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.log(evan.say === john.say);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-literal">true</span></span><br></pre></td></tr></tbody></table></figure>
+<p>음? 이번에는 아까와는 다르게 두 객체의 메소드가 같다고 한다. 방금 전과는 다르게 이번에는 <code>evan.say</code>와 <code>john.say</code>가 객체에 따로따로 정의된 메소드가 아닌, 원본 객체의 메소드를 공유하고 있는 상황이기 때문이다.</p>
+<p>생성된 <code>evan</code> 객체를 한번 콘솔에 출력해보면, 원본 객체의 프로퍼티나 메소드를 공유하고 있다는 말이 무엇인지 알 수 있다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-built_in">console</span>.log(evan);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">User {}</span><br></pre></td></tr></tbody></table></figure>
+<p><code>evan</code> 객체를 출력해보니, 이 객체는 아무 메소드나 프로퍼티도 가지고 있지 않고 텅 비어있는 친구다.</p>
+<p>즉, 생성자 함수 내에서 <code>this</code>를 사용하지 않고, 원본 객체에 메소드나 프로퍼티를 정의하게 되면 객체들에게는 해당 프로퍼티가 없고, 원본 객체의 프로퍼티나 메소드를 참조한다는 것이다.</p>
+<p>이 특징을 제대로 인지하지 못하면 이런 상황도 발생할 수 있다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">User.prototype.name = <span class="hljs-string">'Evan'</span>;</span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.log(evan.name);</span><br><span class="line"><span class="hljs-built_in">console</span>.log(john.name);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Evan</span><br><span class="line">Evan</span><br></pre></td></tr></tbody></table></figure>
+<p>그렇기 때문에 각 객체마다 고유한 프로퍼티를 부여하고 싶다면 원본 객체에 정의하는 것이 아니라, 생성자 함수 내에서 <code>this</code>를 사용하여 정의해야한다. 다시 말하지만 원본 객체에 정의한 프로퍼티나 메소드는 생성된 객체들 끼리 <code>공유</code>된다.</p>
+<p>한 가지 이상한 점은, 분명히 <code>evan</code> 객체에는 아무런 프로퍼티나 메소드도 없었는데, 필자는 분명히 <code>evan.say</code>를 통해 해당 메소드에 접근할 수 있었다는 것이다. 어떻게 이런 일이 가능한 것일까?</p>
+<h2 id="프로토타입-룩업"><a href="#프로토타입-룩업" class="headerlink" title="프로토타입 룩업"></a>프로토타입 룩업</h2><p>그 질문에 대한 해답은 바로 자바스크립트가 객체 내에서 프로퍼티를 찾는 방법 중 하나인 <code>프로토타입 룩업(Prototype Lookup)</code>에서 알아볼 수 있다. 방금 전 자바스크립트가 <code>evan</code> 객체에서 <code>say</code> 메소드를 찾아냈던 과정은 다음과 같다.</p>
+<center><br>  <img src="/2019/10/27/inheritance-with-prototype/prototype_lookup.png" width="500"><br>  <br><br></center>
+
+<blockquote><ol>
+<li><code>evan.say</code>로 접근 시도</li>
+<li>어, <code>say</code> 프로퍼티가 없네? <code>__proto__</code>를 통해 원본 객체로 올라가보자!</li>
+<li><code>User.prototype</code>객체야, 너는 <code>say</code> 프로퍼티 가지고 있니?</li>
+<li>있네? Profit!</li>
+</ol>
+</blockquote>
+<p>이런 식으로 우리가 어떤 객체의 프로퍼티에 접근을 시도했을 때, 자바스크립트는 먼저 그 객체가 해당 프로퍼티를 가지고 있는지를 확인하고, 해당 프로퍼티가 없다면 그 객체의 원본 객체로 거슬러 올라가서 다시 확인하게 된다.</p>
+<p>이 집요한 확인 과정은 모든 객체의 조상인 <code>Object.prototype</code>에 다다를 때까지 계속되고, 만약 여기에도 존재하지 않는 프로퍼티라면 그때서야 <code>undefined</code>를 반환하게 된다.</p>
+<p>이 말인 즉슨, 모든 객체는 자신의 프로토타입 체인 내에 있는 모든 원본 객체들의 프로퍼티나 메소드에 접근할 수 있다는 뜻이다.</p>
+<p>쉽게 말해, 방금 생성한 <code>evan</code> 객체는 아무 프로퍼티나 메소드도 가지고 있지 않지만, 자신의 원본 객체인 <code>User.prorotype</code>에 정의된 <code>say</code> 메소드도 사용할 수 있고, <code>Object.prototype</code>에 있는 <code>toString</code>이나 <code>hasOwnProperty</code>와 같은 메소드도 사용할 수 있다는 것이다.</p>
+<center><br>  <img src="/2019/10/27/inheritance-with-prototype/prototype_lookup2.png" width="150"><br>  <small>evan 객체는 프토토타입 체인 내에 있는 모든 원본 객체의 프로퍼티를 공유받는다</small><br>  <br><br></center>
+
+<p>이 프로토타입 룩업 과정은 객체의 프로퍼티나 메소드에 접근하는 그 순간마다 수행되기 때문에, 클래스가 정의될 때 모든 상속관계가 함께 평가되는 클래스 기반 언어의 상속과는 조금 다른 느낌이다.</p>
+<p>그러나 추상적으로 생각해보면 원본 객체(부모)의 속성을 물려받고 있다는 점에서 착안하여, 프로토타입 룩업을 토대로 상속을 구현할 수 있다.</p>
+<h2 id="프로토타입을-사용한-상속"><a href="#프로토타입을-사용한-상속" class="headerlink" title="프로토타입을 사용한 상속"></a>프로토타입을 사용한 상속</h2><p>자바스크립트에서 프로토타입을 사용하여 상속을 구현하는 방법은 크게 <code>Object.create</code> 메소드를 사용하는 방법과 이 메소드를 사용하지않는 <small>(더러운)</small> 방법, 두 가지로 나누어질 수 있다.</p>
+<p>사실 <code>Object.create</code>만 사용해도 프로토타입을 사용한 상속은 충분히 구현이 가능하다. 하지만 굳이 두 가지를 나눠서 이야기한 이유는, <code>Object.create</code> 메소드가 <code>Internet Explorer 9</code>부터 지원이 되기 때문이다.</p>
+<p>하지만 필자는 필자의 행복을 위해 쓰는 포스팅에서 <code>IE 8</code> 이하 환경에 대한 자세한 이야기는 별로 하고 싶지 않으므로 <code>Object.create</code>를 사용하지 않는 방법에 대한 코드를 간단하게 <a href="https://gist.github.com/evan-moon/a7e5a51e20d22016ea443a03480765b7" target="_blank" rel="external nofollow noopener noreferrer">필자의 Github Gist 링크</a>로 첨부하겠다.</p>
+<h3 id="Object-create를-사용하자"><a href="#Object-create를-사용하자" class="headerlink" title="Object.create를 사용하자"></a>Object.create를 사용하자</h3><p><code>Object.create</code> 메소드는 첫 번째 인자로 생성할 객체의 원본 객체가 될 객체, 두 번째 인자로 새로 생성할 객체에 추가할 프로퍼티를 객체 타입으로 받는다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-built_in">Object</span>.create(proto: <span class="hljs-built_in">Object</span>, properties?: <span class="hljs-built_in">Object</span>);</span><br></pre></td></tr></tbody></table></figure>
+<p>이때 두 번째 인자는 선택사항이며, 단순하게 <code>{ test: 1 }</code>처럼 넘기는 것이 아니라, <code>Object.defineProperties</code> 메소드를 사용할 때 처럼 데이터 서술자와 접근 서술자를 지정해줘야한다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-built_in">Object</span>.create(User.prototype, {</span><br><span class="line">  foo: {</span><br><span class="line">    configurable: <span class="hljs-literal">false</span>,</span><br><span class="line">    enumerable: <span class="hljs-literal">true</span>,</span><br><span class="line">    value: <span class="hljs-string">'I am Foo!'</span>,</span><br><span class="line">  }</span><br><span class="line">});</span><br></pre></td></tr></tbody></table></figure>
+<p>자세한 프로퍼티들의 의미는 <a href="https://developer.mozilla.org/ko/docs/Web/JavaScript/Reference/Global_Objects/Object/defineProperties" target="_blank" rel="external nofollow noopener noreferrer">MDN Web Docs: Object.defineProperties</a>에서 확인해보도록 하자.</p>
+<p>이 메소드에서 중요한 포인트는 <code>객체의 프로토타입 객체</code>를 지정할 수 있다는 것이며, 이 말인 즉슨 객체의 프로토타입 체인을 내 맘대로 만져줄 수 있다는 것이다. 심지어 동적으로 변경도 가능하다.<small>(사실 이게 JS의 변태적인 면…)</small></p>
+<p>그럼 이제 <code>Object.create</code> 메소드와 프로토타입을 사용하여 상속을 한번 구현해보도록 하자.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">SuperClass</span> (<span class="hljs-params">name</span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">this</span>.name = name;</span><br><span class="line">}</span><br><span class="line">SuperClass.prototype.say = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{</span><br><span class="line">  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`I am <span class="hljs-subst">${<span class="hljs-keyword">this</span>.name}</span>`</span>);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>우선 부모 클래스 역할을 할 <code>SuperClass</code> 생성자 함수를 생성하고, 이 함수의 프로토타입 객체에 <code>say</code> 메소드를 정의했다. 그럼 이제 자식 클래스 역할을 할 생성자 함수를 구현하고, 이 두 개의 함수의 상속 관계도 함께 정의해보자.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">SubClass</span> (<span class="hljs-params">name</span>) </span>{</span><br><span class="line">  SuperClass.call(<span class="hljs-keyword">this</span>, name);</span><br><span class="line">}</span><br><span class="line">SubClass.prototype = <span class="hljs-built_in">Object</span>.create(SuperClass.prototype);</span><br><span class="line">SubClass.prototype.constructor = SubClass;</span><br><span class="line">SubClass.prototype.run = <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{</span><br><span class="line">  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`<span class="hljs-subst">${<span class="hljs-keyword">this</span>.name}</span> is running`</span>);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>뭘 이것저것 많이 만진 것 같지만, 막상 하나하나 뜯어보면 별 거 없다.</p>
+<p><strong>SuperClass.call(this)</strong><br><code>Function.prototype.call</code> 메소드는 호출된 함수의 실행 컨텍스트를 첫 번째 인자로 받은 녀석으로 변경한다. 즉, <code>this</code>의 타겟을 변경하는 것이다.</p>
+<p>즉, <code>SuperClass.call(this, name)</code>의 의미는 부모 생성자 함수의 생성자를 호출하되, 실행 컨텍스트를 자식 생성자 함수로 변경하라는 의미이다. 자바로 치면 <code>super</code> 메소드를 호출하는 것과 비슷한 느낌이랄까.</p>
+<p>필자는 이때 <code>call</code> 메소드를 사용했지만, 뭐가 됐든 부모 생성자 함수의 실행 컨텍스트만 변경해주면 장땡이기 때문에 <code>apply</code>나 <code>bind</code> 메소드를 사용해도 상관없다.</p>
+<p><strong>SubClass.prototype 변경</strong><br>그 후 <code>Object.create</code> 메소드를 사용하여 <code>SuperClass.prototype</code> 객체를 원본 객체로 하는 새로운 객체를 생성하고, 이 객체를 <code>SubClass</code>의 프로토타입 객체로 할당해준다. 자식 생성자 함수의 프로토타입 객체와 부모 생성자 함수의 프로토타입 객체 간의 프로토타입 체인, 쉽게 말해 부모 자식 관계를 만들어 주는 것이다.</p>
+<p><strong>SubClass.prorotype.constructor 변경</strong><br>우리는 부모 생성자 함수의 프로토타입 객체를 토씨 하나 안바꾸고 그대로 복제했기 때문에, 새롭게 생성한 자식 생성자 함수의 프로토타입 객체의  <code>constructor</code> 프로퍼티는 여전히 부모 생성자 함수인 <code>SuperClass</code>를 참조하고 있다.</p>
+<p>하지만 자식 생성자 함수인 <code>SubClass</code>를 통해 생성된 객체가 <code>SuperClass</code>를 사용하여 생성된 것처럼 처리되면 안되므로, 다시 <code>constructor</code> 프로퍼티를 <code>SubClass</code>로 변경해줘야한다.</p>
+<p>이런 과정들을 거치면 다음과 같은 관계가 성립된다.</p>
+<center><br>  <img src="/2019/10/27/inheritance-with-prototype/extends.png" width="500"><br>  <br><br></center>
+
+<p>이제 한번 <code>SubClass</code> 생성자 함수를 사용하여 객체를 생성해보고, 제대로 부모 생성자 함수의 속성들을 물려받았는지 확인해보자.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> evan = <span class="hljs-keyword">new</span> SubClass(<span class="hljs-string">'Evan'</span>);</span><br><span class="line"><span class="hljs-built_in">console</span>.log(evan);</span><br><span class="line"><span class="hljs-built_in">console</span>.log(evan.__proto__);</span><br><span class="line"><span class="hljs-built_in">console</span>.log(evan.__proto__.__proto__)</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">SubClass { <span class="hljs-attr">name</span>: <span class="hljs-string">'Evan'</span> } <span class="hljs-comment">// 에반 객체</span></span><br><span class="line">SubClass { <span class="hljs-attr">constructor</span>: [<span class="hljs-built_in">Function</span>: SubClass], <span class="hljs-attr">run</span>: [<span class="hljs-built_in">Function</span>] } <span class="hljs-comment">// 에반 객체의 원본 객체</span></span><br><span class="line">SuperClass { <span class="hljs-attr">say</span>: [<span class="hljs-built_in">Function</span>] } <span class="hljs-comment">// 에반 객체의 원본 객체의 원본 객체</span></span><br></pre></td></tr></tbody></table></figure>
+<p><code>evan</code> 객체는 <code>SubClass</code>의 프로토타입 객체를 복제해서 정상적으로 생성되었고, <code>evan</code> 객체의 원본 객체와 원본 객체의 원본 객체도 잘 체이닝되어있다.</p>
+<p>즉, <code>evan -> SubClass.prototype -> SuperClass.prototype</code>으로 이어지는 프로토타입 체인이 완성된 것이다. 이때 <code>evan</code> 객체의 <code>run</code>이나 <code>say</code> 메소드를 호출하면, 위에서 언급한 프로토타입 룩업을 통해 원본 객체의 메소드를 호출할 수 있다.</p>
+<h2 id="마치며"><a href="#마치며" class="headerlink" title="마치며"></a>마치며</h2><p><a href="/2019/10/23/js-prototype/" title="이전 포스팅">이전 포스팅</a>에 이어 이번에는 자바스크립트에서 프로토타입을 활용한 상속 패턴에 대한 내용을 한번 다뤄보았다.</p>
+<p>솔직히 말해서, 필자가 실무에서 이러한 패턴을 사용해서 상속을 구현해본 경험은 거의 없다. 필자가 개발자로 일을 시작하고 얼마 되지 않아 ES6가 나오기도 했었고, 필자는 당시 자바가 더 익숙했기 때문에 새로 추가된 <code>class</code> 키워드에 흠뻑 빠져있었다.</p>
+<p>하지만 일을 시작하고 몇 년이 지나면서 레거시 코드에서 이 상속 패턴을 꽤 마주치기도 했고, 면접에서 이런 패턴에 대해서 물어보는 경우도 있었기 때문에 확실히 공부할 필요는 있는 것 같다.</p>
+<p>아무리 요즘 ES5를 거의 사용하지 않는다고 하지만, 사실 이런 상속 패턴이 자바스크립트를 사용한 프로그램 아키텍처의 근간이기도 하니 말이다.</p>
+<p>이상으로 프로토타입을 사용하여 상속하기 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/10/23/js-prototype/" title="[JS 프로토타입] 자바스크립트의 프로토타입 훑어보기" rel="bookmark">[JS 프로토타입] 자바스크립트의 프로토타입 훑어보기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/08/19/javascript-audio-effectors-gain/" title="[JavaScript로 오디오 이펙터를 만들어보자] 소리의 흐름을 파악하자" rel="bookmark">[JavaScript로 오디오 이펙터를 만들어보자] 소리의 흐름을 파악하자</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/06/gravity-via-js-1/" title="[JavaScript로 중력 구현하기] 1. 중력이란 무엇일까?" rel="bookmark">[JavaScript로 중력 구현하기] 1. 중력이란 무엇일까?</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/06/gravity-via-js-2/" title="[JavaScript로 중력 구현하기] 2. 코딩하기" rel="bookmark">[JavaScript로 중력 구현하기] 2. 코딩하기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/06/15/diving-into-js-array/" title="JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기" rel="bookmark">JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/javascript/">JavaScript</a><a class="tag -link" href="/tags/prototype/">Prototype</a><a class="tag -link" href="/tags/자바스크립트/">자바스크립트</a><a class="tag -link" href="/tags/프로토타입/">프로토타입</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2019/10/30/make-simple-with-math/">
+                <i class="fas fa-chevron-left"></i> 수학과 함께 복잡한 문제를 단순하게 만들자!
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2019/10/23/js-prototype/">
+                [JS 프로토타입] 자바스크립트의 프로토타입 훑어보기 <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#프로퍼티와-메소드는-원본-객체를-통해-공유될-수-있다" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>프로퍼티와 메소드는 원본 객체를 통해 공유될 수 있다</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#생성자-함수-내에서-this를-사용하는-방법" data-link-name="toc">
+        <span class="has-mr-6">1.1</span>
+        <span>생성자 함수 내에서 this를 사용하는 방법</span>
+        </a></li><li>
+        <a class="is-flex" href="#프로토타입-객체에-정의하는-방법" data-link-name="toc">
+        <span class="has-mr-6">1.2</span>
+        <span>프로토타입 객체에 정의하는 방법</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#프로토타입-룩업" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>프로토타입 룩업</span>
+        </a></li><li>
+        <a class="is-flex" href="#프로토타입을-사용한-상속" data-link-name="toc">
+        <span class="has-mr-6">3</span>
+        <span>프로토타입을 사용한 상속</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#Object-create를-사용하자" data-link-name="toc">
+        <span class="has-mr-6">3.1</span>
+        <span>Object.create를 사용하자</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#마치며" data-link-name="toc">
+        <span class="has-mr-6">4</span>
+        <span>마치며</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="[JS 프로토타입] 프로토타입을 사용하여 상속하기" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

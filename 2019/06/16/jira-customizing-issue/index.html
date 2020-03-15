@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>JIRA 프로젝트 이슈 커스터마이징하기 - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="이번 포스팅에서는 Atlassian의 대표 제품 중 하나인 Jira에 대해서 포스팅 하려고 한다. 요즘 많은 IT회사들에서 애자일 개발 방법론을 사용하여 소프트웨어 개발을 진행하고 있다. Jira는 애자일 방법론에서 사용하는 다양한 방법들을 좀 더 쉽고 편하게 사용할 수 있게 도와준다.">
+<meta name="keywords" content="Jira,애자일,Agile,협업,Atlassian">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JIRA 프로젝트 이슈 커스터마이징하기">
+<meta property="og:url" content="https://evan-moon.github.io/2019/06/16/jira-customizing-issue/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="이번 포스팅에서는 Atlassian의 대표 제품 중 하나인 Jira에 대해서 포스팅 하려고 한다. 요즘 많은 IT회사들에서 애자일 개발 방법론을 사용하여 소프트웨어 개발을 진행하고 있다. Jira는 애자일 방법론에서 사용하는 다양한 방법들을 좀 더 쉽고 편하게 사용할 수 있게 도와준다.">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2019/06/16/jira-customizing-issue/jira-logo.png">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.105Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JIRA 프로젝트 이슈 커스터마이징하기">
+<meta name="twitter:description" content="이번 포스팅에서는 Atlassian의 대표 제품 중 하나인 Jira에 대해서 포스팅 하려고 한다. 요즘 많은 IT회사들에서 애자일 개발 방법론을 사용하여 소프트웨어 개발을 진행하고 있다. Jira는 애자일 방법론에서 사용하는 다양한 방법들을 좀 더 쉽고 편하게 사용할 수 있게 도와준다.">
+<meta name="twitter:image" content="https://evan-moon.github.io/2019/06/16/jira-customizing-issue/jira-logo.png">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2019/06/16/jira-customizing-issue/">
+
+
+<link rel="alternative" href="/feed.xml" title="JIRA 프로젝트 이슈 커스터마이징하기" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="JIRA 프로젝트 이슈 커스터마이징하기" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2019/06/16/jira-customizing-issue/jira-logo.png" alt="JIRA 프로젝트 이슈 커스터마이징하기">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-06-16T13:50:00.000Z">2019-06-16</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/soft-skills/">Soft Skills</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/soft-skills/agile/">Agile</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                JIRA 프로젝트 이슈 커스터마이징하기
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>이번 포스팅에서는 Atlassian의 대표 제품 중 하나인 <code>Jira</code>에 대해서 포스팅 하려고 한다. 요즘 많은 IT회사들에서 <code>애자일 개발 방법론</code>을 사용하여 소프트웨어 개발을 진행하고 있다. Jira는 애자일 방법론에서 사용하는 다양한 방법들을 좀 더 쉽고 편하게 사용할 수 있게 도와준다.<br><a id="more"></a></p>
+<p>사실 애자일 프로세스는 일종의 방법론일 뿐 어떤 원칙이 아니기 때문에 팀마다 그 구성이나 개발 과정이 조금씩 달라지게 될 수 밖에 없고, 또 회고를 통해 이런 저런 방법들을 계속 시도해보기 때문에 어떠한 규칙으로 똑부러지게 정해지는 게 아니다. Jira는 이렇게 매번 달라지는 규칙들에 대응하기 위해서 다양하게 프로젝트를 커스터마이징 할 수 있는 기능을 제공한다.</p>
+<p>그러나 기능이 너무 많고 용어가 복잡해서 처음 접하는 사람은 이걸 도대체 어떻게 써야할지 감이 안오는 것도 사실이다. 아마 많은 분들이 그냥 기본적으로 제공해주는 칸반이나 스프린트 기능 정도만 사용하고 있지 않을까 싶다.</p>
+<p>그래서 오늘은 Jira를 사용할 때 제일 기본적인 단위를 이루는 <code>Issue</code>를 커스터마이징하는 방법을 설명해볼까 한다.</p>
+<h2 id="Jira-Software란"><a href="#Jira-Software란" class="headerlink" title="Jira Software란?"></a>Jira Software란?</h2><p>Jira는 호주의 Atlassian이라는 기업에서 제공하는 <code>애자일 소프트웨어 개발 방법론</code>을 지원하는 일종의 프로젝트 관리 솔루션이다. 간단하게는 칸반보드부터 깊게는 애자일 프로세스에 필요한 스프린트 단위의 관리 기법이나 스프린트를 분석할 수 있는 다양한 보고서까지도 제공해주고 있다.</p>
+<p>이런 점이 바로 <code>Trello</code>나 <code>Asana</code>와 같은 다른 프로젝트 관리 툴과 차별화되는 점인 것 같다.<small>(참고로 Trello도 Atlassian이 먹은 지 좀 됐다)</small></p>
+<p>또한 Atlassian에서 제공하는 다른 서비스들인 <code>Bitbucket</code>, <code>Confluence</code>, <code>Source Tree</code> 등과 서로 연동이 잘되어있는 부분도 좋은 것 같다. 예를 들면 어떤 브랜치에서 기능을 개발하다가 해당 브랜치로 <code>Pull Request</code>를 생성하면 Jira에 연결된 이슈가 자동으로 <code>Code Review</code> 상태로 변경되게도 할 수 있고 커밋 메세지에 <code>LU-0000 first commit</code> 처럼 Jira 이슈 번호를 넣어준다면 Jira 이슈 내에 해당 커밋과 브랜치가 자동으로 추적되기도 한다.</p>
+<center><br>  <img src="/2019/06/16/jira-customizing-issue/jira-branch.png" title="Jira 브랜치 추적"><br>  <sub>이슈에서 추적되고 있는 브랜치와 커밋의 모습</sub><br>  <br><br></center>
+
+<p>저런 공유 기능으로 인해서 제일 좋은 점은 사실 <code>PO(Product Owner)</code>들의 업무가 많이 편해진다는 것이다. Jira의 스프린트 대시보드는 일종의 상황판이다. 누가 어떤 업무를 어느 정도 진행했는지 브랜치와 커밋을 통해 상세히 알아볼 수도 있고 또 전체 스프린트의 이슈의 몇 퍼센트가 Done 상태인지, 팀이 얼마나 더 빡쎄게 달려야 이 스프린트를 마칠 수 있는지와 같은 정보를 실시간으로 보여준다.</p>
+<p>뭐 사실 이러지 저러니 해도 Jira는 툴일 뿐, 애자일에는 <code>일을 효율적으로 하고 싶다</code>라는 팀의 의지가 가장 중요하긴 하지만 그래도 Jira가 굉장히 세심한 기능들을 제공해준다는 건 사실이다.</p>
+<h2 id="Jira-이슈-커스터마이징-하기"><a href="#Jira-이슈-커스터마이징-하기" class="headerlink" title="Jira 이슈 커스터마이징 하기"></a>Jira 이슈 커스터마이징 하기</h2><blockquote>
+<p>이 문서에 작성되는 사항들은 프로젝트의 Administrator 권한이 있는 사용자만 수행할 수 있습니다.</p>
+</blockquote>
+<h3 id="Jira-세팅-메뉴-찾기"><a href="#Jira-세팅-메뉴-찾기" class="headerlink" title="Jira 세팅 메뉴 찾기"></a>Jira 세팅 메뉴 찾기</h3><p>Jira 메인 화면에 접속하였을 때 Jira 프로젝트 설정에 대해 수정 권한이 있는 사용자라면 왼쪽 메뉴 리스트의 제일 하단에 <code>Jira settings</code>라는 메뉴가 보일 것이다. 이 메뉴에 접속하면 <code>시스템</code>, <code>프로젝트</code>, <code>이슈</code> 등 Jira에 대한 모든 설정을 수정할 수 있다. </p>
+<center><br>  <img src="/2019/06/16/jira-customizing-issue/jira1.png" title="Jira 세팅 메뉴"><br>  <br><br></center>
+
+
+<p><code>Jira settings</code> 메뉴를 클릭하여 세팅 메뉴가 노출되면 <code>System</code>, <code>Products</code>, <code>Projects</code>, <code>Issues</code>, <code>Apps</code> 총 5개의 메뉴가 보인다. 이 포스팅에서는 이 설정들 중에서 <code>Issues</code>에 대한 설정만을 다룰 것이다.</p>
+<h3 id="Issues-메뉴"><a href="#Issues-메뉴" class="headerlink" title="Issues 메뉴"></a>Issues 메뉴</h3><center><br>  <img src="/2019/06/16/jira-customizing-issue/menu.png" width="500" title="Jira 이슈 메뉴들"><br>  <br><br></center>
+
+<p>Jira settings 내의 Issues 메뉴를 클릭해보면 이슈에 관련된 수많은 메뉴들이 노출된다. 하나하나 알아보자.</p>
+<h4 id="Issue-Types"><a href="#Issue-Types" class="headerlink" title="Issue Types"></a>Issue Types</h4><hr>
+<h5 id="Issue-Types-1"><a href="#Issue-Types-1" class="headerlink" title="Issue Types"></a>Issue Types</h5><center><br>  <img src="/2019/06/16/jira-customizing-issue/issue-types.png" title="Jira 이슈 타입"><br>  <br><br></center>
+
+<p>이슈 타입은 <code>Story</code>, <code>Bug</code>, <code>Task</code>와 같이 Jira 내에서 사용할 수 있는 이슈의 타입을 의미한다.<br>이런 이슈 타입들은 크게 <code>Standard</code> 타입과 <code>Sub-Task</code> 타입으로 나누어진다.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">이슈 타입</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center"><strong>Standard</strong></td>
+<td>부모 이슈로써 자식 이슈를 가질 수 있는 이슈</td>
+</tr>
+<tr>
+<td style="text-align:center"><strong>Sub-Task</strong></td>
+<td>부모 이슈의 자식 이슈로만 존재할 수 있는 이슈. 단독으로는 존재 불가능</td>
+</tr>
+</tbody>
+</table>
+<p>현재 직장의 애자일 팀에서는 <code>Bug</code>, <code>Epic</code>, <code>Research</code>, <code>Story</code>, <code>Sustain</code>, <code>Task</code>, <code>Sub-task</code>로 총 7개의 이슈 타입을 사용 중이다. 각 이슈 타입의 의미에 대해서는 이슈 타입 밑에 적혀져 있는 설명을 읽어보자. </p>
+<center><br>  <img src="/2019/06/16/jira-customizing-issue/jira2.png" title="Jira 이슈 타입 리스트"><br>  <br><br></center>
+
+<p>슬프게도 영어로 되어있지만 그냥저냥 읽을 수 있는 수준이다. 다른 사람들도 이렇게 영어로 설명을 읽어야하는 고통을 경험하게 만들고 싶지 않다면 우리가 희생해서 전부 한글로 번역해두면 된다.<br>이슈 타입들은 맨 마지막 컬럼인 <code>Actions</code> 컬럼의 메뉴를 통해 수정 및 삭제할 수 있다.</p>
+<ul>
+<li>Edit: 이슈 타입의 이름, 설명, 아이콘 등을 <code>수정</code></li>
+<li>Translate: 이슈 타입 이름과 설명의 <code>번역 내용을 설정</code></li>
+<li>Delete: 되도록이면 쓰지말자. 쳐다도 보지 말자.</li>
+</ul>
+<h5 id="Issue-Type-Schemes"><a href="#Issue-Type-Schemes" class="headerlink" title="Issue Type Schemes"></a>Issue Type Schemes</h5><p>이슈 타입 스키마는 <code>이슈 타입들을 묶어놓은 일종의 그룹</code>이다. 각 프로젝트에 이슈 타입을 적용할 때 이슈 타입을 각각 할당하는 것이 아닌 이슈 타입 스키마를 할당하게 된다. 또한 이슈 타입 스키마 설정 페이지의 Projects 컬럼에는 해당 스키마가 어떤 프로젝트에서 사용되고 있는지 명시되어 있으므로 수정 및 삭제 시 반드시 이 부분을 확인하고 진행하도록하자.</p>
+<center><br>  <img src="/2019/06/16/jira-customizing-issue/jira3.png" title="Jira 이슈 타입 스키마 리스트"><br>  <br><br></center>
+
+<p>이슈 타입 스키마도 이슈 타입과 마찬가지로 맨 마지막 컬럼인 <code>Actions</code> 컬럼의 메뉴를 통해 이슈 타입 스키마를 수정, 삭제, 할당, 복사할 수 있다.</p>
+<ul>
+<li>Edit - 이슈 타입 스키마의 이름, 설명, 기본 이슈 타입, 사용할 이슈 타입의 종류를 설정</li>
+<li>Associate - 이슈 타입 스키마를 프로젝트에 할당</li>
+<li>Copy - 이슈 타입 스키마를 복사</li>
+<li>Delete - 이슈 타입 스키마를 삭제</li>
+</ul>
+<h5 id="Sub-tasks"><a href="#Sub-tasks" class="headerlink" title="Sub-tasks"></a>Sub-tasks</h5><p>서브 태스크들의 이슈 타입을 관리한다. 아무것도 설정하지 않았다면 기본적으로 제공해주는 <code>Sub-task</code>라는 이름의 이슈 타입만 사용하게 되어있다.</p>
+<h4 id="Workflows"><a href="#Workflows" class="headerlink" title="Workflows"></a>Workflows</h4><p>워크 플로우는 지라 프로젝트 내 이슈들의 작업 흐름을 의미한다. <code>To Do</code>, <code>In Progress</code>, <code>Done</code> 등이 여기에 해당한다.</p>
+<hr>
+<h5 id="Workflows-1"><a href="#Workflows-1" class="headerlink" title="Workflows"></a>Workflows</h5><center><br>  <img src="/2019/06/16/jira-customizing-issue/jira4.png" title="Jira workflows"><br>  <br><br></center>
+
+<p>워크 플로우를 자세히 보려면 <code>Actions</code> 컬럼의 <code>View</code> 버튼을 클릭하면 된다. 워크 플로우는 <code>다이어그램</code>과 <code>텍스트</code> 2가지 방식으로 볼 수 있는데 텍스트 방식은 작업의 흐름을 읽기가 불편하니 다이어그램 방식으로 보는 것을 추천한다.</p>
+<center><br>  <img src="/2019/06/16/jira-customizing-issue/jira5.png" title="Jira workflow diagram"><br>  <br><br></center>
+
+<p>워크 플로우는 <code>Status</code>와 <code>Transition</code>으로 구분된다. <code>To Do</code>, <code>Done</code>과 같은 사각형이 <code>Status</code>를 의미하고 그 사각형들을 이어주는 화살표는 <code>Transition</code>이다. 워크 플로우를 수정하려면 우측 상단의 <code>Edit</code> 버튼을 누르면 된다. 그러면 다이어그램 UI를 사용하여 워크 플로우 수정 화면이 노출된다. </p>
+<p>PowerPoint나 Google Draw.io와 유사한 UX를 제공해주기 때문에 처음이라도 무리없이 수정할 수 있다.</p>
+<center><br>  <img src="/2019/06/16/jira-customizing-issue/jira6.png" title="Jira workflow diagram editing"><br>  <br><br></center>
+
+<p>Status를 클릭하면 Status의 정보를 수정할 수 있는 창이 노출되는데, 이 창 내부에서 <code>Allow all statuses to transition to this one</code>에 체크를 하면 이슈가 어떤 Status를 가지고 있는지와 관계없이 자유롭게 현재 Status로 변경할 수 있도록 설정된다.</p>
+<center><br>  <img src="/2019/06/16/jira-customizing-issue/jira7.png" title="Allow all statuses to transition to this one"><br>  <br><br></center>
+
+<p><code>Transition</code>을 클릭하면 Transition 설정 창이 노출된다. 이 창에서는 Transition의 <code>이름</code>, <code>속성</code>, <code>트리거</code>, <code>조건</code>, <code>유효성 검사</code> 등을 설정할 수 있다. 특히 트리거와 조건은 굉장히 유용하게 사용할 수 있다.</p>
+<ul>
+<li>트리거 - 임의의 이벤트가 발생하면 자동으로 해당 Transition을 실행한다. <code>Pull Request가 생성되면 자동으로 이슈를 Code Review 상태로 변경 등</code></li>
+<li>조건 - 이 Transition이 실행되기 위한 조건들을 설정한다. <code>이슈를 Done으로 바꾸려면 이슈에 할당된 모든 Reporter가 동의해야한다 등</code></li>
+</ul>
+<p>이후 모든 수정을 마쳤다면 상단의 <code>Publish Draft</code>를 클릭하여 설정을 배포하면 된다. 이때 이전 워크플로우를 백업할 것이냐고 물어보는 창이 노출되는데 백업을 할지말지는 그냥 본인 판단하에 알아서 하면된다.</p>
+<center><br>  <img src="/2019/06/16/jira-customizing-issue/save.jpg" width="400"><br>  <sub>편집한 이슈는 내 마음 속에 저장!</sub><br>  <br><br></center>
+
+<p>그리고 한번 <code>Edit</code> 버튼을 눌러 워크플로우 수정 화면으로 들어가면 아무 것도 수정하지 않았더라도 Jira는 <code>현재 상태를 자동 저장</code>한다. 그러니까 아무것도 수정하지 않았더라도 상단의 <code>Discard Draft</code> 버튼을 클릭하여 수정 상태를 종료해주도록 하자.</p>
+<center><br>  <img src="/2019/06/16/jira-customizing-issue/jira8.png" title="Jira discard draft"><br>  <br><br></center>
+
+
+<h5 id="Workflow-schemes"><a href="#Workflow-schemes" class="headerlink" title="Workflow schemes"></a>Workflow schemes</h5><p>Jira는 프로젝트의 이슈 타입마다 다른 워크 플로우를 사용할 수 있게끔 해준다. 워크 플로우 스키마는 이슈 타입마다 워크 플로우를 할당하는 그룹이다.</p>
+<ul>
+<li>Bug: <code>To Do → In Progress → Resolved</code></li>
+<li>Story: <code>To Do → In Progress → Test → Review → Deployed</code></li>
+<li>Research: <code>To Do → In Progress → Done</code></li>
+</ul>
+<p>이런 식으로 이슈 타입마다 다른 워크 플로우를 적용할 수 있다.</p>
+<h4 id="Screens"><a href="#Screens" class="headerlink" title="Screens"></a>Screens</h4><p>스크린은 스크럼 보드에서 이슈를 클릭했을 때 나오는 이슈의 자세한 정보를 보여주는 화면을 의미한다. 이 메뉴는 다른 메뉴들에 비해 직관적이므로 설명보다는 예시 스크린샷을 주로 보여주겠다.</p>
+<hr>
+<h5 id="Screens-1"><a href="#Screens-1" class="headerlink" title="Screens"></a>Screens</h5><p>스크린 메뉴에서는 해당 스크린에 들어갈 탭과 필드들을 설정할 수 있다.</p>
+<center><br>  <img src="/2019/06/16/jira-customizing-issue/jira9.png" title="Jira Screen Fields"><br>  <br><br></center>
+
+<h5 id="Screen-Schemes"><a href="#Screen-Schemes" class="headerlink" title="Screen Schemes"></a>Screen Schemes</h5><p>이슈를 <code>생성할 때</code>, <code>수정할 때</code>, <code>열람할 때</code> 각각 다른 스크린을 할당할 수 있다. 기본적으로 <code>Default</code>로 설정되어있다.</p>
+<center><br>  <img src="/2019/06/16/jira-customizing-issue/jira10.png" title="Jira Screen schemes"><br>  <br><br></center>
+
+<p>이슈 생성은 보통 실무자들이 플래닝할 때 생성하는 경우가 많으므로 빠르게 생성하기 위해 최소한의 필드만 입력하도록 하고 이후 <code>PO</code>들이 다시 이슈의 내용을 검토하며 자세히 작성하는 경우에 사용하면 좋다.</p>
+<h5 id="Issue-Type-Screen-Schemes"><a href="#Issue-Type-Screen-Schemes" class="headerlink" title="Issue Type Screen Schemes"></a>Issue Type Screen Schemes</h5><p>이슈 타입마다 다른 <code>스크린 스키마</code>를 할당할 수 있다. 기본 값으로 <code>Default 이슈</code>와 <code>Bug 이슈</code>로 구분되어있다. <code>Bug</code> 같은 경우는 이슈 특성 상 에스티메이션을 할 수 없는 경우도 많고 뭔가를 개발하는 것이 아닌 고치는 것이기 때문에 이슈에 필요한 정보가 일반 이슈들과는 많이 다르기 때문에 나누어져 있는 것 같다.</p>
+<blockquote>
+<p>참고로 스크린이 아니라 <strong>스크린 스키마</strong>를 할당하는 것이다.</p>
+</blockquote>
+<center><br>  <img src="/2019/06/16/jira-customizing-issue/jira11.png" title="Jira Issue Type Screen Schemes"><br>  <br><br></center>
+
+<h4 id="Fields"><a href="#Fields" class="headerlink" title="Fields"></a>Fields</h4><p>스크린에 들어가는 항목들을 수정할 수 있는 항목이다. <code>Custom Fields</code> 메뉴에서 항목을 추가하고 위에서 설명한 <code>Screens</code>에서 불러와서 사용하면 된다.</p>
+<center><br>  <img src="/2019/06/16/jira-customizing-issue/custom-fields.png" title="Jira Custom fields"><br>  <br><br></center>
+
+<p>상단의 <code>Add custom field</code>를 누르면 다양한 폼을 선택할 수 있다. 폼 종류는 <code>Standard</code>와 <code>Advanced</code>가 있는 데, 필자는 <code>Standard</code> 밖에 사용을 안해봤다. 사실 <code>Standard</code> 폼만 사용하더라도 왠만한 정보는 전부 표현할 수 있다.</p>
+<hr>
+<h4 id="Issue-Features"><a href="#Issue-Features" class="headerlink" title="Issue Features"></a>Issue Features</h4><hr>
+<h5 id="Time-Tracking"><a href="#Time-Tracking" class="headerlink" title="Time Tracking"></a>Time Tracking</h5><p><code>타임 트래킹</code>은 이슈를 진행할때 남기는 <code>워크 로그</code>를 통해 해당 이슈를 수행하는 데 얼마나 걸렸는지를 추적해주는 기능이다. 근데 워크 로그를 매번 남기는 게 생각보다 번거로운 작업인지라 팀 내에 정착이 잘 안됐다.<small>(다들 코멘트를 애용하심…)</small></p>
+<h5 id="Issue-Linking"><a href="#Issue-Linking" class="headerlink" title="Issue Linking"></a>Issue Linking</h5><p><code>이슈 링킹</code>에서는 이슈들의 관계를 정의하는 필드에 들어갈 내용을 수정할 수 있다. 하나의 관계에는 <code>자동태</code>와 <code>수동태</code>로 두가지 상세 관계를 설정할 수 있다. 기본적으로 Jira는 6가지의 상태를 제공해준다.</p>
+<ul>
+<li>Blocks(병목) - <code>blocks</code>, <code>is blocked by</code></li>
+<li>Cloners(복제) - <code>clones</code>, <code>is cloned by</code></li>
+<li>Duplicate(중복) - <code>duplicates</code>, <code>is duplicated by</code></li>
+<li>Issue split(분리) - <code>split to</code>, <code>split from</code></li>
+<li>Problem/Incident(문제, 원인, 사건 등) - <code>causes</code>, <code>is caused by</code></li>
+<li>Relates(관계됨) - <code>relates to</code></li>
+</ul>
+<p>만약 <code>A</code> 이슈와 <code>B</code> 이슈가 있을 때 <code>A</code> 이슈가 반드시 먼저 끝나야 <code>B</code> 이슈를 작업할 수 있는 상황이 있을 수 있다. 예를 들면 <code>A</code>가 DB 스키마 변경 작업이고 <code>B</code>가 REST API를 개발하는 작업과 같은 상황이다. 모델이 어떻게 변경될지 모르니까 섣불리 API를 개발할 수 없지 않은가?</p>
+<p>이런 경우 <code>A blocks B</code> 또는 <code>B is blocked by A</code>로 표현할 수 있다. 만약 <code>A</code> 이슈에 <code>B</code> 이슈로 통하는 <code>blocks</code> 링크를 건다면 <code>B</code> 이슈에 자동으로 <code>is blocked by</code>가 추가된다.</p>
+<hr>
+<h6 id="A-blocks-B"><a href="#A-blocks-B" class="headerlink" title="A blocks B"></a>A blocks B</h6><center><br>  <img src="/2019/06/16/jira-customizing-issue/blocks.png" width="500"><br>  <br><br></center>
+
+<h6 id="B-is-blocked-by-A"><a href="#B-is-blocked-by-A" class="headerlink" title="B is blocked by A"></a>B is blocked by A</h6><center><br>  <img src="/2019/06/16/jira-customizing-issue/is-blocked-by.png" width="500"><br>  <br><br></center>
+
+<hr>
+<p><code>이슈 링킹</code> 기능은 해당 이슈 담당자로 하여금 이 이슈가 어디서 파생된 이슈인지 혹은 어떤 작업이 선행되어야 하는지 명시적으로 알려줄 수 있는 기능이므로 잘 사용하면 커뮤니케이션 비용을 상당히 아낄 수 있다.</p>
+<p>이상으로 JIRA 프로젝트 이슈 커스터마이징하기 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/07/02/what-is-agile/" title="애자일이 도대체 뭐길래?" rel="bookmark">애자일이 도대체 뭐길래?</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/07/25/git-tutorial/" title="Git 뉴비를 위한 기초 사용법 - 시작하기" rel="bookmark">Git 뉴비를 위한 기초 사용법 - 시작하기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/07/28/git-tutorial-advanced/" title="Git 뉴비를 위한 기초 사용법 - 버전 관리" rel="bookmark">Git 뉴비를 위한 기초 사용법 - 버전 관리</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/agile/">Agile</a><a class="tag -link" href="/tags/atlassian/">Atlassian</a><a class="tag -link" href="/tags/jira/">Jira</a><a class="tag -link" href="/tags/애자일/">애자일</a><a class="tag -link" href="/tags/협업/">협업</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2019/06/18/javascript-let-const/">
+                <i class="fas fa-chevron-left"></i> JavaScript의 let과 const, 그리고 TDZ
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2019/06/15/diving-into-js-array/">
+                JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기 <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#Jira-Software란" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>Jira Software란?</span>
+        </a></li><li>
+        <a class="is-flex" href="#Jira-이슈-커스터마이징-하기" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>Jira 이슈 커스터마이징 하기</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#Jira-세팅-메뉴-찾기" data-link-name="toc">
+        <span class="has-mr-6">2.1</span>
+        <span>Jira 세팅 메뉴 찾기</span>
+        </a></li><li>
+        <a class="is-flex" href="#Issues-메뉴" data-link-name="toc">
+        <span class="has-mr-6">2.2</span>
+        <span>Issues 메뉴</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#Issue-Types" data-link-name="toc">
+        <span class="has-mr-6">2.2.1</span>
+        <span>Issue Types</span>
+        </a></li><li>
+        <a class="is-flex" href="#Workflows" data-link-name="toc">
+        <span class="has-mr-6">2.2.2</span>
+        <span>Workflows</span>
+        </a></li><li>
+        <a class="is-flex" href="#Screens" data-link-name="toc">
+        <span class="has-mr-6">2.2.3</span>
+        <span>Screens</span>
+        </a></li><li>
+        <a class="is-flex" href="#Fields" data-link-name="toc">
+        <span class="has-mr-6">2.2.4</span>
+        <span>Fields</span>
+        </a></li><li>
+        <a class="is-flex" href="#Issue-Features" data-link-name="toc">
+        <span class="has-mr-6">2.2.5</span>
+        <span>Issue Features</span>
+        </a></li></ul></li></ul></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="JIRA 프로젝트 이슈 커스터마이징하기" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

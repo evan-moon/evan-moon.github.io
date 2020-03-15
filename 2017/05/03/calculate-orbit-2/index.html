@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>[JavaScript로 천체 구현하기] 행성의 움직임을 구현해보자 - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="이번 포스팅에서는 저번 포스팅에 이어 실제 궤도의 모양과 크기, 위치, 방향을 정의하고 JavaScript코드로 작성을 해보려고 한다. 실제 어플리케이션을 작성할 때는 TypeScript를 사용하였으나, 편의상 JavsScript ES6로 포스팅을 진행한다.">
+<meta name="keywords" content="궤도 구현하기,케플러 궤도 방정식,케플러 6요소,JavaScript">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[JavaScript로 천체 구현하기] 행성의 움직임을 구현해보자">
+<meta property="og:url" content="https://evan-moon.github.io/2017/05/03/calculate-orbit-2/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="이번 포스팅에서는 저번 포스팅에 이어 실제 궤도의 모양과 크기, 위치, 방향을 정의하고 JavaScript코드로 작성을 해보려고 한다. 실제 어플리케이션을 작성할 때는 TypeScript를 사용하였으나, 편의상 JavsScript ES6로 포스팅을 진행한다.">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2017/05/03/calculate-orbit-2/thumbnail.jpg">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.042Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[JavaScript로 천체 구현하기] 행성의 움직임을 구현해보자">
+<meta name="twitter:description" content="이번 포스팅에서는 저번 포스팅에 이어 실제 궤도의 모양과 크기, 위치, 방향을 정의하고 JavaScript코드로 작성을 해보려고 한다. 실제 어플리케이션을 작성할 때는 TypeScript를 사용하였으나, 편의상 JavsScript ES6로 포스팅을 진행한다.">
+<meta name="twitter:image" content="https://evan-moon.github.io/2017/05/03/calculate-orbit-2/thumbnail.jpg">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2017/05/03/calculate-orbit-2/">
+
+
+<link rel="alternative" href="/feed.xml" title="[JavaScript로 천체 구현하기] 행성의 움직임을 구현해보자" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="[JavaScript로 천체 구현하기] 행성의 움직임을 구현해보자" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2017/05/03/calculate-orbit-2/thumbnail.jpg" alt="[JavaScript로 천체 구현하기] 행성의 움직임을 구현해보자">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2017-05-03T12:49:04.000Z">2017-05-03</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/programming/">Programming</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/programming/graphics/">Graphics</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                [JavaScript로 천체 구현하기] 행성의 움직임을 구현해보자
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>이번 포스팅에서는 <a href="/2017/05/03/calculate-orbit-1/" title="저번 포스팅">저번 포스팅</a>에 이어 실제 궤도의 모양과 크기, 위치, 방향을 정의하고 JavaScript코드로 작성을 해보려고 한다. 실제 어플리케이션을 작성할 때는 TypeScript를 사용하였으나, 편의상 JavsScript ES6로 포스팅을 진행한다.<br><a id="more"></a><br>궤도를 구하는 방법은 <a href="/2017/05/03/calculate-orbit-1/" title="저번 포스팅">저번 포스팅</a>의 용어 정리에서 언급했던 케플러 6요소를 이용하면 된다.</p>
+<h2 id="데이터-정의"><a href="#데이터-정의" class="headerlink" title="데이터 정의"></a>데이터 정의</h2><p>지구의 궤도 데이터는 다음과 같다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> AU = <span class="hljs-number">149597870</span>;</span><br><span class="line"><span class="hljs-keyword">const</span> EARTH_ORBIT = {</span><br><span class="line">  base: {</span><br><span class="line">    a: <span class="hljs-number">1.00000261</span> * AU,</span><br><span class="line">    e: <span class="hljs-number">0.01671123</span>,</span><br><span class="line">    i: <span class="hljs-number">-0.00001531</span>,</span><br><span class="line">    o: <span class="hljs-number">0.0</span>,</span><br><span class="line">    l: <span class="hljs-number">100.46457166</span>,</span><br><span class="line">    lp: <span class="hljs-number">102.93768193</span></span><br><span class="line">  },</span><br><span class="line">  cy: {</span><br><span class="line">    a: <span class="hljs-number">0.00000562</span> * AU,</span><br><span class="line">    e: <span class="hljs-number">-0.00004392</span>,</span><br><span class="line">    i: <span class="hljs-number">-0.01294668</span>,</span><br><span class="line">    o: <span class="hljs-number">0.0</span>,</span><br><span class="line">    l: <span class="hljs-number">35999.37244981</span>,</span><br><span class="line">    lp: <span class="hljs-number">0.32327364</span></span><br><span class="line">  }</span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+<p><code>base</code>프로퍼티에 들어있는 값은 궤도의 기본 요소들을 의미하며 이 값들은 천문학에서의 역기점인 <code>J2000</code>때 측정된 값을 의미한다.<br><code>J2000</code>은 2000년 1월 1일 정오를 의미한다.<br>그리고 <code>cy</code>프로퍼티에 있는 값들은 1세기당 궤도 요소들의 변화량을 의미한다.</p>
+<p><code>a</code>는 장반경, <code>e</code>는 이심률, <code>i</code>는 기울기, <code>o</code>는 승교점 적경, <code>l</code>은 평균 경도, <code>lp</code>는 근일점 경도를 의미한다.<br>이 중 장반경의 경우 AU값으로 선언되어있기 때문에 <code>1AU</code>를 <code>km</code>로 환산한 값인 <code>149597870</code>를 곱해줘야 한다. 이때 <code>1AU</code>는 태양과 지구 사이의 거리를 의미한다.</p>
+<p>하지만 이 데이터에는 케플러 6요소 중 <code>근일점 편각</code>과 <code>근일점 통과시각</code>이 없다.<br>그렇기 때문에 필자는 근일점 경도와 승교점 적경을 사용하여 근일점 편각을 구하려고 한다.<br>그리고 근일점 통과 시각의 경우 <code>평균근점이각</code>을 구할 때 필요한데, 근일점 통과 시각을 사용하여 구하는 것보다 근일점 경도와 평균 경도를 사용하는 방법이 훨씬 공식이 간단하기 때문에<br>오히려 편해진 상황이다.</p>
+<h2 id="시간-설정과-궤도-요소-계산"><a href="#시간-설정과-궤도-요소-계산" class="headerlink" title="시간 설정과 궤도 요소 계산"></a>시간 설정과 궤도 요소 계산</h2><p>위에서 잠깐 말했듯이 천문학에서는 우리가 평소 사용하는 그레고리력이 아닌 율리우스력을 사용한다.</p>
+<p>율리우스력이란 원래 <code>BC 4713년 1월 1일 월요일 정오</code>를 기점으로 계산한 날짜 수 이다. 하지만 기원전 4713년부터 서기 2017년까지의 날짜를 세면 자릿수가 너무 커지기 때문에<br>1976년 IAU(국제천문연맹)에서 결정한 <code>J2000</code>을 사용하는 것이다.</p>
+<p>이제 날짜 요소들을 선언해보자.<br></p><figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> DAY = <span class="hljs-number">60</span> * <span class="hljs-number">60</span> *<span class="hljs-number">24</span>;</span><br><span class="line"><span class="hljs-keyword">const</span> YEAR = <span class="hljs-number">365.25</span>;</span><br><span class="line"><span class="hljs-keyword">const</span> CENTURY = <span class="hljs-number">100</span> * YEAR;</span><br><span class="line"><span class="hljs-keyword">const</span> J2000 = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>(<span class="hljs-string">'2000-01-01T12:00:00-00:00'</span>);</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">let</span> today = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Date</span>();</span><br><span class="line"><span class="hljs-keyword">let</span> epochTime = (today - J2000) / <span class="hljs-number">1000</span>;</span><br><span class="line"><span class="hljs-comment">// Date객체끼리 연산하면 값이 ms로 나오기 때문에 1000으로 나눠서 초 단위로 나오게끔 환산해준다</span></span><br><span class="line"><span class="hljs-keyword">let</span> tDays = epochTime / DAY; <span class="hljs-comment">// 일수로 환산</span></span><br><span class="line"><span class="hljs-keyword">let</span> T = tDAys / CENTURY; <span class="hljs-comment">// 몇 세기나 지났는지 환산</span></span><br></pre></td></tr></tbody></table></figure><p></p>
+<p>이 글을 작성하고 있는 지금은 2017년 5월 3일 22시 27분이다. 계산 결과 <code>J2000</code>으로부터 약 <code>6332.06028991</code>일이 지났으며 <code>0.17336236</code>세기가 지났다는 것을 알 수 있었다.<br>그럼 이제 아까 선언한 데이터 중 지구의 한 세기당 변화량에 방금 구한 <code>0.17336236</code>을 곱한 후 궤도의 기본 요소 값에 더해주면 <code>J2000</code>이후 오늘 이 시점의 궤도 요소 값이 나올 것이다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> keys = <span class="hljs-built_in">Object</span>.keys(EARTH.base);</span><br><span class="line"><span class="hljs-keyword">let</span> computed = { <span class="hljs-attr">time</span>: epochTime };</span><br><span class="line">computed = keys.reduce(<span class="hljs-function">(<span class="hljs-params">carry, el</span>) =></span> {</span><br><span class="line">  <span class="hljs-keyword">const</span> variation = EARTH.cy || <span class="hljs-number">0</span>;</span><br><span class="line">  carry[el] = EARTH.base[el] + (variation * T);</span><br><span class="line">  <span class="hljs-keyword">return</span> carry;</span><br><span class="line">}, computed);</span><br><span class="line"><span class="hljs-comment">/*</span></span><br><span class="line"><span class="hljs-comment">  a: 149598406.2031184</span></span><br><span class="line"><span class="hljs-comment">  e: 0.016703615925039474</span></span><br><span class="line"><span class="hljs-comment">  i: -0.0022597770311920135</span></span><br><span class="line"><span class="hljs-comment">  l: 6341.400827688619</span></span><br><span class="line"><span class="hljs-comment">  lp: 102.9937254119609</span></span><br><span class="line"><span class="hljs-comment">  o: 0.0</span></span><br><span class="line"><span class="hljs-comment">*/</span></span><br></pre></td></tr></tbody></table></figure>
+<p>이제 현재 시점 기준의 궤도 요소 값을 구했으면 부궤도 요소를 구할 차례이다.<br>가장 먼저 케플러 6요소 중 하나지만 우리의 데이터에는 없는 <code>근일점 편각</code>을 구해보도록 하자. 근일점 편각 <code>w</code>는 근일점 경도에서 승교점 적경을 뺀 값이다.<br>하지만 지구의 승교점 적경 <code>o</code>는 <code>0.0</code>이므로 근일점 경도와 근일점 편각이 일치하게 된다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">computed.w = computed.lp - computed.o;</span><br><span class="line"><span class="hljs-comment">/* w = 102.9937254119609 - 0.0 = 102.9937254119609 */</span></span><br></pre></td></tr></tbody></table></figure>
+<p>다음은 <code>평균근점이각(mean anomaly)</code>를 구해야한다. 평균근점이각은 어떤 물체가 공전 속도와 공전 주기를 유지한 채 정확한 원 궤도로 옮겨간다고 가정했을 때 물체와 궤도 근점간의 각거리를 의미한다.</p>
+<center><img src="/2017/05/03/calculate-orbit-2/mean-anomaly.png" title="mean-anomaly"></center>
+
+<p>위 그림에서 실제 물체의 궤도는 회색 궤도이나, 저 궤도를 원이라고 가정한 빨간 궤도에서의 각거리를 구하는 것이다.</p>
+<p>저 두 궤도의 공전 주기는 같기 때문에 같은 지역을 같은 시간 동안 지나간다. 근데 그림을 보면 원 궤도는 각 호들의 넓이가 일정하지만 타원 궤도인 회색 궤도는 일정하지 않다.<br>타원 궤도를 도는 물체는 초점과의 거리에 따라 <code>각속도</code>가 변하기 때문이다. 그래서 좀 더 구하기 쉬운 <code>평균근점이각</code>을 먼저 구한 후 타원 궤도에 이를 적용하게 된다.</p>
+<p><small>참조링크: <a href="https://ko.wikipedia.org/wiki/%ED%8F%89%EA%B7%A0_%EA%B7%BC%EC%A0%90_%EC%9D%B4%EA%B0%81" target="_blank" rel="external nofollow noopener noreferrer">평균근점이각 위키</a></small><br><small>참조링크: <a href="https://ko.wikipedia.org/wiki/%EC%BC%80%ED%94%8C%EB%9F%AC%EC%9D%98_%ED%96%89%EC%84%B1%EC%9A%B4%EB%8F%99%EB%B2%95%EC%B9%99" target="_blank" rel="external nofollow noopener noreferrer">케플러 행성운동법칙 위키 - 제 2법칙: 면적속도 일정의 법칙</a></small></p>
+<p><code>평균근점이각</code>을 구하는 공식은 여러 개가 있으나 필자는 <code>근일점 경도</code>와 <code>평균 경도</code>값을 가지고 있기 때문에 여러 개의 공식 중 가장 쉬워보이는 녀석을 골라서 사용할 수 있다.</p>
+<p>이때 평균근점이각 $M$은 평균 경도 $l$과 근일점 경도 $\omega$의 차로 나타내어 질 수 있다.</p>
+<p>$$M = l-\omega$$</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">computed.M = computed.l - computed.lp</span><br><span class="line"><span class="hljs-comment">/* M = 6341.42938740066 - 102.99372566842652 =  6238.435661732234 */</span></span><br></pre></td></tr></tbody></table></figure>
+<p>이제 지금까지 구한 궤도들의 단위를 바꿔줘야 한다. 우리가 가지고 있는 지구 궤도 데이터의 수치들은 모두 <code>digree</code>단위인데, 이후 계산의 편의를 위해 모두 <code>radian</code>으로 바꾸어 주겠다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> DEG_TO_RAD = <span class="hljs-built_in">Math</span>.PI / <span class="hljs-number">180</span>;</span><br><span class="line"></span><br><span class="line">computed.a *= <span class="hljs-number">1000</span>; <span class="hljs-comment">// 149598406204.91275</span></span><br><span class="line">computed.i *= DEG_TO_RAD; <span class="hljs-comment">// -0.000039441031811489665</span></span><br><span class="line">computed.o *= DEG_TO_RAD; <span class="hljs-comment">// 0.0</span></span><br><span class="line">computed.w *= DEG_TO_RAD; <span class="hljs-comment">// 1.7975796293754245</span></span><br><span class="line">computed.M *= DEG_TO_RAD; <span class="hljs-comment">// 108.8812424710587</span></span><br></pre></td></tr></tbody></table></figure>
+<p>이제 <code>평균근점이각</code>을 구했으니 <code>편심이각(Eccentric anomaly)</code>를 구해야 한다. 편심이각은 그림으로 보는 게 더 직관적으로 이해하기가 쉽다.</p>
+<center><img src="/2017/05/03/calculate-orbit-2/eccentric-anomaly.png" title="eccentric-anomaly"></center>
+
+<p>이 그림에서 물체의 위치를 <code>P</code>로 그에 따른 편심이각은 <code>E</code>로 나타내어지고 있다.<br>타원의 중심은 <code>C</code>이고 타원의 초점은 <code>F</code>이다.<br>이때 편심이각 <code>E</code>는 타원의 중심에 꼭지점 하나를 찍고 궤도 장반경과 같은 길이의 빗변 <code>a</code>를 그은 후, 장반경 <code>e</code>와 수직하면서도 <code>P</code>에 닿도록<br>선분을 그어 만들어진 직각삼각형에서 관찰되는 각이다.</p>
+<p><code>평균근점이각</code>과 마찬가지로 <code>편심이각</code>도 여러 개의 정의로 나타내어질 수 있는데, 필자는 이미 <code>평균근점이각</code>을 구했기 때문에 <code>평균근점이각</code>으로부터 유도되는 공식을 사용한다.</p>
+<p>$$E = \frac{M+e{sinM}}{1-e{cosM}}$$</p>
+<p>여기서 <code>e</code>는 이심률, <code>M</code>은 평균근점이각을 의미한다. 그러나 한가지 슬픈 사실은 여기서 나오는 E값이 근사값이라는 것이다.<br>그렇기 때문에 보통 이 공식은 <a href="https://en.wikipedia.org/wiki/Newton%27s_method" target="_blank" rel="external nofollow noopener noreferrer">Newton-Raphson method</a>를 사용하여 진행된다.</p>
+<p><code>Newton-Raphson method</code>메소드는 계속적인 급수 형태로 계산되어지며, 계산을 반복할 수록 더 정확한 근사치를 뱉어준다고 보면 된다.</p>
+<p>값의 오차는 이심률이 높을 수록 더 커지게 되는데, 데이터 상 지구의 이심률은 <code>0.0167703</code>정도니까 오차율이 그렇게 크진 않을 것이라고 예상된다.<br>그럼 코드를 작성해보자.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getEccentricity</span>(<span class="hljs-params">callback, x0, maxCount</span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">let</span> x = <span class="hljs-number">0</span>;</span><br><span class="line">  <span class="hljs-keyword">let</span> x2 = x0;</span><br><span class="line">  <span class="hljs-keyword">for</span>(<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i < maxCount; i++) {</span><br><span class="line">    x = x2;</span><br><span class="line">    x2 = callback(x);</span><br><span class="line">  }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">kepler</span>(<span class="hljs-params">e, M</span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">return</span> <span class="hljs-function"><span class="hljs-params">x</span> =></span> {</span><br><span class="line">    <span class="hljs-keyword">return</span> x + (M + e * <span class="hljs-built_in">Math</span>.sin(x) - x) / (<span class="hljs-number">1</span> - e * <span class="hljs-built_in">Math</span>.cos(x));</span><br><span class="line">  };</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">computed.E = getEccentricity(kepler(computed.e, computed.M), computed.M, <span class="hljs-number">6</span>);</span><br><span class="line"><span class="hljs-comment">/* E =108.8962365500302 */</span></span><br></pre></td></tr></tbody></table></figure>
+<h2 id="행성의-위치-도출하기"><a href="#행성의-위치-도출하기" class="headerlink" title="행성의 위치 도출하기"></a>행성의 위치 도출하기</h2><p>자, 지금까지는 이 파트를 위한 지루한 과정이었다. 필요한 값들을 모두 구했으니 이제 행성의 위치를 도출할 수 있게 되었다.<br>이 값들이 있다면 근일점 쪽을 X축으로 하는 황도좌표평면에 대한 직각 좌표 값을 계산할 수 있다.<br>그리고 이 좌표값의 유클리드거리 <code>r</code>과 진근점이각 <code>v</code>를 구할 수 있다. <code>진근점이각</code>은 항성과 궤도의 근일점 기준으로 어느 각도에 행성이 위치하고 있는지를 나타내는 각이다.<br>즉, 행성은 항성으로부터 <code>r</code>만큼의 거리만큼 떨어져 있고 궤도의 근일점으로부터 <code>v</code>만큼 돌아간 위치에 존재하고 있다는 것이다.<br>거리랑 각을 알면 3d scene내에서의 로컬좌표를 정의할 수 있다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> RAD_TO_DEG = <span class="hljs-number">180</span> / <span class="hljs-built_in">Math</span>.PI;</span><br><span class="line"></span><br><span class="line">computed.pos = {<span class="hljs-attr">x</span>: <span class="hljs-literal">null</span>, <span class="hljs-attr">y</span>: <span class="hljs-literal">null</span>};</span><br><span class="line">computed.pos.x = computed.a * (<span class="hljs-built_in">Math</span>.cos(computed.E) - computed.e);</span><br><span class="line">computed.pos.y = computed.a * (<span class="hljs-built_in">Math</span>.sqrt(<span class="hljs-number">1</span> - (computed.e * computed.e))) * <span class="hljs-built_in">Math</span>.sin(computed.E);</span><br><span class="line"></span><br><span class="line">computed.r = <span class="hljs-built_in">Math</span>.sqrt(<span class="hljs-built_in">Math</span>.pow(computed.pos.x, <span class="hljs-number">2</span>) + <span class="hljs-built_in">Math</span>.pow(computed.pos.y, <span class="hljs-number">2</span>));</span><br><span class="line">computed.v = <span class="hljs-built_in">Math</span>.atan2(computed.pos.y, computed.pos.x);</span><br><span class="line"></span><br><span class="line">computed.r /= (<span class="hljs-number">1000</span> * AU);</span><br><span class="line">computed.v *= RAD_TO_DEG;</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">/*</span></span><br><span class="line"><span class="hljs-comment">    r = 1.0081888306835929 AU</span></span><br><span class="line"><span class="hljs-comment">    v = 120.17208256525967 도</span></span><br><span class="line"><span class="hljs-comment">*/</span></span><br></pre></td></tr></tbody></table></figure>
+<p>이 포스팅 작성 당시 지구는 태양으로부터 <code>1.0081...</code>AU 떨어진 위치에 지구 궤도의 근일점으로부터 약 <code>120</code>도 돌아간 곳에 위치하고 있다는 결과를 얻을 수 있다.<br>사실 제일 마지막 <code>pos</code>를 구하는 공식과 <code>진근점이각</code>을 구하는 공식은 아직 이해가 잘 안된다.<br>하지만 중요한 것은 이런 공식을 사용해서 내가 원하는 뭔가를 만들어 볼 수 있다는 것이 아닐까 생각한다.</p>
+<p>이상으로 행성 위치 게산하기 포스팅을 마친다.<br>전체 소스는 <a href="https://github.com/evan-moon/solarsystemjs" target="_blank" rel="external nofollow noopener noreferrer">Solarsystem 프로젝트 깃허브 레파지토리</a>에서 확인해볼 수 있다.</p>
+</body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/03/calculate-orbit-1/" title="[JavaScript로 천체 구현하기] 케플러 6요소 알아보기" rel="bookmark">[JavaScript로 천체 구현하기] 케플러 6요소 알아보기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/08/21/javascript-audio-effectors-practice/" title="[JavaScript로 오디오 이펙터를 만들어보자] 나만의 소리 만들기" rel="bookmark">[JavaScript로 오디오 이펙터를 만들어보자] 나만의 소리 만들기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/06/gravity-via-js-2/" title="[JavaScript로 중력 구현하기] 2. 코딩하기" rel="bookmark">[JavaScript로 중력 구현하기] 2. 코딩하기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/06/15/diving-into-js-array/" title="JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기" rel="bookmark">JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/08/08/fix-webpack-dev-memory-leak/" title="Webpack Watch의 메모리 누수 고치기" rel="bookmark">Webpack Watch의 메모리 누수 고치기</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/javascript/">JavaScript</a><a class="tag -link" href="/tags/궤도-구현하기/">궤도 구현하기</a><a class="tag -link" href="/tags/케플러-6요소/">케플러 6요소</a><a class="tag -link" href="/tags/케플러-궤도-방정식/">케플러 궤도 방정식</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2017/05/06/gravity-via-js-1/">
+                <i class="fas fa-chevron-left"></i> [JavaScript로 중력 구현하기] 1. 중력이란 무엇일까?
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2017/05/03/calculate-orbit-1/">
+                [JavaScript로 천체 구현하기] 케플러 6요소 알아보기 <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#데이터-정의" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>데이터 정의</span>
+        </a></li><li>
+        <a class="is-flex" href="#시간-설정과-궤도-요소-계산" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>시간 설정과 궤도 요소 계산</span>
+        </a></li><li>
+        <a class="is-flex" href="#행성의-위치-도출하기" data-link-name="toc">
+        <span class="has-mr-6">3</span>
+        <span>행성의 위치 도출하기</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="[JavaScript로 천체 구현하기] 행성의 움직임을 구현해보자" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

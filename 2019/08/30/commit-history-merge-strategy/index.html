@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>커밋 히스토리를 이쁘게 단장하자 - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="이번 포스팅에서는 Git의 머지 전략 중 대표적인 3가지인 Merge, Squash and merge, Rebase and merge의 차이에 대해서 한번 이야기해보려고 한다. 이 3가지 머지 전략 모두 브랜치를 머지한다는 목적은 같지만, 어떤 방식을 선택하냐에 따라 커밋 히스토리가 기록되는 방식이 달라지게 된다.">
+<meta name="keywords" content="Git,Commit,Merge,Merge and squash,Rebase">
+<meta property="og:type" content="article">
+<meta property="og:title" content="커밋 히스토리를 이쁘게 단장하자">
+<meta property="og:url" content="https://evan-moon.github.io/2019/08/30/commit-history-merge-strategy/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="이번 포스팅에서는 Git의 머지 전략 중 대표적인 3가지인 Merge, Squash and merge, Rebase and merge의 차이에 대해서 한번 이야기해보려고 한다. 이 3가지 머지 전략 모두 브랜치를 머지한다는 목적은 같지만, 어떤 방식을 선택하냐에 따라 커밋 히스토리가 기록되는 방식이 달라지게 된다.">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2019/08/30/commit-history-merge-strategy/thumbnail.jpg">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.333Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="커밋 히스토리를 이쁘게 단장하자">
+<meta name="twitter:description" content="이번 포스팅에서는 Git의 머지 전략 중 대표적인 3가지인 Merge, Squash and merge, Rebase and merge의 차이에 대해서 한번 이야기해보려고 한다. 이 3가지 머지 전략 모두 브랜치를 머지한다는 목적은 같지만, 어떤 방식을 선택하냐에 따라 커밋 히스토리가 기록되는 방식이 달라지게 된다.">
+<meta name="twitter:image" content="https://evan-moon.github.io/2019/08/30/commit-history-merge-strategy/thumbnail.jpg">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2019/08/30/commit-history-merge-strategy/">
+
+
+<link rel="alternative" href="/feed.xml" title="커밋 히스토리를 이쁘게 단장하자" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="커밋 히스토리를 이쁘게 단장하자" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2019/08/30/commit-history-merge-strategy/thumbnail.jpg" alt="커밋 히스토리를 이쁘게 단장하자">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-08-30T05:31:29.000Z">2019-08-30</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/programming/">Programming</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/programming/git/">Git</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                커밋 히스토리를 이쁘게 단장하자
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>이번 포스팅에서는 Git의 머지 전략 중 대표적인 3가지인 <code>Merge</code>, <code>Squash and merge</code>, <code>Rebase and merge</code>의 차이에 대해서 한번 이야기해보려고 한다. 이 3가지 머지 전략 모두 브랜치를 머지한다는 목적은 같지만, 어떤 방식을 선택하냐에 따라 <code>커밋 히스토리</code>가 기록되는 방식이 달라지게 된다.</p>
+<a id="more"></a>
+<p>이 3가지 머지 전략은 Github 뿐만 아니라 Atlassian의 Bitbucket에서도 동일하게 지원하고 있는데, 그 만큼 머지를 할 때 커밋 히스토리를 어떤 방식으로 남길 것이냐를 선택할 수 있는 것이 중요하다고 말할 수 있다.</p>
+<center><br>  <img src="/2019/08/30/commit-history-merge-strategy/github-merge.png" width="500"><br>  <small>Github에서는 Pull Request를 머지할 때 머지 전략을 선택할 수 있다.</small><br>  <br><br>  <img src="/2019/08/30/commit-history-merge-strategy/bitbucket-merge.png" width="500"><br>  <small>Bitbucket에서는 레파지토리 설정에서 기본 머지 전략을 선택할 수도 있다.</small><br>  <br><br></center>
+
+<p>Github과 Bitbucket의 머지 전략은 이름은 조금 다르지만 이것들이 의미하는 기능은 모두 같다. Github의 <code>Create a merge commit</code>은 Bitbucket의 <code>Merge commit</code>과 같은 전략이고 <code>Squash and merge</code>는 <code>Squash</code>와, <code>Rebase and merge</code>는 <code>Fast forward</code>와 같은 전략을 의미한다.</p>
+<p>물론 이 머지 전략들은 각자 장단점이 있기 때문에 적재적소에 잘 사용하는 것이 중요하다. 예를 들어, Git Flow를 사용할 때는 기능 개발을 하는 <code>feature</code> 브랜치가 <code>develop</code> 브랜치로 머지될 때는 <code>Squash and merge</code>를, <code>develop</code> 브랜치가 <code>master</code> 브랜치로 머지될 때는 <code>Merge</code>을 사용하는 등 유연하게 사용하기도 한다.</p>
+<p>하지만 적재적소에 잘 사용하려면 각각의 머지 전략이 어떤 방식으로 브랜치를 머지하는지 잘 알고있어야 가능한 법이다. 그래서 이번 포스팅에서는 이 3가지 머지 방식이 뭐가 어떻게 다른지 살펴보려고 한다.</p>
+<h2 id="커밋-히스토리가-왜-중요한가요"><a href="#커밋-히스토리가-왜-중요한가요" class="headerlink" title="커밋 히스토리가 왜 중요한가요?"></a>커밋 히스토리가 왜 중요한가요?</h2><p>일단 머지 전략에 대한 설명에 들어가기에 앞서, Git의 커밋 히스토리가 왜 중요한지에 대해 간단히 이야기해보려고 한다. 서두에서 이야기한 3가지 머지 전략은 브랜치를 머지할 때 커밋 히스토리를 어떻게 남길 것이냐를 선택하는 것이나 마찬가지이기 때문에 <code>개발자들이 왜 커밋 히스토리에 이렇게 목매는지</code>에 대한 이해가 필요하다.</p>
+<p>모두 알다시피 <code>커밋(Commit)</code>은 Git을 구성하는 중요한 요소 중 하나이며, 원칙적으로 하나의 커밋은 <code>의미있는 하나의 변경사항</code>을 의미한다.</p>
+<p>그 말인 즉슨, 커밋 메세지만 보고도 어떤 사항이 어떤 이유로 변경되었는지 쉽게 파악할 수 있어야한다는 것이다. 많은 개발자들이 의미 있는 커밋 메세지에 대한 중요성을 언급하는 이유도 짧은 커밋 메세지만 보고도 언제, 어떻게 코드가 변경되었는가를 한번에 알고 싶기 때문이다.</p>
+<p>이 커밋들이 모여서 시간 순으로 정렬된 것을 <code>커밋 히스토리(Commit History)</code>라고 부른다. 히스토리라는 단어에서 알 수 있듯이, 이건 말 그대로 이 프로그램의 역사와 같은 것이다. 많은 개발자들이 커밋 히스토리에 <code>의미있는 역사</code>를 기록하는 것이 굉장히 중요하다고 하는 이유에는 여러 가지가 있겠지만 대표적인 두 가지는 다음과 같다.</p>
+<h3 id="버그가-언제-터졌는지-파악하기가-쉽다"><a href="#버그가-언제-터졌는지-파악하기가-쉽다" class="headerlink" title="버그가 언제 터졌는지 파악하기가 쉽다"></a>버그가 언제 터졌는지 파악하기가 쉽다</h3><p>우리가 Git을 사용하여 프로그램의 버전 관리를 할 때 혼자 개발을 진행하는 경우도 있지만 대부분의 경우 다른 여러 명의 개발자들과 함께 협업을 하게 된다. 이때 프로그램의 변경 사항이 많을 수록, 혹은 프로그램의 규모 자체가 큰 경우 협업에 참여하고 있는 개발자들은 사소한 실수로 인해서 버그를 발생시킬 가능성 또한 커지게 된다</p>
+<p>이때 개발자들이 커밋 히스토리를 보고 어떤 이유로 어떤 코드가 수정되었는지 빠르게 파악할 수 있다면 해당 버그의 원인을 찾는 것이 더 빨라진다.</p>
+<p>예를 들어 새로운 버전을 릴리즈한 후에 결제 관련 버그가 터졌다고 생각해보자. 이때 당연히 개발자들은 결제에 관련된 코드부터 뜯어보기 시작할 것이다. 하지만 대부분의 프로그램은 내부적으로 수많은 모듈 간의 디펜던시가 얽혀있는 경우가 많기 때문에 그걸 짧은 시간안에 전부 파악하고 버그의 원인을 찾아서 수정한다는 것은 쉬운 일이 아니다. 이때 잘 정리된 커밋 히스토리가 있다면 이번 버전에서 결제 관련된 부분을 수정한 커밋을 찾아서 어떤 코드가 수정되었는지 빠르게 확인할 수 있다.</p>
+<p>만약 이전 버전에서는 문제가 없었고 이번에 배포한 버전에서 문제가 발생했다면 결제 관련 버그가 발생한 이유는 해당 커밋에서 수정한 코드 때문일 가능성이 높기 때문에 조금 더 빠른 대응이 가능하다.</p>
+<h3 id="레거시-코드를-수정해야할-때"><a href="#레거시-코드를-수정해야할-때" class="headerlink" title="레거시 코드를 수정해야할 때"></a>레거시 코드를 수정해야할 때</h3><p>두번째 이유는 조금 슬픈 상황인데, 바로 레거시 코드를 고쳐야하는데 <code>코드 짠 사람이 없을 때</code>이다. 이 사람이 없는 이유는 퇴사라던가, 퇴사라던가, 퇴사같은 경우가 있다.</p>
+<p>사실 레거시 코드가 무서운 이유는 코드 자체가 너무 복잡해서 파악하기 힘들다는 것 보다는 이걸 건드렸을 때 다른 부분에 문제가 없을 것이란 보장이 없기 때문이다. 게다가 이런 레거시 코드는 어느 회사에나 다 존재하기 때문에 레거시를 수정해야하는 상황이 그렇게 드문 상황도 아니다.</p>
+<p>만약 그 코드가 딱 봐도 책임 분리가 잘 되어 있는 코드거나 간단한 코드라면 뭐 그냥 가벼운 마음으로 수정할 수도 있지만, 대부분 우리가 수정하기 망설여지는 코드는 그냥 레거시가 아니라 <code>오랜 시간 숙성된 레거시</code>인 경우가 많다. 특히 이 코드가 회사 창립 초창기에 작성된 코드일 경우에는 그냥 코드만 봐도 당시 개발자가 얼마나 정신없이 개발을 했는지 알 수 있을 정도인 것들도 있다.</p>
+<center><br>  <img src="/2019/08/30/commit-history-merge-strategy/exit-office.jpg" width="500"><br>  <small>호랭이는 죽어서 가죽을 남기고 개발자는 죽어서 레거시를 남…</small><br>  <br><br></center>
+
+<p>이런 코드의 경우 섣불리 수정했다가 예상 못한 곳에서 도미노처럼 와장창나는 경우가 있기 때문에 이 와장창을 몇번 경험해본 개발자들은 레거시 코드를 수정함에 있어서 신중하게 접근할 수 밖에 없다. 그럼 이 상황에서 우리가 선택할 수 있는 방법은 대략 4가지 정도가 있다.</p>
+<blockquote><ol>
+<li>건드리기 무서우니까 그냥 냅둔다.</li>
+<li>퇴사자한테 어떻게든 연락해서 물어본다.</li>
+<li>주변에 있는 개발자를 붙잡고 물어본다.</li>
+<li>그냥 내가 분석한다.</li>
+</ol>
+</blockquote>
+<p>음, 일단 1번의 경우는 본인이 <code>PO</code>나 <code>CTO</code>를 설득할 말빨이 없다면 성공할 확률이 낮다고 본다. 그리고 아마 좋은 소리를 들을 것 같지도 않다. 일단 개발자로써 월급을 받고 있으니 월급 값은 해야하지 않는가?</p>
+<p>그렇다고 이미 퇴사한 사람한테 카톡해서 코드를 작성한 의도를 물어보기에는 왠지 싸대기 맞을 것 같기도 하고 좀 그렇다. 3번 같은 경우는 그나마 나은 경우긴 하지만 다른 팀원들도 다 바쁜데 매번 붙잡고 물어볼 수도 없는 노릇이니 결국 직접 분석하는게 제일 깔끔한 방법이다.</p>
+<p>하지만 이 분석이라는 것이 말이 쉽지, 실제로 거대한 어플리케이션에서 단 하나도 놓치지 않고 모든 의존 관계를 파악한다는 것은 사실 쉬운 일이 아니다. 게다가 이런 분석은 단순히 코드만 본다고 되는 것이 아니라 비즈니스와도 밀접한 관련이 있는 경우가 많기 때문에 해당 기능의 개발 당시 비즈니스 히스토리도 어느 정도 함께 파악하는 것이 좋다.</p>
+<p>그나마 팀 내에 해당 기능을 개발하게 된 히스토리를 알고 있는 동료가 있다면 다행이지만, 그 마저도 없을 경우 우리가 의지할 것은 당시의 개발자가 어떤 의도로 코드를 고쳤는지 기록해놓은 <code>커밋 히스토리</code> 밖에 없는 것이다.</p>
+<p>물론 정신없이 개발하는 와중에 커밋 메세지에 당시의 비즈니스적인 의도까지 담는 경우는 거의 없기 때문에 비즈니스 히스토리는 파악하기 힘들 수 있지만, 의미있는 단위로 커밋이 되어있다면 적어도 어떤 의도로 이 코드를 수정했는지 정도는 파악할 수 있다. 말 그대로 역사를 읽는 것이다. 하지만 이때 커밋 히스토리가 너무 쓸데 없이 복잡하거나 커밋 메세지가 개판이라면 아무래도 읽어나가는데 어려움이 있을 수 밖에 없다.</p>
+<center><br>  <img src="/2019/08/30/commit-history-merge-strategy/bad-commit-message.png" width="500"><br>  <small>이렇게 커밋해버리면 뭘 고친건지 알 수가 없다.</small><br>  <small>[출처] <a href="https://xkcd.com/" target="_blank" rel="external nofollow noopener noreferrer">https://xkcd.com/</a></small><br>  <br><br></center>
+
+<p>그래서 개발자들이 <code>의미 있는 단위의 커밋</code>, <code>의미 있는 커밋 메세지</code>를 강조하는 것이고 여기에 더해 적절한 머지 전략을 사용하여 가독성이 높고 의미도 있는 커밋 히스토리 그래프를 유지하려고 하는 것이다. 필자는 이 중 깔끔한 히스토리 그래프를 만드는 방법에 대해 설명하려고 하는 것이고, 이때 필요한 것이 적절한 브랜치 머지 전략의 선택인 것이다.</p>
+<h2 id="히스토리를-깔끔하게-만드는-3가지-머지-전략"><a href="#히스토리를-깔끔하게-만드는-3가지-머지-전략" class="headerlink" title="히스토리를 깔끔하게 만드는 3가지 머지 전략"></a>히스토리를 깔끔하게 만드는 3가지 머지 전략</h2><p>위에서 한번 설명했듯이 <code>Merge</code>, <code>Squash and merge</code>, <code>Rebase</code>는 두 개의 브랜치를 머지한다는 의미는 모두 같지만 머지하는 방법과 커밋 히스토리의 기록을 다르게 가져가는 머지 전략들이다. 한번 이 3가지 전략이 어떤 방식으로 브랜치를 머지하는 지, 커밋 히스토리는 어떻게 기록되는지 살펴보고 이에 따른 장단점을 알아보도록 하자.</p>
+<h3 id="Create-a-merge-commit"><a href="#Create-a-merge-commit" class="headerlink" title="Create a merge commit"></a>Create a merge commit</h3><center><br>  <img src="/2019/08/30/commit-history-merge-strategy/merge-icon.jpg" width="300"><br>  <br><br></center>
+
+<p><code>머지(Merge)</code>는 우리가 알고 있는 일반적인 머지 전략이다. 머지의 장점은 기존 개발자들에게 익숙한 개념이라는 것과 머지된 브랜치가 삭제되어 사라졌다고 해도 히스토리 그래프 상에서는 그대로 다른 가지로 표기되기 때문에 <code>어떤 브랜치에서 어떤 커밋이 진행되어 어떻게 머지가 되었군</code>이라는 자세한 정보를 얻을 수 있다는 것이다.</p>
+<center><br>  <img src="/2019/08/30/commit-history-merge-strategy/merge-commit-1.png" width="350"><br>  <small><code>first-merge</code> 브랜치가 <code>master</code>로 머지된 히스토리</small><br>  <br><br></center>
+
+<center><br>  <img src="/2019/08/30/commit-history-merge-strategy/merge-commit-2.png" width="350"><br>  <small>추후 <code>first-merge</code> 브랜치를 삭제하더라도 히스토리와 브랜치 가지는 그대로 남아있다</small><br>  <br><br></center>
+
+<p>반면에 단점은 너무 자세하게 히스토리가 남기 때문에 브랜치의 개수가 많아지거나 머지 횟수가 잦아질수록 히스토리 그래프의 가독성이 떨어진다는 것이다.</p>
+<p>또한 원칙적으로 커밋은 의미있는 변경 사항의 최소 단위라고는 하지만 사실 실무에서 일을 하다보면 <code>오타 수정</code>과 같은 자잘한 커밋을 하는 경우도 많다. 사실 이런 자잘한 커밋의 경우 별로 정보성이 없기 때문에 이런 커밋들이 많아지면 오히려 히스토리의 가독성을 저해하는 원인이 된다.</p>
+<center><br>  <img src="/2019/08/30/commit-history-merge-strategy/merge-commit-3.png" width="500"><br>  <small>규모가 큰 어플리케이션일수록 이런 복잡한 히스토리가 그려지기 쉽다</small><br>  <br><br></center>
+
+<p>위 그림에서 볼 수 있듯이 머지가 수행되었을 때 생기는 <code>머지 커밋(Merge commit)</code>은 <code>어느 순간에 어떤 브랜치의 변경사항이 머지되었다</code>라는 소중한 정보를 주는 커밋이지만 개발이 진행되고 있는 브랜치가 많아진 상황에서는 이 머지 커밋들과 해당 브랜치에서 발생한 커밋들이 전부 기록되기 때문에 그래프가 너무 복잡해져서 오히려 히스토리를 추적하기 힘들 수도 있다.</p>
+<p>위 예시의 그래프는 조금 오래된 히스토리라 헤드가 앞으로 나아가면서 해당 시점의 <code>master</code> 브랜치가 최신 버전인 상황이기 때문에 반드시 맨 아래 쪽에 <code>master</code> 브랜치가 위치한다.</p>
+<p>그 덕분에 <code>master</code> 브랜치를 기준으로 읽어나간다면 어느 정도 흐름을 읽을 수 있지만, 한창 개발이 진행되는 중이라 <code>master</code>의 헤드가 뒤로 밀리기도 하는 상황이면 그래프의 맨 아래 쪽에 <code>master</code> 브랜치가 위치하지 않고 중간 어딘가 쯤에 끼어있기도 하기 때문에 히스토리 그래프를 읽으면서 추적하다가 놓칠 때도 있다.<small>(해보신 분은 알겠지만 진짜 눈알 빠질 것 같다)</small></p>
+<h3 id="Squash-and-merge"><a href="#Squash-and-merge" class="headerlink" title="Squash and merge"></a>Squash and merge</h3><center><br>  <img src="/2019/08/30/commit-history-merge-strategy/merge-squash-icon.jpg" width="300"><br>  <br><br></center>
+
+<p><code>Squash and merge</code>에서 Squash는 여러 개의 커밋을 하나로 합치는 기능을 말한다. 즉, 이 기능은 머지할 브랜치의 커밋을 전부 하나의 커밋으로 합친 뒤 타겟 브랜치에 커밋하는 방식으로 머지를 진행한다. 즉 <code>Squash and merge</code>에서 발생하는 머지 커밋은 실질적인 머지로 인해서 생성된 머지 커밋이라기보다는 그냥 다른 브랜치의 변경 사항을 하나로 뭉쳐놓은 커밋인 것이다.</p>
+<p>그래도 Squash and merge 전략은 일단 머지 커밋이 남긴 하기 때문에 머지가 되었다는 사실을 히스토리 상에서 한번에 알아볼 수 있고 버전 별로 어떤 것이 변경 되었는지 한 눈에 알수 있다는 것이 장점이다. 또한 머지된 브랜치의 자잘한 커밋 사항이 남지 않기 때문에 <code>머지가 되었다</code>라는 사실 자체에만 집중한 기록이 남게되고, 그로 인해 이 프로그램의 변경 사항을 읽기가 한결 수월해진다.</p>
+<p>단점은 일반적인 머지 커밋보다는 아무래도 정보력이 떨어진다는 것이다. 일반 머지는 해당 브랜치에서 누가 어떤 커밋을 통해 어떤 라인을 수정 했는지 까지 알려주지만 Squash and merge 전략은 머지 대상 브랜치의 모든 커밋을 하나로 통합해버리기 때문에 그 정도의 자세한 정보는 알 수가 없다.</p>
+<center><br>  <img src="/2019/08/30/commit-history-merge-strategy/squash-1.png" width="500"><br>  <small>머지하기 전 히스토리 그래프</small><br>  <br><br></center>
+
+<p>지금 상황은 <code>update-a-txt</code> 브랜치의 헤드가 <code>master</code>의 헤드보다 하나 더 앞으로 나아간 상황이다. <code>update-a-txt</code> 브랜치의 가지를 보면 <code>update a txt</code>, <code>Add b txt</code> 총 2개의 커밋이 있고 최근에 <code>master</code>에서 최신 변경 사항을 받아왔다. 이때 Squash and merge 전략을 사용하여 <code>master</code>에 머지를 하게 되면 이 브랜치에 있는 모든 커밋은 하나의 커밋으로 합쳐져서 마스터에 커밋된다.</p>
+<center><br>  <img src="/2019/08/30/commit-history-merge-strategy/squash-2.png" width="500"><br>  <small>Squash and merge를 사용하여 <code>update-a-txt</code> 브랜치를 <code>master</code>에 머지한 모습</small><br>  <br><br></center>
+
+<p>위 그림에서 볼 수 있듯이 일반적인 머지와는 다르게 <code>update-a-txt</code> 브랜치의 가지가 <code>master</code>로 들어가는 형태가 아니라 <code>master</code> 브랜치에 <code>update a txt(#1)</code>이라는 새로운 커밋이 하나 추가된 것을 볼 수 있다. 이때 <code>master</code>에 추가된 커밋은 <code>update-a-txt</code> 브랜치의 모든 커밋, 즉 변경 사항을 하나로 합친 커밋이다.</p>
+<center><br>  <img src="/2019/08/30/commit-history-merge-strategy/squash-3.png" width="500"><br>  <br><br></center>
+
+<p>이후 쓸모 없어진 <code>update-a-txt</code> 브랜치를 삭제하면 <code>master</code>에는 Squash된 커밋이 남지만 <code>update-a-txt</code> 브랜치에서 커밋되었던 자세한 내용을 볼 수는 없다. 즉, Squash and merge을 사용하여 브랜치를 머지하게 되면 <code>머지된 사실</code> 자체는 알 수 있으나 <code>어떤 상황에서 어떤 코드를 변경 했는지</code>까지는 알 수가 없다.</p>
+<h3 id="Rebase-and-merge"><a href="#Rebase-and-merge" class="headerlink" title="Rebase and merge"></a>Rebase and merge</h3><center><br>  <img src="/2019/08/30/commit-history-merge-strategy/rebase-icon.jpg" width="300"><br>  <br><br></center>
+
+<p><code>Rebase and merge</code> 전략은 Git의 <code>리베이스(Rebase)</code> 기능을 사용하여 브랜치를 머지하는 것이다. 이때 리베이스는 말 그대로 브랜치 히스토리들의 베이스를 변경하는 기능이다. 베이스를 변경한다는 의미를 좀 더 쉽게 말하자면 <code>a</code> 브랜치의 변경 사항이 마치 <code>b</code> 브랜치에서 변경된 것처럼 바꿀 수 있다는 것이다.</p>
+<p>리베이스는 머지된 브랜치의 커밋을 모두 살려놓기 때문에 누가 언제, 어떤 부분을 수정했다는 정보는 전부 알 수 있지만 해당 브랜치가 어느 시점에 머지되었는지는 알 수 없다. 그래서 리베이스를 사용하는 경우 다른 방법보다 더 태깅에 신경써줘야한다.</p>
+<center><br>  <img src="/2019/08/30/commit-history-merge-strategy/rebase-1.png" width="500"><br>  <br><br></center>
+
+<p>위 그래프는 <code>rebase-test-1</code> 브랜치에서 총 4번의 커밋을 진행하고 이제 <code>master</code> 브랜치로 머지해야하는 상황이다. 이때 리베이스를 사용하여 브랜치를 머지하게 되면 <code>rebase-test-1</code> 브랜치에서 발생한 모든 변경 사항이 마치 <code>master</code>에서 직접 커밋한 것 처럼 변경할 수 있다.</p>
+<center><br>  <img src="/2019/08/30/commit-history-merge-strategy/rebase-2.png" width="500"><br>  <br><br></center>
+
+<p>쨘, 리베이스를 진행하고 난 이후의 상황이다. <code>rebase-test-1</code> 브랜치의 모든 커밋들이 <code>master</code> 브랜치로 그대로 옮겨진 것을 볼 수 있다. 이제 쓸모 없어진 <code>rebase-test-1</code> 브랜치를 삭제하게 되면 처음부터 <code>master</code>에서 개발을 진행한 것과 같은 깔끔한 히스토리 그래프를 얻을 수 있다.</p>
+<center><br>  <img src="/2019/08/30/commit-history-merge-strategy/rebase-3.png" width="500"><br>  <br><br></center>
+
+<p>위 그림에서 볼 수 있듯이 리베이스를 사용하여 브랜치를 머지하게되면 <code>머지 커밋</code>이 생성되지 않기 때문에 어느 시점에 어떤 브랜치가 머지된 것인지 알 수가 없다. 그래서 위에서 말했듯이 필자는 <code>tag</code> 기능을 사용하여 해당 브랜치가 머지된 시점에 태그를 달아주는 것을 추천한다.<small>(시멘틱 버저닝을 합시다)</small></p>
+<p>그리고 리베이스의 치명적인 단점 중 하나는 바로 <code>머지 충돌(Merge Conflict)</code>이 발생했을 경우다. 이건 머지할 브랜치의 히스토리 자체를 그대로 복사해서 대상 브랜치의 히스토리에 박아버리는 방법이기 때문에 충돌이 발생하게 되면 <code>Merge commit</code>이나 <code>Squash and merge</code>처럼 충돌이 한번 발생하는 것이 아니라 각각의 커밋에 하나씩 충돌이 발생한다. 이게 머지할 브랜치의 커밋이 몇개 안되는 상황에서는 할만할지 몰라도 커밋이 몇 백개씩 되는 큰 기능의 브랜치를 리베이스로 머지했다가 충돌이 나면 그냥 죽었다 생각하고 커피를 타오도록 하자.</p>
+<h2 id="마치며"><a href="#마치며" class="headerlink" title="마치며"></a>마치며</h2><p>사실 커밋 히스토리를 잘 남기는 것은 미래의 나 자신을 위한 것일수도 있지만, 그보다는 내가 작성하는 코드를 언젠가 고쳐야할 누군가를 위해 신경써야 하는 것이 더 크기는 하다.</p>
+<p>쭉 읽어보면 알겠지만 이 3가지 머지 전략은 각각 장단점이 명확하기 때문에 머지 전략 간의 우위는 없다. 그냥 상황에 따라서, 혹은 팀의 전략에 따라서 알맞은 머지 전략을 선택하면 된다는 것이다. 혹자는 <code>Squash and merge</code>나 <code>Rebase</code>와 같은 기능이 필요없고 그냥 일반적인 머지만으로도 충분히 버전 관리가 가능하다고 말하기도 한다.</p>
+<p>그래도 이 3가지 머지 전략이 어떤 원리로 브랜치를 병합하는지 제대로 파악하고 히스토리가 어떻게 기록되는지 알고 있다면 복잡한 협업을 통해 개발이 진행되는 상황에서도 가독성 높은 히스토리 그래프를 만들어 낼 수 있고, 깔끔한 히스토리가 가져다주는 장점들은 분명히 있기 때문에, 아직 일반적인 머지만을 사용하여 히스토리를 관리하고 있었다면 한번 여러가지 전략을 사용해보는 것을 추천한다.</p>
+<p>이상으로 커밋 히스토리를 이쁘게 단장하자 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/07/25/git-tutorial/" title="Git 뉴비를 위한 기초 사용법 - 시작하기" rel="bookmark">Git 뉴비를 위한 기초 사용법 - 시작하기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/07/28/git-tutorial-advanced/" title="Git 뉴비를 위한 기초 사용법 - 버전 관리" rel="bookmark">Git 뉴비를 위한 기초 사용법 - 버전 관리</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/commit/">Commit</a><a class="tag -link" href="/tags/git/">Git</a><a class="tag -link" href="/tags/merge/">Merge</a><a class="tag -link" href="/tags/merge-and-squash/">Merge and squash</a><a class="tag -link" href="/tags/rebase/">Rebase</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2019/09/05/about-software-craftsmanship/">
+                <i class="fas fa-chevron-left"></i> 나는 어떤 마음으로 소프트웨어를 만들어야 하는가
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2019/08/26/how-does-developer-study/">
+                개발자가 공부로 살아남는 방법 <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#커밋-히스토리가-왜-중요한가요" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>커밋 히스토리가 왜 중요한가요?</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#버그가-언제-터졌는지-파악하기가-쉽다" data-link-name="toc">
+        <span class="has-mr-6">1.1</span>
+        <span>버그가 언제 터졌는지 파악하기가 쉽다</span>
+        </a></li><li>
+        <a class="is-flex" href="#레거시-코드를-수정해야할-때" data-link-name="toc">
+        <span class="has-mr-6">1.2</span>
+        <span>레거시 코드를 수정해야할 때</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#히스토리를-깔끔하게-만드는-3가지-머지-전략" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>히스토리를 깔끔하게 만드는 3가지 머지 전략</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#Create-a-merge-commit" data-link-name="toc">
+        <span class="has-mr-6">2.1</span>
+        <span>Create a merge commit</span>
+        </a></li><li>
+        <a class="is-flex" href="#Squash-and-merge" data-link-name="toc">
+        <span class="has-mr-6">2.2</span>
+        <span>Squash and merge</span>
+        </a></li><li>
+        <a class="is-flex" href="#Rebase-and-merge" data-link-name="toc">
+        <span class="has-mr-6">2.3</span>
+        <span>Rebase and merge</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#마치며" data-link-name="toc">
+        <span class="has-mr-6">3</span>
+        <span>마치며</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="커밋 히스토리를 이쁘게 단장하자" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

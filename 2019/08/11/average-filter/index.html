@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>실시간 데이터의 평균을 효율적으로 구하기 - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="이번 포스팅에서는 실시간으로 빠르게 쌓이는 데이터들의 평균을 효율적으로 구할 수 있는 방법에 대해서 간단하게 설명하려고 한다. 이런 실시간 데이터의 평균을 구해야하는 경우는 생각보다 꽤 많은데, 서버 엔진의 액세스 로그에 쌓이는 응답들의 평균 응답 시간을 구한다던가, 센서에서 들어오는 값들의 평균을 구한다던가 하는 경우이다. 이때 이런 데이터들은 빠르게는">
+<meta name="keywords" content="Algorithm,알고리즘,수학,평균구하기,Average,누적평균">
+<meta property="og:type" content="article">
+<meta property="og:title" content="실시간 데이터의 평균을 효율적으로 구하기">
+<meta property="og:url" content="https://evan-moon.github.io/2019/08/11/average-filter/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="이번 포스팅에서는 실시간으로 빠르게 쌓이는 데이터들의 평균을 효율적으로 구할 수 있는 방법에 대해서 간단하게 설명하려고 한다. 이런 실시간 데이터의 평균을 구해야하는 경우는 생각보다 꽤 많은데, 서버 엔진의 액세스 로그에 쌓이는 응답들의 평균 응답 시간을 구한다던가, 센서에서 들어오는 값들의 평균을 구한다던가 하는 경우이다. 이때 이런 데이터들은 빠르게는">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2019/08/11/average-filter/thumbnail.jpeg">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.246Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="실시간 데이터의 평균을 효율적으로 구하기">
+<meta name="twitter:description" content="이번 포스팅에서는 실시간으로 빠르게 쌓이는 데이터들의 평균을 효율적으로 구할 수 있는 방법에 대해서 간단하게 설명하려고 한다. 이런 실시간 데이터의 평균을 구해야하는 경우는 생각보다 꽤 많은데, 서버 엔진의 액세스 로그에 쌓이는 응답들의 평균 응답 시간을 구한다던가, 센서에서 들어오는 값들의 평균을 구한다던가 하는 경우이다. 이때 이런 데이터들은 빠르게는">
+<meta name="twitter:image" content="https://evan-moon.github.io/2019/08/11/average-filter/thumbnail.jpeg">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2019/08/11/average-filter/">
+
+
+<link rel="alternative" href="/feed.xml" title="실시간 데이터의 평균을 효율적으로 구하기" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="실시간 데이터의 평균을 효율적으로 구하기" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2019/08/11/average-filter/thumbnail.jpeg" alt="실시간 데이터의 평균을 효율적으로 구하기">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-08-11T09:50:43.000Z">2019-08-11</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/programming/">Programming</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/programming/algorithm/">Algorithm</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                실시간 데이터의 평균을 효율적으로 구하기
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>이번 포스팅에서는 <code>실시간</code>으로 빠르게 쌓이는 데이터들의 평균을 효율적으로 구할 수 있는 방법에 대해서 간단하게 설명하려고 한다. 이런 실시간 데이터의 평균을 구해야하는 경우는 생각보다 꽤 많은데, 서버 엔진의 액세스 로그에 쌓이는 응답들의 평균 응답 시간을 구한다던가, 센서에서 들어오는 값들의 평균을 구한다던가 하는 경우이다. 이때 이런 데이터들은 빠르게는 <code>1ms</code> 정도의 간격으로 수집되는 경우도 비일비재하기 때문에, 데이터를 입력받자마자 빠르게 처리해야하는 성능이 굉장히 중요하다.<br><a id="more"></a></p>
+<p>이때 우리가 이 데이터들을 가지고 실시간으로 평균을 구해야한다면, 일반적으로 생각나는 평균의 수식은 <code>전체 데이터의 총합 / 데이터 배열의 길이</code>일 것이다. 이렇게 구한 평균 값을 <code>산술 평균</code>이라고 한다. 그러나 우리가 일반적으로 산술 평균을 구하는 방법은 데이터를 실시간으로 빠르게 처리해야하는 시스템과는 별로 맞지 않는 방법이다. 왜 그럴까?</p>
+<h2 id="일반적인-산술-평균-공식의-문제점"><a href="#일반적인-산술-평균-공식의-문제점" class="headerlink" title="일반적인 산술 평균 공식의 문제점"></a>일반적인 산술 평균 공식의 문제점</h2><p>일반적으로 우리가 산술 평균을 구한다고 할때 떠오르는 공식은 다음과 같다.</p>
+<center><br>  <span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>A</mi><mi>v</mi><mi>e</mi><mi>r</mi><mi>a</mi><mi>g</mi><mi>e</mi><mo>(</mo><mi>n</mi><mo>)</mo><mo>=</mo><mfrac><mrow><mn>1</mn></mrow><mrow><mi>n</mi></mrow></mfrac><msubsup><mo>∑</mo><mrow><mi>k</mi><mo>=</mo><mn>1</mn></mrow><mrow><mi>n</mi></mrow></msubsup><msub><mi>x</mi><mi>k</mi></msub><mo>=</mo><mfrac><mrow><msub><mi>x</mi><mn>1</mn></msub><mo>+</mo><msub><mi>x</mi><mn>2</mn></msub><mo>+</mo><mi mathvariant="normal">.</mi><mi mathvariant="normal">.</mi><mi mathvariant="normal">.</mi><mo>+</mo><msub><mi>x</mi><mi>n</mi></msub></mrow><mrow><mi>n</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">Average(n) = \frac{1}{n}\sum_{k=1}^{n}x_k = \frac{x_1 + x_2 + ... + x_n}{n}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:1.6513970000000002em;"></span><span class="strut bottom" style="height:2.9535100000000005em;vertical-align:-1.302113em;"></span><span class="base displaystyle textstyle uncramped"><span class="mord mathit">A</span><span class="mord mathit" style="margin-right:0.03588em;">v</span><span class="mord mathit">e</span><span class="mord mathit" style="margin-right:0.02778em;">r</span><span class="mord mathit">a</span><span class="mord mathit" style="margin-right:0.03588em;">g</span><span class="mord mathit">e</span><span class="mopen">(</span><span class="mord mathit">n</span><span class="mclose">)</span><span class="mrel">=</span><span class="mord reset-textstyle displaystyle textstyle uncramped"><span class="sizing reset-size5 size5 reset-textstyle textstyle uncramped nulldelimiter"></span><span class="mfrac"><span class="vlist"><span style="top:0.686em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle textstyle cramped"><span class="mord textstyle cramped"><span class="mord mathit">n</span></span></span></span><span style="top:-0.22999999999999998em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle textstyle uncramped frac-line"></span></span><span style="top:-0.677em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle textstyle uncramped"><span class="mord textstyle uncramped"><span class="mord mathrm">1</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="sizing reset-size5 size5 reset-textstyle textstyle uncramped nulldelimiter"></span></span><span class="mop op-limits"><span class="vlist"><span style="top:1.202113em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord mathit" style="margin-right:0.03148em;">k</span><span class="mrel">=</span><span class="mord mathrm">1</span></span></span></span><span style="top:-0.000005000000000032756em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span><span class="op-symbol large-op mop">∑</span></span></span><span style="top:-1.250005em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle uncramped"><span class="mord scriptstyle uncramped"><span class="mord mathit">n</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mord"><span class="mord mathit">x</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord mathit" style="margin-right:0.03148em;">k</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mrel">=</span><span class="mord reset-textstyle displaystyle textstyle uncramped"><span class="sizing reset-size5 size5 reset-textstyle textstyle uncramped nulldelimiter"></span><span class="mfrac"><span class="vlist"><span style="top:0.686em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle textstyle cramped"><span class="mord textstyle cramped"><span class="mord mathit">n</span></span></span></span><span style="top:-0.22999999999999998em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle textstyle uncramped frac-line"></span></span><span style="top:-0.677em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle textstyle uncramped"><span class="mord textstyle uncramped"><span class="mord"><span class="mord mathit">x</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord mathrm">1</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mbin">+</span><span class="mord"><span class="mord mathit">x</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord mathrm">2</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mbin">+</span><span class="mord mathrm">.</span><span class="mord mathrm">.</span><span class="mord mathrm">.</span><span class="mbin">+</span><span class="mord"><span class="mord mathit">x</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord mathit">n</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="sizing reset-size5 size5 reset-textstyle textstyle uncramped nulldelimiter"></span></span></span></span></span></span><br></center>
+
+<p>수식으로 보면 조금 복잡해보일 수 있지만 결국 <code>k=1</code>일 때 <code>n</code>이 될 때 까지 이터레이션을 돌리며 <code>x1 ~ xn</code>까지 전부 더한 다음 마지막으로 <code>1/n</code>을 곱해주는 것, 결국 우리가 학교에서 배웠던 일반적인 평균 알고리즘이다. 이렇게 데이터를 모두 모아서 한번에 연산하는 방식을 <code>배치식(Batch Expression)</code>이라고 부른다.</p>
+<p>배치식의 단점은 바로 시간 복잡도가 $O(n)$이라는 것이다. 이건 데이터의 숫자가 적을 때는 큰 문제가 없더라도 계속 해서 누적되는 실시간 데이터를 빠르게 처리해야하는 시스템에서는 치명적인 단점이 된다.</p>
+<p>간단하게 <code>1</code>부터 <code>100,000</code>까지의 평균을 반복적으로 구하는 배치식 평균 알고리즘의 수행 시간을 확인해보자.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">let</span> avg = <span class="hljs-number">0</span>;</span><br><span class="line"><span class="hljs-keyword">const</span> numbers = [];</span><br><span class="line"></span><br><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">average</span> (<span class="hljs-params">numbers = []</span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">const</span> sum = numbers.reduce(<span class="hljs-function">(<span class="hljs-params">prev, current</span>) =></span> prev + current, <span class="hljs-number">0</span>);</span><br><span class="line">  <span class="hljs-keyword">return</span> sum / numbers.length;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.time(<span class="hljs-string">'avg1'</span>);</span><br><span class="line"><span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> k = <span class="hljs-number">1</span>; k < <span class="hljs-number">100001</span>; k++) {</span><br><span class="line">  numbers.push(k);</span><br><span class="line">  avg = average(numbers);</span><br><span class="line">}</span><br><span class="line"><span class="hljs-built_in">console</span>.timeEnd(<span class="hljs-string">'avg1'</span>);</span><br><span class="line"><span class="hljs-built_in">console</span>.log(<span class="hljs-string">`그래서 평균은? -> <span class="hljs-subst">${avg}</span>`</span>);</span><br></pre></td></tr></tbody></table></figure>
+<p>실시간 데이터 처리를 흉내낸 간단한 코드를 작성했다. <code>numbers</code> 배열에는 반복적으로 새로운 데이터가 입력되고 그때마다 새로운 평균을 구한다. 첫번째 <code>for</code>문은 실시간으로 입력되는 데이터 환경을 구현하기 위한 것이므로 시간 복잡도에서 제외하고 <code>getAvg</code> 함수의 내부만 봐도, 한번 평균을 구할 때마다 지금까지 누적한 전체 데이터의 배열을 처음부터 순회하며 총합을 구하는 모습을 볼 수 있다.</p>
+<p>그래서 결국 이 알고리즘이 <code>100,000</code>개 데이터의 평균을 구하는 데 소요된 시간은…</p>
+<figure class="highlight plain hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ node average.js</span><br><span class="line">avg1: 8146.261ms</span><br><span class="line">그래서 평균은? -> 50000.5</span><br></pre></td></tr></tbody></table></figure>
+<p><code>8146ms</code> 정도? 대략 8초라는 엄청 나게 긴 시간이다. 실시간 데이터 처리 시스템에서 어떤 값을 처리하는데 8초가 걸린다면 그건 그냥 망한거다.<small>(사실 1초만 넘어도 망했다고 한다.)</small></p>
+<p>게다가 실시간 데이터의 특성 상 데이터의 양은 점점 누적되어 늘어날 수 밖에 없는데, <code>100,000</code>개 처리에 8초면 <code>1,000,000</code>개 처리면 대충 80초 정도 걸리지 않을까?</p>
+<p>사실 배치식의 단점은 시간이 단순히 오래 걸린다는게 아니라 <code>데이터가 늘어나면 수행시간도 비례해서 늘어난다</code>는 것이다. 또한 $n$ 번째 데이터까지 합친 평균을 계산할 때 이전 평균 계산 결과를 전혀 사용하지 못하므로 결국 지금까지 들어온 모든 데이터를 저장하고 있어야 하는데, 이때 불필요한 메모리 자원도 낭비되게 된다. 그럼 데이터가 늘어나도 언제나 수행 속도가 일정한 $O(1)$ 평균 알고리즘이 있을까?</p>
+<h2 id="평균-필터-알고리즘"><a href="#평균-필터-알고리즘" class="headerlink" title="평균 필터 알고리즘"></a>평균 필터 알고리즘</h2><p>있다. 바로 <code>평균 필터(Average Filter)</code> 알고리즘이다. 이 알고리즘은 <code>n</code>번째 데이터가 들어온 데이터 셋의 평균을 구할 때 <code>n-1</code> 까지의 평균을 재사용할 수 있는 알고리즘이다. 이런 알고리즘을 <code>재귀식(Recurrence Expression)</code>이라고 한다.<small>(참고로 재귀식은 재귀함수보다 좀 더 포괄적인 개념이다.)</small></p>
+<p>재귀식인 평균 필터 알고리즘을 사용하면 이전에 들어온 데이터를 전부 저장해놓을 필요도 없고 몇개의 데이터가 누적되든 반드시 $O(1)$의 시간 복잡도를 보장한다. 그래서 이 알고리즘은 <code>센서</code>에서 짧은 간격으로 들어오는 데이터들을 실시간으로 처리해야하는 <code>IOT</code>나 <code>임베디드</code> 분야에서 더 많이 사용된다.<small>(필자도 이 쪽 분야에서 일하는 형한테 처음 배웠다.)</small></p>
+<p>하지만 다짜고짜 수학으로 들어가면 재미가 없으니, 이해를 돕기 위해 이번에는 먼저 코드와 수행시간을 확인해보고나서 이 알고리즘에 대한 설명을 하도록 하겠다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">let</span> avg = <span class="hljs-number">0</span>;</span><br><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">cumulativeAverage</span> (<span class="hljs-params">prevAvg, newNumber, listLength</span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">const</span> oldWeight = (listLength - <span class="hljs-number">1</span>) / listLength;</span><br><span class="line">  <span class="hljs-keyword">const</span> newWeight = <span class="hljs-number">1</span> / listLength;</span><br><span class="line">  <span class="hljs-keyword">return</span> (prevAvg * oldWeight) + (newNumber * newWeight);</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.time(<span class="hljs-string">'avg2'</span>);</span><br><span class="line"><span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> k = <span class="hljs-number">1</span>; k < <span class="hljs-number">100001</span>; k++) {</span><br><span class="line">  avg = cumulativeAverage(avg, k, k);</span><br><span class="line">}</span><br><span class="line"><span class="hljs-built_in">console</span>.timeEnd(<span class="hljs-string">'avg2'</span>);</span><br><span class="line"><span class="hljs-built_in">console</span>.log(<span class="hljs-string">`그래서 평균은? -> <span class="hljs-subst">${avg}</span>`</span>);</span><br></pre></td></tr></tbody></table></figure>
+<p><code>cumulativeAverage</code> 함수는 <code>이전 데이터까지의 평균</code>과 <code>새로 들어온 데이터</code>, <code>총 데이터 개수</code> 이렇게 3개의 인자를 사용하는 함수이다. 그리고 간단한 수식을 통해서 바로 평균을 계산한다. 위에서 작성한 <code>average</code> 함수와 가장 큰 차이점이 있다면, 함수 내부에 이터레이션이 없다는 것이다.</p>
+<p>위에서 봤던 배치식 평균 알고리즘은 <code>100,000</code>개 데이터의 평균을 실시간으로 구해내는데 <code>8초</code>의 시간이 소요되었지만 이 친구는 급이 다르다.</p>
+<figure class="highlight plain hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ node average.js</span><br><span class="line">avg: 4.631ms</span><br><span class="line">그래서 평균은? -> 50000.5</span><br></pre></td></tr></tbody></table></figure>
+<p>쨘, <code>8000ms</code>에서 <code>4ms</code>가 되었다. 뭐 이건 사실 당연한 사실이다. 평균을 구하기 위해 전체 데이터를 순회할 필요가 없이 단순한 연산만 반복하면 되기 때문이다. 데이터의 개수를 <code>1,000,000</code>개로 늘려도 수행시간은 대략 <code>10ms</code> 정도로, 크게 변하지 않는다.</p>
+<p>그리고 이 코드에서 데이터의 양을 <code>100,000</code>에서 <code>1,000,000</code>으로 늘렸을 때 시간이 늘어난 이유는 그저 <code>for</code>문이 더 오래 도니까 그런 것인데, 실시간 데이터 처리 시스템에서는 이렇게 이터레이션을 돌면서 데이터를 입력하는 것 아니라 말 그래도 비동기적으로 쭉쭉 데이터가 들어오고 이벤트 리스너를 통해 평균 함수를 실행할 것이므로 결국 실제 사용 사례에서는 항상 균일한 수행 속도를 가지게 된다고 생각할 수 있다.</p>
+<p>그럼 이 알고리즘은 어떤 원리로 작동하는 것일까?</p>
+<h3 id="무슨-원리로-이렇게-되는건가요"><a href="#무슨-원리로-이렇게-되는건가요" class="headerlink" title="무슨 원리로 이렇게 되는건가요?"></a>무슨 원리로 이렇게 되는건가요?</h3><p>구글에 <code>평균 필터</code> 알고리즘을 검색해보면 이미 많은 분들이 배치식에서 재귀식을 유도해내는 과정을 많이 포스팅 해놓은 것을 볼 수 있었다. 하지만 이런 포스팅들의 특성 상 글쓴이 본인의 아카이브 느낌이 강하기 때문에 친절한 설명은 딱히 없었던 것 같다.</p>
+<p>그리고 그렇게 수식을 유도하며 설명하는 방법은 수학과 친하지 않은 사람에게는 직관적인 설명이 될 수 없다. 그래서 필자는 배치식에서 재귀식을 유도하는 방법 보다 좀 더 직관적이고 간단한 느낌으로 설명해보려고 한다. 일단 평균 필터 알고리즘의 공식을 한번 보자.</p>
+<center><br>  <span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>A</mi><mi>v</mi><mi>e</mi><mi>r</mi><mi>a</mi><mi>g</mi><mi>e</mi><mo>(</mo><mi>n</mi><mo>)</mo><mo>=</mo><mfrac><mrow><mi>n</mi><mo>−</mo><mn>1</mn></mrow><mrow><mi>n</mi></mrow></mfrac><mi>A</mi><mi>v</mi><mi>e</mi><mi>r</mi><mi>a</mi><mi>g</mi><mi>e</mi><mo>(</mo><mi>n</mi><mo>−</mo><mn>1</mn><mo>)</mo><mo>+</mo><mfrac><mrow><mn>1</mn></mrow><mrow><mi>n</mi></mrow></mfrac><msub><mi>x</mi><mi>n</mi></msub></mrow><annotation encoding="application/x-tex">Average(n) = \frac{n-1}{n}Average(n-1) + \frac{1}{n}x_n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:1.32144em;"></span><span class="strut bottom" style="height:2.00744em;vertical-align:-0.686em;"></span><span class="base displaystyle textstyle uncramped"><span class="mord mathit">A</span><span class="mord mathit" style="margin-right:0.03588em;">v</span><span class="mord mathit">e</span><span class="mord mathit" style="margin-right:0.02778em;">r</span><span class="mord mathit">a</span><span class="mord mathit" style="margin-right:0.03588em;">g</span><span class="mord mathit">e</span><span class="mopen">(</span><span class="mord mathit">n</span><span class="mclose">)</span><span class="mrel">=</span><span class="mord reset-textstyle displaystyle textstyle uncramped"><span class="sizing reset-size5 size5 reset-textstyle textstyle uncramped nulldelimiter"></span><span class="mfrac"><span class="vlist"><span style="top:0.686em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle textstyle cramped"><span class="mord textstyle cramped"><span class="mord mathit">n</span></span></span></span><span style="top:-0.22999999999999998em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle textstyle uncramped frac-line"></span></span><span style="top:-0.677em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle textstyle uncramped"><span class="mord textstyle uncramped"><span class="mord mathit">n</span><span class="mbin">−</span><span class="mord mathrm">1</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="sizing reset-size5 size5 reset-textstyle textstyle uncramped nulldelimiter"></span></span><span class="mord mathit">A</span><span class="mord mathit" style="margin-right:0.03588em;">v</span><span class="mord mathit">e</span><span class="mord mathit" style="margin-right:0.02778em;">r</span><span class="mord mathit">a</span><span class="mord mathit" style="margin-right:0.03588em;">g</span><span class="mord mathit">e</span><span class="mopen">(</span><span class="mord mathit">n</span><span class="mbin">−</span><span class="mord mathrm">1</span><span class="mclose">)</span><span class="mbin">+</span><span class="mord reset-textstyle displaystyle textstyle uncramped"><span class="sizing reset-size5 size5 reset-textstyle textstyle uncramped nulldelimiter"></span><span class="mfrac"><span class="vlist"><span style="top:0.686em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle textstyle cramped"><span class="mord textstyle cramped"><span class="mord mathit">n</span></span></span></span><span style="top:-0.22999999999999998em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle textstyle uncramped frac-line"></span></span><span style="top:-0.677em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle textstyle uncramped"><span class="mord textstyle uncramped"><span class="mord mathrm">1</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="sizing reset-size5 size5 reset-textstyle textstyle uncramped nulldelimiter"></span></span><span class="mord"><span class="mord mathit">x</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord mathit">n</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span></span><br></center>
+
+<p>이 식의 $n$은 현재까지의 전체 데이터 길이, $Average(n-1)$는 이전 데이터까지의 평균, $x_n$은 이번에 새로 들어온 데이터를 의미한다. 그렇다면 이 식이 의미하는 것이 뭐길래 평균을 구할 수 있도록 해주는 것일까?</p>
+<p>이 식에서 중요한 키워드는 바로 <code>가중치</code>이다. 우리가 배치식을 버리고 재귀식을 사용하기 위한 조건은 바로 <code>이전 평균 값을 활용할 수 있을 것</code>이었다. 그러기위해 우리는 새로운 평균을 구하기 위해 사용할 이전 평균 값이 새로운 평균 값에 끼칠 영향을 계산해줘야 하는 것이다.</p>
+<p>식을 자세히 보면 이전 평균 값인 $Average(n-1)$에는 $\frac{n-1}{n}$이 곱해지고 있다. 이때 $\frac{n-1}{n}$이 의미하는 것이 바로 가중치이다. 또 새로 들어온 데이터인 $x_n$을 보면 $\frac{1}{n}$이 곱해지고 있는데, 이 또한 새로운 데이터의 가중치이다.</p>
+<p>좀 더 빠른 이해를 돕기 위해 간단한 예시를 보면서 설명하도록 하겠다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> prevData = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>];</span><br><span class="line"><span class="hljs-keyword">const</span> prevAverage = (<span class="hljs-number">1</span> + <span class="hljs-number">2</span> + <span class="hljs-number">3</span> + <span class="hljs-number">4</span>) / <span class="hljs-number">4</span>; <span class="hljs-comment">// 2.5</span></span><br></pre></td></tr></tbody></table></figure>
+<p>여기 길이가 <code>4</code>인 간단한 데이터셋이 있다. <code>prevAverage</code>는 여러분이 좀 더 직관적으로 이해할 수 있도록 그냥 배치식을 하드코딩했고, 할당된 값은 <code>1, 2, 3, 4</code>의 평균인 <code>2.5</code>가 된다.</p>
+<p>이때 이 데이터셋에 <code>5</code>라는 값이 새로 들어오면 배열의 길이는 <code>5</code>가 될 것이다. 이때 배치식을 사용하며 계산하게 되면 <code>1</code>부터 <code>5</code>까지 모두 더한 후 배열의 길이인 <code>5</code>로 나누게 될 것이고, 재귀식을 사용하면 기존 4개 원소의 평균이었던 <code>2.5</code>에 가중치인 <code>4/5</code>를 곱해주고 새로 들어온 <code>5</code>에도 가중치인 <code>1/5</code>를 곱한 후 서로 더하기만 하면 된다.</p>
+<p>한번 아래 코드를 콘솔에서 실행시켜보고 결과를 확인해보자.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> batch = (<span class="hljs-number">1</span> + <span class="hljs-number">2</span> + <span class="hljs-number">3</span> + <span class="hljs-number">4</span> + <span class="hljs-number">5</span>) / <span class="hljs-number">5</span>;</span><br><span class="line"><span class="hljs-keyword">const</span> recurrenced = (<span class="hljs-number">2.5</span> * (<span class="hljs-number">4</span> / <span class="hljs-number">5</span>)) + (<span class="hljs-number">5</span> * (<span class="hljs-number">1</span> / <span class="hljs-number">5</span>));</span><br><span class="line"><span class="hljs-built_in">console</span>.log(batch, recurrenced);</span><br><span class="line"><span class="hljs-comment">// 3 3</span></span><br></pre></td></tr></tbody></table></figure>
+<p>결과는 둘 다 <code>3</code>으로 동일하게 출력된다. 즉, 쉽게 말하자면 이전 평균의 값과 새로운 데이터가 새로운 평균에서 얼마 만큼의 비중을 가지고 있는지를 계산해서 더해주는 것이다.</p>
+<p>이제 대충 이해가 되었으리라 생각한다. 만약 배치식에서 재귀식을 유도하는 과정이 궁금하신 분은 구글에 <code>평균 필터</code>라고 검색해보면 다른 분들이 작성해놓은 많은 포스팅이 있으니 그 쪽을 참고해보도록 하자. 필자는 개인적으로 그런 수식 유도 과정보다 이 알고리즘이 작동하는 추상적인 개념을 이해하는 것이 더 중요하다고 생각하기 때문에 이 포스팅에서는 별도의 유도 과정을 적지는 않겠다.</p>
+<p>이상으로 실시간 데이터의 평균을 효율적으로 구하기 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2018/10/13/sort-algorithm/" title="정렬 알고리즘 정리 (Bubble, Selection, Insertion, Merge, Quick)" rel="bookmark">정렬 알고리즘 정리 (Bubble, Selection, Insertion, Merge, Quick)</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/07/14/what-is-random/" title="컴퓨터가 만드는 랜덤은 정말로 랜덤할까?" rel="bookmark">컴퓨터가 만드는 랜덤은 정말로 랜덤할까?</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/07/17/programmer-with-math/" title="프로그래머는 수학을 잘해야할까?" rel="bookmark">프로그래머는 수학을 잘해야할까?</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/10/30/make-simple-with-math/" title="수학과 함께 복잡한 문제를 단순하게 만들자!" rel="bookmark">수학과 함께 복잡한 문제를 단순하게 만들자!</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/algorithm/">Algorithm</a><a class="tag -link" href="/tags/average/">Average</a><a class="tag -link" href="/tags/누적평균/">누적평균</a><a class="tag -link" href="/tags/수학/">수학</a><a class="tag -link" href="/tags/알고리즘/">알고리즘</a><a class="tag -link" href="/tags/평균구하기/">평균구하기</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2019/08/17/leave-the-company/">
+                <i class="fas fa-chevron-left"></i> 2년 동안 근무했던 회사를 떠나며
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2019/08/08/fix-webpack-dev-memory-leak/">
+                Webpack Watch의 메모리 누수 고치기 <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#일반적인-산술-평균-공식의-문제점" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>일반적인 산술 평균 공식의 문제점</span>
+        </a></li><li>
+        <a class="is-flex" href="#평균-필터-알고리즘" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>평균 필터 알고리즘</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#무슨-원리로-이렇게-되는건가요" data-link-name="toc">
+        <span class="has-mr-6">2.1</span>
+        <span>무슨 원리로 이렇게 되는건가요?</span>
+        </a></li></ul></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="실시간 데이터의 평균을 효율적으로 구하기" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

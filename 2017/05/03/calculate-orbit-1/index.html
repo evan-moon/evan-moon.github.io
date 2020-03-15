@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>[JavaScript로 천체 구현하기] 케플러 6요소 알아보기 - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="이번 포스팅에서는 태양계 시뮬레이션을 개발하면서 제일 애먹었던 천체의 궤도와 위치 계산에 대해서 알아보려고 한다. 필자는 고등학교 시절 수포자였기 대문에 필자와 같이 수포자였던 분들을 위해 최대한 간단하게 설명하는 것을 목표로 하고 있다.">
+<meta name="keywords" content="궤도 구현하기,케플러 궤도 방정식,케플러 6요소,JavaScript">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[JavaScript로 천체 구현하기] 케플러 6요소 알아보기">
+<meta property="og:url" content="https://evan-moon.github.io/2017/05/03/calculate-orbit-1/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="이번 포스팅에서는 태양계 시뮬레이션을 개발하면서 제일 애먹었던 천체의 궤도와 위치 계산에 대해서 알아보려고 한다. 필자는 고등학교 시절 수포자였기 대문에 필자와 같이 수포자였던 분들을 위해 최대한 간단하게 설명하는 것을 목표로 하고 있다.">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2017/05/03/calculate-orbit-1/thumbnail.jpg">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.039Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[JavaScript로 천체 구현하기] 케플러 6요소 알아보기">
+<meta name="twitter:description" content="이번 포스팅에서는 태양계 시뮬레이션을 개발하면서 제일 애먹었던 천체의 궤도와 위치 계산에 대해서 알아보려고 한다. 필자는 고등학교 시절 수포자였기 대문에 필자와 같이 수포자였던 분들을 위해 최대한 간단하게 설명하는 것을 목표로 하고 있다.">
+<meta name="twitter:image" content="https://evan-moon.github.io/2017/05/03/calculate-orbit-1/thumbnail.jpg">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2017/05/03/calculate-orbit-1/">
+
+
+<link rel="alternative" href="/feed.xml" title="[JavaScript로 천체 구현하기] 케플러 6요소 알아보기" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="[JavaScript로 천체 구현하기] 케플러 6요소 알아보기" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2017/05/03/calculate-orbit-1/thumbnail.jpg" alt="[JavaScript로 천체 구현하기] 케플러 6요소 알아보기">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2017-05-03T06:29:22.000Z">2017-05-03</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/programming/">Programming</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/programming/graphics/">Graphics</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                [JavaScript로 천체 구현하기] 케플러 6요소 알아보기
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>이번 포스팅에서는 태양계 시뮬레이션을 개발하면서 제일 애먹었던 천체의 궤도와 위치 계산에 대해서 알아보려고 한다. 필자는 고등학교 시절 수포자였기 대문에 필자와 같이 수포자였던 분들을 위해 최대한 간단하게 설명하는 것을 목표로 하고 있다.<br><a id="more"></a></p>
+<p>먼저 궤도를 그리는 방법과 행성의 위치를 추정하는 방법에 대해서는 구글에 널리고 널렸지만, 이를 이해하기 위해서는 기본적인 천문학용어들에 대한 지식이 있어야했다.<br>고1 지구과학시간에 배우는 용어들이라는데 필자는 고등학교때 잠만 잤기 때문에 하나도 기억이 나지 않아서 다시 찾아봐야했다.</p>
+<p>필자는 천체물리학과를 나온 것도 아닌 일개 개발자이므로 각각의 용어 정리에 대해서는 틀린 점이 있을 수 있다.</p>
+<h2 id="간단한-용어-정리"><a href="#간단한-용어-정리" class="headerlink" title="간단한 용어 정리"></a>간단한 용어 정리</h2><p>케플러 6요소를 알아보기 전에 천체 물리학에서 사용하는 간단한 용어들을 한번 알아보자.</p>
+<h3 id="원일점-aphelion-근일점-perihelion"><a href="#원일점-aphelion-근일점-perihelion" class="headerlink" title="원일점(aphelion), 근일점(perihelion)"></a>원일점(aphelion), 근일점(perihelion)</h3><p>행성의 궤도는 <code>타원</code>이기 때문에 초점이 <code>2개</code>이다. 보통 이 중 하나의 초점에 항성이 위치하게 되며, 각각 <code>원일점</code>과 <code>근일점</code>은 항성에서 가장 멀리 떨어지거나 가장 가까운 한점을 의미한다. 포물선 궤도는 원일점이 무한대이므로 근일점만을 가지게 된다.</p>
+<h3 id="천구-The-celestial-sphere"><a href="#천구-The-celestial-sphere" class="headerlink" title="천구(The celestial sphere)"></a>천구(The celestial sphere)</h3><p>관측자를 중심으로 하여 임의의 반지름을 가진 가상적인 구를 의미한다.</p>
+<img src="/2017/05/03/calculate-orbit-1/the-celestial-sphere.jpg" title="the celestial-sphere">
+<h3 id="천구의-적도-The-celestial-equator"><a href="#천구의-적도-The-celestial-equator" class="headerlink" title="천구의 적도(The celestial equator)"></a>천구의 적도(The celestial equator)</h3><p>행성의 적도가 황도에 투영된 것. 위 그림의 천구에서 세로선에 해당하는 것이 <code>천구의 적도</code>이다.</p>
+<h3 id="천구의-황도-The-ecliptic"><a href="#천구의-황도-The-ecliptic" class="headerlink" title="천구의 황도(The ecliptic)"></a>천구의 황도(The ecliptic)</h3><p>행성의 공전 궤도면이 황도에 투영된 것. 지구의 황도는 적도로부터 지구의 자전축만큼(약 23.5도) 기울어져 있다.</p>
+<h3 id="적경-Right-Ascension-적위-Declination"><a href="#적경-Right-Ascension-적위-Declination" class="headerlink" title="적경(Right Ascension), 적위(Declination)"></a>적경(Right Ascension), 적위(Declination)</h3><p>이 값들은 천구의 적도를 기준면으로 사용하는 적도 좌표값이다.</p>
+<p><code>적경</code>은 춘분점을 기준으로 천구의 적도를 따라 항성이 움직이는 방향으로 측정되며 단위는 시, 분(1시간은 15도)이다.<br><code>적위</code>는 천구의 북쪽을 <code>+</code>로 남쪽을 <code>-</code>로 지정했을 때 천구의 적도면에서 항성까지 잰 각이며, 항상 <code>+90</code>에서 <code>-90</code>사이의 값을 가진다.</p>
+<p>천구 상의 춘분점은 적경과 적위가 모두 <code>0</code>이다.</p>
+<h3 id="황경-Ecliptic-longitude-황위-Ecliptic-latitude"><a href="#황경-Ecliptic-longitude-황위-Ecliptic-latitude" class="headerlink" title="황경(Ecliptic longitude), 황위(Ecliptic latitude)"></a>황경(Ecliptic longitude), 황위(Ecliptic latitude)</h3><p>적경, 적위와 같은 개념이나, 기준면이 <code>행성의 적도면이 아닌, 황도면이다</code>.</p>
+<h3 id="궤도-교점-Orbital-node-승교점-Ascending-node-강교점-Descending-node"><a href="#궤도-교점-Orbital-node-승교점-Ascending-node-강교점-Descending-node" class="headerlink" title="궤도 교점(Orbital node), 승교점(Ascending node), 강교점(Descending node)"></a>궤도 교점(Orbital node), 승교점(Ascending node), 강교점(Descending node)</h3><p><code>궤도 교점</code>은 천체의 궤도면과 기준면이 만나는 두 점을 말한다. 기준면은 정의에 따라 달라질 수 있으며, 태양계의 경우 기준면은 지구의 궤도면이다.<br><code>승교점</code>은 천체가 기준면을 북쪽(보통 위 쪽)으로 지나가는 점을 의미하며, <code>강교점</code>은 천체가 기준면을 남쪽(보통 아래 쪽)으로 지나가는 점을 말한다.</p>
+<h2 id="케플러-6요소"><a href="#케플러-6요소" class="headerlink" title="케플러 6요소"></a>케플러 6요소</h2><p>기본 용어 정리가 되었으면 이제 궤도의 모양과 크기, 방향을 결정하는 <code>케플러 6요소</code>를 알아보자.</p>
+<h3 id="장반경-Semi-major-axis"><a href="#장반경-Semi-major-axis" class="headerlink" title="장반경(Semi-major axis)"></a>장반경(Semi-major axis)</h3><center><br>  <img src="/2017/05/03/calculate-orbit-1/semi-major-axis.jpeg" width="500"><br>  <br><br></center>
+
+<p>행성의 궤도는 <code>타원</code>이기 때문에 반지름이 아닌 <code>장반경</code>과 <code>단반경</code>으로 정의한다.</p>
+<p><code>장반경</code>은 궤도 상에서 궤도 중심과 가장 거리가 먼 한 지점을 의미하며, <code>단반경</code>은 궤도 상에서 궤도 중심과 가장 거리가 가까운 한 지점을 의미한다.<br>원일점, 근일점과의 차이는 측정의 기준이 되는 점이 항성이 아닌 궤도의 중심이라는 것이다.<br>포물선 궤도나 쌍곡선 궤도는 장반경이 무한대 이므로 단반경만을 가지게 된다.</p>
+<h3 id="이심률-Eccentricity"><a href="#이심률-Eccentricity" class="headerlink" title="이심률(Eccentricity)"></a>이심률(Eccentricity)</h3><center><br>  <img src="/2017/05/03/calculate-orbit-1/eccentricity.png" width="300"><br>  <br><br></center>
+
+<p><code>이심률</code>은 간단히 말하면 타원이 얼마나 찌그러져있는지에 대한 값이다. 일반적으로 이심률 $e$는</p>
+<p>$$e = \sqrt{1-k\frac{b^2}{a^2}}$$</p>
+<p>로 정의할 수 있으며, 이때 $a$는 장반경, $b$는 단반경이다.<br>그러나 케플러 궤도에서 사용하는 사용되는 이심률은 약간 공식이 달라진다.</p>
+<p>$$e = \sqrt{1+\frac{2EL^2}{m_\text{red}\alpha^2}}$$</p>
+<p>이 공식의 해인 $e$를 <code>궤도 이심률</code>이라고 부른다.</p>
+<p>여기서 $E$는 총 궤도 에너지, $L$은 각운동량, $m_{red}$는 환산 질량을 나타내며, $\alpha$는 <code>역제곱 법칙 중심력의 계수</code>이다.<br><code>역제곱 법칙</code>이란 <code>어떤 힘의 크기가 거리의 제곱에 반비례</code>하는 것을 가리키는 말이다. 이 경우의 <code>어떤 힘</code>이란 바로 중력이 된다.</p>
+<p>하지만 필자는 이심률이 이미 주어진 데이터를 사용할 예정이므로, 사실 굳이 이렇게 까지 계산할 필요가 없다. 그냥 일반적인 이심률 공식과 계산법이 다르다는 정도만 알고 넘어가자.</p>
+<center><br>  <img src="/2017/05/03/calculate-orbit-1/skip.jpg"><br>  <br><br></center>
+
+<p>케플러 궤도의 이심률은 다음 4가지의 형태로 나타난다.</p>
+<hr>
+<ul>
+<li>원 궤도: $e = 0$</li>
+<li>타원 궤도: $0 < e < 1$</li>
+<li>포물선 궤도: $e = 1$</li>
+<li>쌍곡선 궤도: $e > 1$</li>
+</ul>
+<hr>
+<p>지구의 궤도 이심률은 현재 약 <code>0.0167</code>으로 거의 원형에 가깝다. 태양계 행성 중 가장 이심률이 큰 수성은 <code>0.2056</code>의 값을 가지고 있고, 이로 인해서 수성은 근일점에서 원일점보다 두 배 정도 태양 복사를 받는다.<br>원래는 <code>0.248</code>의 값을 가지고 있던 명왕성이 이 분야의 대빵이었지만 지금은 다들 알다시피 퇴출되었다..아디오스</p>
+<p>혜성의 경우 이심률이 상당히 다양한 편인데, 보통 주기 혜성들의 경우는 <code>0.2</code>에서 <code>0.7</code>의 값을 가지며 몇몇 궤도가 매우 찌그러진 혜성들은 거의 <code>1</code>에 육박하는 이심률을 가진 것도 있다.<br>예를 들어 혜성 중 많이 이름이 알려진 핼리 혜성의 경우 이심률이 <code>0.967</code>이며, 궤도가 매우 찌그러져있어서 한번 공전하는데 76년이나 걸린다. 참고로 다음 핼리 혜성의 접근 시기는 <code>2061년</code>이다.</p>
+<h3 id="기울기-Inclination"><a href="#기울기-Inclination" class="headerlink" title="기울기(Inclination)"></a>기울기(Inclination)</h3><p>항성의 황도면과 궤도 간의 기울기이다. 기울기가 <code>90</code>도를 초과하면 이 물체는 기울기가 0~90인 물체와 반대방향으로 공전하고 있다고 보면 된다.</p>
+<h3 id="승교점-적경-Longitude-of-Ascending-Node"><a href="#승교점-적경-Longitude-of-Ascending-Node" class="headerlink" title="승교점 적경(Longitude of Ascending Node)"></a>승교점 적경(Longitude of Ascending Node)</h3><p>궤도가 <code>남(-)</code>에서 <code>북(+)</code>으로 지나면서 행성의 황도면과 교차하게 되는 지점까지의 적경을 의미한다.<br>춘분점의 적경이 <code>0</code>이므로 춘분점을 기준으로 계산하면 된다.</p>
+<h3 id="근일점-편각-Argument-of-periapsis"><a href="#근일점-편각-Argument-of-periapsis" class="headerlink" title="근일점 편각(Argument of periapsis)"></a>근일점 편각(Argument of periapsis)</h3><p>궤도 근점으로부터 승교점까지의 각도로, 궤도 면에서 타원의 방향을 결정한다. 간단하게 말하면 승교점부터 근일점까지의 적위를 의미한다.</p>
+<h3 id="근일점-통과-시각-T"><a href="#근일점-통과-시각-T" class="headerlink" title="근일점 통과 시각(T)"></a>근일점 통과 시각(T)</h3><p>행성이 궤도의 근일점을 통과한 시각</p>
+<p><a href="/2017/05/03/calculate-orbit-2/" title="다음 포스팅">다음 포스팅</a>에서는 궤도를 코드로 구현해볼 예정이다. 이상으로 천문학 용어 정리 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/03/calculate-orbit-2/" title="[JavaScript로 천체 구현하기] 행성의 움직임을 구현해보자" rel="bookmark">[JavaScript로 천체 구현하기] 행성의 움직임을 구현해보자</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/08/21/javascript-audio-effectors-practice/" title="[JavaScript로 오디오 이펙터를 만들어보자] 나만의 소리 만들기" rel="bookmark">[JavaScript로 오디오 이펙터를 만들어보자] 나만의 소리 만들기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/06/gravity-via-js-2/" title="[JavaScript로 중력 구현하기] 2. 코딩하기" rel="bookmark">[JavaScript로 중력 구현하기] 2. 코딩하기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/06/15/diving-into-js-array/" title="JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기" rel="bookmark">JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/08/08/fix-webpack-dev-memory-leak/" title="Webpack Watch의 메모리 누수 고치기" rel="bookmark">Webpack Watch의 메모리 누수 고치기</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/javascript/">JavaScript</a><a class="tag -link" href="/tags/궤도-구현하기/">궤도 구현하기</a><a class="tag -link" href="/tags/케플러-6요소/">케플러 6요소</a><a class="tag -link" href="/tags/케플러-궤도-방정식/">케플러 궤도 방정식</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2017/05/03/calculate-orbit-2/">
+                <i class="fas fa-chevron-left"></i> [JavaScript로 천체 구현하기] 행성의 움직임을 구현해보자
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#간단한-용어-정리" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>간단한 용어 정리</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#원일점-aphelion-근일점-perihelion" data-link-name="toc">
+        <span class="has-mr-6">1.1</span>
+        <span>원일점(aphelion), 근일점(perihelion)</span>
+        </a></li><li>
+        <a class="is-flex" href="#천구-The-celestial-sphere" data-link-name="toc">
+        <span class="has-mr-6">1.2</span>
+        <span>천구(The celestial sphere)</span>
+        </a></li><li>
+        <a class="is-flex" href="#천구의-적도-The-celestial-equator" data-link-name="toc">
+        <span class="has-mr-6">1.3</span>
+        <span>천구의 적도(The celestial equator)</span>
+        </a></li><li>
+        <a class="is-flex" href="#천구의-황도-The-ecliptic" data-link-name="toc">
+        <span class="has-mr-6">1.4</span>
+        <span>천구의 황도(The ecliptic)</span>
+        </a></li><li>
+        <a class="is-flex" href="#적경-Right-Ascension-적위-Declination" data-link-name="toc">
+        <span class="has-mr-6">1.5</span>
+        <span>적경(Right Ascension), 적위(Declination)</span>
+        </a></li><li>
+        <a class="is-flex" href="#황경-Ecliptic-longitude-황위-Ecliptic-latitude" data-link-name="toc">
+        <span class="has-mr-6">1.6</span>
+        <span>황경(Ecliptic longitude), 황위(Ecliptic latitude)</span>
+        </a></li><li>
+        <a class="is-flex" href="#궤도-교점-Orbital-node-승교점-Ascending-node-강교점-Descending-node" data-link-name="toc">
+        <span class="has-mr-6">1.7</span>
+        <span>궤도 교점(Orbital node), 승교점(Ascending node), 강교점(Descending node)</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#케플러-6요소" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>케플러 6요소</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#장반경-Semi-major-axis" data-link-name="toc">
+        <span class="has-mr-6">2.1</span>
+        <span>장반경(Semi-major axis)</span>
+        </a></li><li>
+        <a class="is-flex" href="#이심률-Eccentricity" data-link-name="toc">
+        <span class="has-mr-6">2.2</span>
+        <span>이심률(Eccentricity)</span>
+        </a></li><li>
+        <a class="is-flex" href="#기울기-Inclination" data-link-name="toc">
+        <span class="has-mr-6">2.3</span>
+        <span>기울기(Inclination)</span>
+        </a></li><li>
+        <a class="is-flex" href="#승교점-적경-Longitude-of-Ascending-Node" data-link-name="toc">
+        <span class="has-mr-6">2.4</span>
+        <span>승교점 적경(Longitude of Ascending Node)</span>
+        </a></li><li>
+        <a class="is-flex" href="#근일점-편각-Argument-of-periapsis" data-link-name="toc">
+        <span class="has-mr-6">2.5</span>
+        <span>근일점 편각(Argument of periapsis)</span>
+        </a></li><li>
+        <a class="is-flex" href="#근일점-통과-시각-T" data-link-name="toc">
+        <span class="has-mr-6">2.6</span>
+        <span>근일점 통과 시각(T)</span>
+        </a></li></ul></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="[JavaScript로 천체 구현하기] 케플러 6요소 알아보기" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

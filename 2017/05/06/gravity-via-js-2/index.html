@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>[JavaScript로 중력 구현하기] 2. 코딩하기 - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="이번 포스팅에서는 저번 포스팅에 이어 중력을 직접 JS로 구현해보려고 한다. 개발환경은 JavaScript ES7, babel, Webpack, Three.js을 사용하였다.">
+<meta name="keywords" content="JavaScript,중력 구현하기,중력,Gravity">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[JavaScript로 중력 구현하기] 2. 코딩하기">
+<meta property="og:url" content="https://evan-moon.github.io/2017/05/06/gravity-via-js-2/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="이번 포스팅에서는 저번 포스팅에 이어 중력을 직접 JS로 구현해보려고 한다. 개발환경은 JavaScript ES7, babel, Webpack, Three.js을 사용하였다.">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2017/05/06/gravity-via-js-2/thumbnail.jpg">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.052Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[JavaScript로 중력 구현하기] 2. 코딩하기">
+<meta name="twitter:description" content="이번 포스팅에서는 저번 포스팅에 이어 중력을 직접 JS로 구현해보려고 한다. 개발환경은 JavaScript ES7, babel, Webpack, Three.js을 사용하였다.">
+<meta name="twitter:image" content="https://evan-moon.github.io/2017/05/06/gravity-via-js-2/thumbnail.jpg">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2017/05/06/gravity-via-js-2/">
+
+
+<link rel="alternative" href="/feed.xml" title="[JavaScript로 중력 구현하기] 2. 코딩하기" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="[JavaScript로 중력 구현하기] 2. 코딩하기" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2017/05/06/gravity-via-js-2/thumbnail.jpg" alt="[JavaScript로 중력 구현하기] 2. 코딩하기">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2017-05-06T05:22:01.000Z">2017-05-06</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/programming/">Programming</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/programming/graphics/">Graphics</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                [JavaScript로 중력 구현하기] 2. 코딩하기
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>이번 포스팅에서는 <a href="/2017/05/06/gravity-via-js-1/" title="저번 포스팅">저번 포스팅</a>에 이어 중력을 직접 JS로 구현해보려고 한다. 개발환경은 JavaScript ES7, babel, Webpack, Three.js을 사용하였다.<br><a id="more"></a></p>
+<h2 id="필요한-상수-값들-선언"><a href="#필요한-상수-값들-선언" class="headerlink" title="필요한 상수 값들 선언"></a>필요한 상수 값들 선언</h2><p>먼저 프로그램에서 사용할 상수 값들 부터 선언하겠다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> initOptions = {</span><br><span class="line">  framerate: <span class="hljs-number">60</span>,</span><br><span class="line">  G: <span class="hljs-number">250</span>, <span class="hljs-comment">// 내 맘대로 중력상수</span></span><br><span class="line">  START_SPEED: <span class="hljs-number">30</span>, <span class="hljs-comment">// 초기화 시 물체들의 속도</span></span><br><span class="line">  OBJECT_COUNT: <span class="hljs-number">40</span>, <span class="hljs-comment">// 초기화 후 렌더 될 물체 개수</span></span><br><span class="line">  TRACE_LENGTH: <span class="hljs-number">100</span>, <span class="hljs-comment">// 물체의 이동 궤적 길이</span></span><br><span class="line">  MIN_MASS: <span class="hljs-number">400</span>, <span class="hljs-comment">// 물체들의 최소 질량</span></span><br><span class="line">  MAX_MASS: <span class="hljs-number">3000</span>, <span class="hljs-comment">// 물체들의 최대 질량</span></span><br><span class="line">  DENSITY: <span class="hljs-number">0.15</span> <span class="hljs-comment">// 물체들이 렌더되는 밀도</span></span><br><span class="line">};</span><br><span class="line"><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> SPHERE_SIDES = <span class="hljs-number">20</span>;</span><br><span class="line"><span class="hljs-keyword">export</span> <span class="hljs-keyword">const</span> MASS_FACTOR = <span class="hljs-number">0.01</span>;</span><br></pre></td></tr></tbody></table></figure>
+<p>원래라면 <code>6.6742e-11</code>의 값을 가지는 중력 상수는 <code>250</code>이나 준 이유는 이 물체들의 질량이 너무 작기 때문이다.<br>실제 중력상수 값을 이용해서 계산을 하고 그 중력의 영향이 눈에 보일 정도가 되려면 질량도 행성급으로 커야한다.</p>
+<p><code>MASS_FACTOR</code>는 나중에 렌더할 때 물체의 질량에 비례하도록 구의 크기를 설정하려고 하는데 질량 값들이 <code>400~3000</code>이다보니까 구의 부피가 너무 커질 것 같아서 그걸 보정하기 위해 선언한 상수이다.<br>일종의 압축률 비슷한 느낌으로 나중에 구의 scale값을 정의할 때 물체의 질량에 <code>MASS_FACTOR</code>를 곱해줘서 일정한 비율로 크기를 줄일 예정이다.</p>
+<p>이 포스팅은 <code>ThreeJS</code>를 설명하기 위한 포스팅이 아니므로 <code>Scene</code>과 <code>Renderer</code>의 선언 및 초기화 등에 대해서는 생략하고 지나가겠다.</p>
+<h2 id="Mover-클래스-선언"><a href="#Mover-클래스-선언" class="headerlink" title="Mover 클래스 선언"></a>Mover 클래스 선언</h2><p> 자 그럼 이제 실제 움직일 놈들을 구현하자.<br> 이름을 Object로 하고 싶었지만 알다시피 JS에서 Object라는 이름은 Build-in Object가 이미 가지고 있다.<br> 그래서 다른 이름을 고심하다가 그냥 <code>Mover</code>라고 했다. 만들던 중에 다른 사람들이 구현한 것도 좀 찾아보고 그러다보니 알게된 건데 다들 Mover라고 하더라….</p>
+ <figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">import</span> { SPHERE_SIDES, MASS_FACTOR } <span class="hljs-keyword">from</span> <span class="hljs-string">'src/constants'</span>;</span><br><span class="line"><span class="hljs-keyword">import</span> {</span><br><span class="line">  Vector3, SphereGeometry, Line,</span><br><span class="line">  MeshPhongMaterial, PointLight, Mesh, Geometry</span><br><span class="line">} <span class="hljs-keyword">from</span> <span class="hljs-string">'three'</span>;</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">export</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Mover</span> </span>{</span><br><span class="line">  <span class="hljs-keyword">constructor</span>(mass, velocity, location, id, scene) {</span><br><span class="line">    <span class="hljs-keyword">this</span>.uid = <span class="hljs-string">`mover-<span class="hljs-subst">${id}</span>`</span>;</span><br><span class="line">    <span class="hljs-keyword">this</span>.location = location;</span><br><span class="line">    <span class="hljs-keyword">this</span>.velocity = velocity;</span><br><span class="line">    <span class="hljs-keyword">this</span>.acceleration = <span class="hljs-keyword">new</span> Vector3(<span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>, <span class="hljs-number">0.0</span>);</span><br><span class="line">    <span class="hljs-keyword">this</span>.mass = mass;</span><br><span class="line">    <span class="hljs-keyword">this</span>.alive = <span class="hljs-literal">true</span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">this</span>.geometry = <span class="hljs-keyword">new</span> SphereGeometry(<span class="hljs-number">100</span>, SPHERE_SIDES, SPHERE_SIDES);</span><br><span class="line">    <span class="hljs-keyword">this</span>.vertices = [];</span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">this</span>.line = <span class="hljs-keyword">new</span> Line();</span><br><span class="line">    <span class="hljs-keyword">this</span>.color = <span class="hljs-keyword">this</span>.line.material.color;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">this</span>.basicMaterial = <span class="hljs-keyword">new</span> MeshPhongMaterial({</span><br><span class="line">      color: <span class="hljs-keyword">this</span>.color,</span><br><span class="line">      specular: <span class="hljs-keyword">this</span>.color,</span><br><span class="line">      shininess: <span class="hljs-number">10</span></span><br><span class="line">    });</span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">this</span>.mesh = <span class="hljs-keyword">new</span> Mesh(<span class="hljs-keyword">this</span>.geometry, <span class="hljs-keyword">this</span>.basicMaterial);</span><br><span class="line">    <span class="hljs-keyword">this</span>.mesh.castShadow = <span class="hljs-literal">false</span>;</span><br><span class="line">    <span class="hljs-keyword">this</span>.mesh.receiveShadow = <span class="hljs-literal">true</span>;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">this</span>.position = <span class="hljs-keyword">this</span>.location;</span><br><span class="line">    <span class="hljs-keyword">this</span>.parentScene = scene;</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p><code>Mover</code>클래스로 생성된 객체는 <code>constructor</code> 실행 시 넘겨받은 랜덤한 질량값과 속도, 위치 값을 가지고 있다.<br>그리고 <code>acceleration</code>값을 초기화 해준다. 가속도는 어떠한 방향으로 움직이는 속도이므로 3개의 원소를 가진 벡터로 선언해 주었다.</p>
+<p>그리고 <code>alive</code> 멤버 변수는 <code>Mover</code>끼리 충돌판정이 나면 <code>Mover</code> 두개를 하나로 합쳐서 더 큰 질량을 가진 <code>Mover</code>로 만들 예정이기때문에 얘가 죽었나 살았나를 판별하기 위한 값이다.</p>
+<h2 id="Mover-객체들-렌더하기"><a href="#Mover-객체들-렌더하기" class="headerlink" title="Mover 객체들 렌더하기"></a>Mover 객체들 렌더하기</h2><p>이후 <code>Scene</code>에는 초기화 시 <code>Mover</code>들을 그려주는 로직을 써주었다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> {</span><br><span class="line">  reset() {</span><br><span class="line">    <span class="hljs-keyword">const</span> movers = <span class="hljs-keyword">this</span>.movers;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">if</span>(movers) { <span class="hljs-comment">// movers리스트 초기화</span></span><br><span class="line">      movers.forEach(<span class="hljs-function"><span class="hljs-params">v</span> =></span> {</span><br><span class="line">        <span class="hljs-keyword">this</span>.scene.remove(v.mesh);</span><br><span class="line">        <span class="hljs-keyword">this</span>.scene.remove(v.selectionLight);</span><br><span class="line">        <span class="hljs-keyword">this</span>.scene.remove(v.line);</span><br><span class="line">      });</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    movers = [];</span><br><span class="line">    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i < <span class="hljs-built_in">parseInt</span>(<span class="hljs-keyword">this</span>.options.MOVER_COUNT); i++) {</span><br><span class="line">      <span class="hljs-keyword">const</span> mass = <span class="hljs-keyword">this</span>.getRandomize(<span class="hljs-keyword">this</span>.options.MIN_MASS, <span class="hljs-keyword">this</span>.options.MAX_MASS);</span><br><span class="line">      <span class="hljs-keyword">const</span> maxDistance = <span class="hljs-built_in">parseFloat</span>(<span class="hljs-number">1000</span> / <span class="hljs-keyword">this</span>.options.DENSITY);</span><br><span class="line">      <span class="hljs-keyword">const</span> maxSpeed = <span class="hljs-built_in">parseFloat</span>(<span class="hljs-keyword">this</span>.options.START_SPEED);</span><br><span class="line"></span><br><span class="line">      <span class="hljs-keyword">const</span> velocity = <span class="hljs-keyword">new</span> Vector3(</span><br><span class="line">        <span class="hljs-keyword">this</span>.getRandomize(-maxSpeed, maxSpeed),</span><br><span class="line">        <span class="hljs-keyword">this</span>.getRandomize(-maxSpeed, maxSpeed),</span><br><span class="line">        <span class="hljs-keyword">this</span>.getRandomize(-maxSpeed, maxSpeed)</span><br><span class="line">      );</span><br><span class="line">      <span class="hljs-keyword">const</span> location = <span class="hljs-keyword">new</span> Vector3(</span><br><span class="line">        <span class="hljs-keyword">this</span>.getRandomize(-maxDistance, maxDistance),</span><br><span class="line">        <span class="hljs-keyword">this</span>.getRandomize(-maxDistance, maxDistance),</span><br><span class="line">        <span class="hljs-keyword">this</span>.getRandomize(-maxDistance, maxDistance)</span><br><span class="line">      );</span><br><span class="line"></span><br><span class="line">      <span class="hljs-comment">// 랜덤한 속도, 위치, 질량을 가진 Mover를 생성</span></span><br><span class="line">      movers.push(<span class="hljs-keyword">new</span> Mover(mass, velocity, location, i, <span class="hljs-keyword">this</span>.scene));</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">// Mover가 초기화될 때 만들어진 Mesh, Line, Light 객체를 Scene에 넣는다</span></span><br><span class="line">    movers.forEach(<span class="hljs-function"><span class="hljs-params">v</span> =></span> v.addMover());</span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">this</span>.movers = movers;</span><br><span class="line">  },</span><br><span class="line">  getRandomize(min, max) {</span><br><span class="line">      <span class="hljs-keyword">return</span> <span class="hljs-built_in">Math</span>.random() * (max - min) + min;</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>이제 <code>Scene</code>은 여러 개의 <code>Mover</code>를 담은 리스트인 <code>movers</code>를 가지게 되었다. 이제 렌더되는 동안 계산만 하면 끝! 인데…<br>전 포스팅에서 말했듯이 여러 개의 물체에 대한 중력을 구하는 다체문제는 해를 구할 수가 없다.<br>그래서 우리는 <code>movers</code>를 순회하며 한번 순회할 때마다 다른 <code>Mover</code>들과의 중력을 이체문제로 모두 계산하는 로직을 만들어야한다.</p>
+<h2 id="Mover-객체들-운동-시키기"><a href="#Mover-객체들-운동-시키기" class="headerlink" title="Mover 객체들 운동 시키기"></a>Mover 객체들 운동 시키기</h2><figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">let</span> movers = <span class="hljs-keyword">this</span>.movers;</span><br><span class="line"></span><br><span class="line">movers.forEach(<span class="hljs-function">(<span class="hljs-params">o1, i</span>) =></span> {</span><br><span class="line">  <span class="hljs-keyword">if</span>(!o1.alive) <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;</span><br><span class="line">  movers.forEach(<span class="hljs-function">(<span class="hljs-params">o2, j</span>) =></span> {</span><br><span class="line">    <span class="hljs-keyword">if</span>(o1.alive && o2.alive && i !== j) {</span><br><span class="line">      <span class="hljs-comment">// o1 -> o2의 거리</span></span><br><span class="line">      <span class="hljs-keyword">const</span> distance = o1.location.distanceTo(o2.location);</span><br><span class="line"></span><br><span class="line">      <span class="hljs-comment">// o1, o2의 반지름 r1, r2</span></span><br><span class="line">      <span class="hljs-keyword">const</span> r1 = (o1.mass / MASS_FACTOR / MASS_FACTOR / <span class="hljs-number">4</span> * <span class="hljs-built_in">Math</span>.PI) ** (<span class="hljs-number">1</span>/<span class="hljs-number">3</span>);</span><br><span class="line">      <span class="hljs-keyword">const</span> r2 = (o2.mass / MASS_FACTOR / MASS_FACTOR / <span class="hljs-number">4</span> * <span class="hljs-built_in">Math</span>.PI) ** (<span class="hljs-number">1</span>/<span class="hljs-number">3</span>);</span><br><span class="line"></span><br><span class="line">      <span class="hljs-keyword">if</span>(distance <= r1 + r2) {< span><br><span class="line">        <span class="hljs-comment">// 둘의 거리가 둘의 반지름의 합 이하면 충돌한 것으로 판정, 두 물체를 합친다</span></span><br><span class="line">        o2.eat(o1);</span><br><span class="line">      }</span><br><span class="line">      <span class="hljs-keyword">else</span> {</span><br><span class="line">        <span class="hljs-comment">// 충돌이 아닐 경우 그냥 운동만 시킨다</span></span><br><span class="line">        o2.attract(o1, <span class="hljs-keyword">this</span>.options);</span><br><span class="line">      }</span><br><span class="line">    }</span><br><span class="line">  });</span><br><span class="line">});</span><br></=></span></pre></td></tr></tbody></table></figure>
+<p>우선 이런 식으로 전체 <code>Mover</code>들을 순회하면서 충돌 판정을 내주었다.<br><code>Mover</code>클래스의 <code>eat</code>메소드는 충돌 판정이 난 두개의 <code>Mover</code>들을 하나로 합치는 로직을 가지고 있으며, <code>attract</code>메소드에는 현재 두 물체의 거리에서의 중력을 측정하고 <code>Mover</code>의 가속도에 더해주는 역할을 하고 있다.<br>이후 모든 계산이 끝나면 <code>Mover</code>의 위치와 크기, 속도, 방향 등을 업데이트 해주었다. <code>Gravity</code>클래스의 <code>calcGravity</code>메소드는 <a href="/2017/05/06/gravity-via-js-1/" title="저번 포스팅">저번 포스팅</a>에서 적었던 로직 그대로이다.</p>
+<p><code>Mover</code>의 운동에 관련된 메소드들은 다음과 같다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">export</span> <span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Mover</span> </span>{</span><br><span class="line">  <span class="hljs-keyword">constructor</span>(mass, velocity, location, id, scene) {</span><br><span class="line">    <span class="hljs-comment">// ...</span></span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  eat(otherMover) {</span><br><span class="line">    <span class="hljs-keyword">const</span> newMass = <span class="hljs-keyword">this</span>.mass + otherMover.mass;</span><br><span class="line">    <span class="hljs-keyword">const</span> newLocation = <span class="hljs-keyword">new</span> Vector3(</span><br><span class="line">      (<span class="hljs-keyword">this</span>.location.x * <span class="hljs-keyword">this</span>.mass + otherMover.location.x * otherMover.mass) / newMass,</span><br><span class="line">      (<span class="hljs-keyword">this</span>.location.y * <span class="hljs-keyword">this</span>.mass + otherMover.location.y * otherMover.mass) / newMass,</span><br><span class="line">      (<span class="hljs-keyword">this</span>.location.z * <span class="hljs-keyword">this</span>.mass + otherMover.location.z * otherMover.mass) / newMass</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">const</span> newVelocity = <span class="hljs-keyword">new</span> Vector3(</span><br><span class="line">      (<span class="hljs-keyword">this</span>.velocity.x * <span class="hljs-keyword">this</span>.mass + otherMover.velocity.x * otherMover.mass) / newMass,</span><br><span class="line">      (<span class="hljs-keyword">this</span>.velocity.y * <span class="hljs-keyword">this</span>.mass + otherMover.velocity.y * otherMover.mass) / newMass,</span><br><span class="line">      (<span class="hljs-keyword">this</span>.velocity.z * <span class="hljs-keyword">this</span>.mass + otherMover.velocity.z * otherMover.mass) / newMass</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">this</span>.location = newLocation;</span><br><span class="line">    <span class="hljs-keyword">this</span>.velocity = newVelocity;</span><br><span class="line">    <span class="hljs-keyword">this</span>.mass = newMass;</span><br><span class="line"></span><br><span class="line">    otherMover.kill();</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  attract(otherMover, options) {</span><br><span class="line">    <span class="hljs-keyword">const</span> force = Gravity.calcGravity(<span class="hljs-keyword">this</span>, otherMover, options.G);</span><br><span class="line">    <span class="hljs-keyword">this</span>.applyForce(force);</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  applyForce(force) {</span><br><span class="line">    <span class="hljs-keyword">if</span>(!<span class="hljs-keyword">this</span>.mass) <span class="hljs-keyword">this</span>.mass = <span class="hljs-number">1.0</span>;</span><br><span class="line">    <span class="hljs-keyword">const</span> f = force.divideScalar(<span class="hljs-keyword">this</span>.mass);</span><br><span class="line"></span><br><span class="line">    <span class="hljs-comment">// mover의 가속도에 힘을 적용</span></span><br><span class="line">    <span class="hljs-keyword">this</span>.acceleration.add(f);</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  update() {</span><br><span class="line">    <span class="hljs-keyword">this</span>.velocity.add(<span class="hljs-keyword">this</span>.acceleration); <span class="hljs-comment">// 속도에 가속도 더함</span></span><br><span class="line">    <span class="hljs-keyword">this</span>.location.add(<span class="hljs-keyword">this</span>.velocity); <span class="hljs-comment">// 위치에 속도 더해서 이동시킴</span></span><br><span class="line">    <span class="hljs-keyword">this</span>.acceleration.multiplyScalar(<span class="hljs-number">0</span>); <span class="hljs-comment">// 가속도 초기화</span></span><br><span class="line">    <span class="hljs-keyword">this</span>.mesh.position.copy(<span class="hljs-keyword">this</span>.location); <span class="hljs-comment">// mover의 mesh객체에 위치 적용</span></span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>정리하자면 매 프레임마다 <code>movers</code>리스트를 순회하면서 각 <code>Mover</code>들간의 중력을 계산하고 가속도를 적용한 후 실제로 <code>Mover</code>를 이동시키는 것이다.<br>전체 소스는 <a href="https://github.com/evan-moon/3d-gravity-test" target="_blank" rel="external nofollow noopener noreferrer">중력 테스트 프로젝트 깃허브 레파지토리</a>에서 확인해볼 수 있다.</p>
+<p>이상으로 JavaScript로 중력 구현하기 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/06/gravity-via-js-1/" title="[JavaScript로 중력 구현하기] 1. 중력이란 무엇일까?" rel="bookmark">[JavaScript로 중력 구현하기] 1. 중력이란 무엇일까?</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/10/27/inheritance-with-prototype/" title="[JS 프로토타입] 프로토타입을 사용하여 상속하기" rel="bookmark">[JS 프로토타입] 프로토타입을 사용하여 상속하기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/03/calculate-orbit-1/" title="[JavaScript로 천체 구현하기] 케플러 6요소 알아보기" rel="bookmark">[JavaScript로 천체 구현하기] 케플러 6요소 알아보기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/06/15/diving-into-js-array/" title="JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기" rel="bookmark">JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/08/08/fix-webpack-dev-memory-leak/" title="Webpack Watch의 메모리 누수 고치기" rel="bookmark">Webpack Watch의 메모리 누수 고치기</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/gravity/">Gravity</a><a class="tag -link" href="/tags/javascript/">JavaScript</a><a class="tag -link" href="/tags/중력/">중력</a><a class="tag -link" href="/tags/중력-구현하기/">중력 구현하기</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2017/05/14/paypal-express-checkout/">
+                <i class="fas fa-chevron-left"></i> Paypal - Express Checkout Restful API 사용하기
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2017/05/06/gravity-via-js-1/">
+                [JavaScript로 중력 구현하기] 1. 중력이란 무엇일까? <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#필요한-상수-값들-선언" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>필요한 상수 값들 선언</span>
+        </a></li><li>
+        <a class="is-flex" href="#Mover-클래스-선언" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>Mover 클래스 선언</span>
+        </a></li><li>
+        <a class="is-flex" href="#Mover-객체들-렌더하기" data-link-name="toc">
+        <span class="has-mr-6">3</span>
+        <span>Mover 객체들 렌더하기</span>
+        </a></li><li>
+        <a class="is-flex" href="#Mover-객체들-운동-시키기" data-link-name="toc">
+        <span class="has-mr-6">4</span>
+        <span>Mover 객체들 운동 시키기</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="[JavaScript로 중력 구현하기] 2. 코딩하기" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

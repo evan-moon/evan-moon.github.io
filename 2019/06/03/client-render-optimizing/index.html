@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>클라이언트 사이드 렌더링 최적화 - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="이번 포스팅에서는 필자의 현직장에서 진행했던 클라이언트 사이드 렌더링 최적화에 대해서 적어보려고 한다. 크롬 브라우저의 Audits 탭에서 현재 페이지의 퍼포먼스나 SEO 점수와 같은 지표를 확인해볼 수 있다.">
+<meta name="keywords" content="JavaScript,SEO,렌더 최적화,Render Optimizing">
+<meta property="og:type" content="article">
+<meta property="og:title" content="클라이언트 사이드 렌더링 최적화">
+<meta property="og:url" content="https://evan-moon.github.io/2019/06/03/client-render-optimizing/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="이번 포스팅에서는 필자의 현직장에서 진행했던 클라이언트 사이드 렌더링 최적화에 대해서 적어보려고 한다. 크롬 브라우저의 Audits 탭에서 현재 페이지의 퍼포먼스나 SEO 점수와 같은 지표를 확인해볼 수 있다.">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2019/06/03/client-render-optimizing/result_before.png">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.088Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="클라이언트 사이드 렌더링 최적화">
+<meta name="twitter:description" content="이번 포스팅에서는 필자의 현직장에서 진행했던 클라이언트 사이드 렌더링 최적화에 대해서 적어보려고 한다. 크롬 브라우저의 Audits 탭에서 현재 페이지의 퍼포먼스나 SEO 점수와 같은 지표를 확인해볼 수 있다.">
+<meta name="twitter:image" content="https://evan-moon.github.io/2019/06/03/client-render-optimizing/result_before.png">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2019/06/03/client-render-optimizing/">
+
+
+<link rel="alternative" href="/feed.xml" title="클라이언트 사이드 렌더링 최적화" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="클라이언트 사이드 렌더링 최적화" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2019/06/03/client-render-optimizing/result_before.png" alt="클라이언트 사이드 렌더링 최적화">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-06-03T08:22:26.000Z">2019-06-03</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/programming/">Programming</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/programming/web/">Web</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                클라이언트 사이드 렌더링 최적화
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>이번 포스팅에서는 필자의 현직장에서 진행했던 클라이언트 사이드 렌더링 최적화에 대해서 적어보려고 한다. 크롬 브라우저의 Audits 탭에서 현재 페이지의 퍼포먼스나 SEO 점수와 같은 지표를 확인해볼 수 있다.<br><a id="more"></a></p>
+<p>이 지표는 Google Chrome 팀에서 제공하는  Lighthouse라는 툴을 사용하여 측정된다. 또한 측정된 지표를 JSON 포맷으로 Export하여 저장하고 Lighthouse의 Report Viewer 페이지에서 다시 확인해볼수도 있다. 아래 링크들을 살펴보면 Lighthouse에 대해서 더 잘 알 수 있을 것이다.</p>
+<hr>
+<p><a href="https://github.com/GoogleChrome/lighthouse" target="_blank" rel="external nofollow noopener noreferrer">Lighthouse Github 레파지토리</a><br><a href="https://developers.google.com/web/tools/lighthouse/?hl=ko" target="_blank" rel="external nofollow noopener noreferrer">Google Devloper의 Lighthouse 문서</a><br><a href="https://googlechrome.github.io/lighthouse/viewer/" target="_blank" rel="external nofollow noopener noreferrer">Lighthouse Report Viewer</a></p>
+<hr>
+<h2 id="최적화를-진행하게-된-이유"><a href="#최적화를-진행하게-된-이유" class="headerlink" title="최적화를 진행하게 된 이유?"></a>최적화를 진행하게 된 이유?</h2><p>필자는 회사에서 <a href="https://soomgo.com" target="_blank" rel="external nofollow noopener noreferrer"><strong>숨고</strong></a>라는 서비스를 개발하고 있다. 숨고에서는 1주 단위의 스프린트로 업무를 진행하고 있는데, 마침 이번 주에 다른 이슈에 의해 필자가 진행할 이슈가 병목에 걸려버려서 시간이 붕 떴다.그래서 뭘 할까 찾아보다가 숨고의 <a href="https://soomgo.com/search/pro" target="_blank" rel="external nofollow noopener noreferrer">고수 찾기</a> 페이지에서 Audits를 한번 돌렸는데 First Meaningful Paint 항목이 거의 2초가 걸리는 것을 확인했다.</p>
+<center><br>    <img src="/2019/06/03/client-render-optimizing/result_before.png" title="result_before"><br>    <sub>숨고의 고수 찾기 페이지를 분석한 결과</sub><br></center>
+
+<p>해당 페이지는 SEO 최적화 대상 페이지 중 하나이기 때문에 이 참에 <code>First Meaningful Paint</code> 시간을 1초 아래까지 줄여보자라는 목표를 가지고 최적화를 진행하게 되었다. 사실 해당 페이지는 이 작업 이전에도 동료들과 함께 여러 차례에 걸쳐 최적화 작업을 진행해왔기 때문에 페이지 자체의 로딩 속도는 나쁜 편은 아니다. 그러나 이전의 최적화는 클라이언트보다는 렌더 서버에 초점을 맞춰서 진행해왔기 때문에 클라이언트 렌더링의 병목 지점을 확인한 것은 사실 이번이 처음이다.</p>
+<h2 id="문제점-파악"><a href="#문제점-파악" class="headerlink" title="문제점 파악"></a>문제점 파악</h2><p>일단 Lighthouse에서 감사 결과로 지목했던 다양한 문제점 중 지금 당장 짧은 시간 안에 해결할 수 있는 문제들을 중심으로 파악했다. 애초에 이 이슈는 스프린트에 들어갔던 이슈가 아니라 우연히 시간이 남아서 하게 된 일이기 때문에 자칫 <a href="https://www.lesstif.com/pages/viewpage.action?pageId=29590364" target="_blank" rel="external nofollow noopener noreferrer">야크 털깎기</a>에 빠지거나 욕심을 부려서 너무 오랜 시간을 끌게되면 정작 중요한 비지니스 이슈를 처리하지 못하기 때문이다. 그 중 필자가 생각하기에 짧은 시간안에 우선 개선할 수 있는 부분은 다음과 같았다.</p>
+<h4 id="Text-압축-미사용"><a href="#Text-압축-미사용" class="headerlink" title="Text 압축 미사용"></a>Text 압축 미사용</h4><p>보통 <code>text/html</code>이나 <code>application/javascript</code> 등 텍스트나 코드로 취급되는 리소스들은 gzip 압축을 사용한다. 하지만 현재 렌더 서버는 <code>text/html</code> 타입만 gzip 압축을 수행하고 있었다.</p>
+<h4 id="오프스크린-이미지-지연이-필요함"><a href="#오프스크린-이미지-지연이-필요함" class="headerlink" title="오프스크린 이미지 지연이 필요함"></a>오프스크린 이미지 지연이 필요함</h4><p><code>오프스크린 이미지</code>란 코드 상에는 존재하지만 화면 밖에 있거나 CSS 스타일로 인해 감춰져 있는 등 실제로 유저에게는 보여지고 있지 않은 이미지를 의미한다. 이런 이미지는 당연히 지연 로딩(Lazy Loading)을 하는 것이 좋을 거라 생각했다.</p>
+<h4 id="네트워크-페이로드-크기가-너무-크다"><a href="#네트워크-페이로드-크기가-너무-크다" class="headerlink" title="네트워크 페이로드 크기가 너무 크다"></a>네트워크 페이로드 크기가 너무 크다</h4><p>이 문제는 상기한 <code>Text 압축 미사용</code>과 관련있다. 말 그대로 리소스를 한번 요청했을 때 받아와야하는 데이터의 크기가 너무 크다는 것을 의미한다. 이 이슈는 gzip 압축과 Code Chunking 등으로 해결할 수 있다.</p>
+<h4 id="기본-스레드-작업-최소화-하기"><a href="#기본-스레드-작업-최소화-하기" class="headerlink" title="기본 스레드 작업 최소화 하기"></a>기본 스레드 작업 최소화 하기</h4><p>브라우저에서 웹 애플리케이션을 초기화 할 때 JavaScript를 실행하는 시간이 너무 오래 걸려서 화면에 요소를 렌더링하는 행위에 병목이 발생한 것을 의미한다. 이 문제를 해결하기 위한 방법은 진짜 마이너한 최적화부터 조금만 손봐도 큰 효과를 볼 수 있는 방법까지 여러가지 방법이 떠올랐는데, 마이너한 최적화는 사실 하나마나므로 최소 비용으로 최대의 효과를 얻을 수 있는 방법을 골라야 했다.</p>
+<h4 id="웹폰트가-로드되는-동안-텍스트가-계속-표시되는지-확인하기"><a href="#웹폰트가-로드되는-동안-텍스트가-계속-표시되는지-확인하기" class="headerlink" title="웹폰트가 로드되는 동안 텍스트가 계속 표시되는지 확인하기"></a>웹폰트가 로드되는 동안 텍스트가 계속 표시되는지 확인하기</h4><p>아무런 조치도 취하지 않았을 경우 브라우저들은 각각의 정책에 따라 웹폰트를 렌더하는 방법이 다르다. Chrome, Firefox, Safari, Opera 같은 Webkit 진영의 브라우저들은 웹폰트의 다운로드가 완료될 때 까지 폰트가 적용된 텍스트를 보여주지 않는 <code>FOIT(Flash of Invisible Text)</code> 방식으로, IE, Edge는 웹폰트의 다운로드가 완료될 때 까지 텍스트를 기본 폰트가 적용된 상태로 노출시키는 <code>FOUT(Flash of Unstyled Text)</code> 방식으로 웹폰트를 렌더한다. 그렇기 때문에 Lighthouse는 사용자가 웹폰트 다운로드 완료 여부와 상관없이 페이지의 내용을 확인할 수 있는 FOUT 방식을 사용할 것을 권고하였다.</p>
+<h2 id="조치"><a href="#조치" class="headerlink" title="조치"></a>조치</h2><h4 id="이미지-지연-로딩"><a href="#이미지-지연-로딩" class="headerlink" title="이미지 지연 로딩"></a>이미지 지연 로딩</h4><p>이미지 지연 로딩은 HTML5의 <a href="https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API" target="_blank" rel="external nofollow noopener noreferrer">IntersectionObserver</a>를 사용하면 간단하게 구현할 수 있다. 그러나 한가지 걱정되었던 것은 “지연 로딩을 하면 구글의 Search Engine Bot이 이미지를 긁어가지 못하는 것이 아닌가?”라는 것이다. 그래서 다른 사람들은 어떤 방식으로 생각하는 지 알고 싶어 리서치를 조금 해봤는데 <code><noscript></noscript></code> 태그를 사용하는 방법, XML을 사용하여 이미지 사이트맵을 만드는 방법 등 몇가지 방법이 있었고 혹자는 구글의 Search Engine Bot이 지연 로딩을 사용하여 불러오는 이미지도 전부 인덱싱하기 때문에 신경안써도 된다는 얘기도 있었다.</p>
+<p>그래서 이 문제에 관해 PO(Product Owner)와 토의해보았다. 그 결과 어차피 고수 찾기 페이기에 있는 이미지는 유저 프로필 이미지 밖에 없고, 이 이미지들은 인덱싱이 되든 안되든 SEO에 큰 영향이 없을 것으로 판단되어 별도의 조치 없이 그냥 지연 로딩을 적용하기로 하였다.</p>
+<p>숨고 프론트엔드는 Vue를 사용하고 있기 때문에 Vue에서 제공해주는 <code>Directive</code>와 HTML5의 <code>IntersectionObserver</code> API를 사용하여 이미지 지연 로딩 기능을 구현하였다. 일단 유저의 프로필 이미지를 렌더하고 있는 컴포넌트 내부에서 유저 프로필을 <code>img</code> 태그가 아니라 CSS의 <code>background-image</code> 속성을 사용하여 렌더하고 있기 때문에 필자가 생각했던 이 디렉티브의 인터페이스는 대충 이랬다.</p>
+<figure class="highlight html hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-tag"><<span class="hljs-name">div</span> <span class="hljs-attr">class</span>=<span class="hljs-string">"test"</span> <span class="hljs-attr">v-lazy-background-image</span>></span><span class="hljs-tag">div</span>></span><br><span class="line"><span class="hljs-comment"><!-- 디렉티브 바인딩 후 --></span></span><br><span class="line"><span class="hljs-tag"><<span class="hljs-name">div</span></span></span><br><span class="line"><span class="hljs-tag">  <span class="hljs-attr">class</span>=<span class="hljs-string">"test"</span></span></span><br><span class="line"><span class="hljs-tag">  <span class="hljs-attr">v-lazy-background-image</span></span></span><br><span class="line"><span class="hljs-tag">  <span class="hljs-attr">data-lazy-background-image</span>=<span class="hljs-string">"스타일에서는 이미지 URL을 지우고 여기다가 이미지 URL을 담아놓자"</span></span></span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight css hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-selector-class">.test</span> {</span><br><span class="line">  <span class="hljs-attribute">background-image</span>: <span class="hljs-built_in">url</span>(https://assets.soomgo.com/user/example.jpeg);</span><br><span class="line">}</span><br><span class="line"><span class="hljs-comment">/* 디렉티브 바인딩 후 */</span></span><br><span class="line"><span class="hljs-selector-class">.test</span> {}</span><br></pre></td></tr></tbody></table></figure>
+<p>이런 엘리먼트가 있을 때 <code>lazy-background-image</code> 디렉티브는 바인딩된 엘리먼트의 <code>style</code> 속성에 접근해서 <code>background-image</code> 속성이 있으면 해당 URL을 별도의 속성에 저장해놨다가 엘리먼트가 뷰포트에 진입했을 때 해당 이미지를 지연 로딩해주면 될 것 같았다. 여기까지 구상이 됐으면 Observer를 간단히 구현하면 된다. 그러나 한 가지 간과해선 안되는 점이 있는데,  IntersectionObserver API를 아직 지원하지않는 브라우저들이 많다는 것이다. 때문에 반드시 이런 브라우저들에 대해서 예외처리를 해줘야한다. IntersectionObserver API의 지원 현황에 대해서는 <a href="https://caniuse.com/#feat=intersectionobserver" target="_blank" rel="external nofollow noopener noreferrer">Can I Use IntersectionObserver</a>를 참고하자.</p>
+<figure class="highlight ts hljs"><figcaption><span>lazy-background-image.directive.ts</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> isSupportIntersectionObserver = <span class="hljs-string">'IntersectionObserver'</span> <span class="hljs-keyword">in</span> <span class="hljs-built_in">window</span>;</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">const</span> intersectionObserver: IntersectionObserver|<span class="hljs-literal">null</span> = isSupportIntersectionObserver</span><br><span class="line">  ? <span class="hljs-keyword">new</span> IntersectionObserver(<span class="hljs-function">(<span class="hljs-params">entries: IntersectionObserverEntry[], observer: IntersectionObserver</span>) =></span> {</span><br><span class="line">    entries.forEach(<span class="hljs-function"><span class="hljs-params">entry</span> =></span> {</span><br><span class="line">      <span class="hljs-keyword">if</span> (entry.isIntersecting) {</span><br><span class="line">        <span class="hljs-keyword">const</span> imageURL: <span class="hljs-built_in">string</span> = entry.target.getAttribute(<span class="hljs-string">'data-lazy-background-image'</span>);</span><br><span class="line">        <span class="hljs-keyword">if</span> (!imageURL.length) {</span><br><span class="line">          <span class="hljs-keyword">return</span>;</span><br><span class="line">        }</span><br><span class="line"></span><br><span class="line">        entry.target.style.backgroundImage = imageURL;</span><br><span class="line">        observer.unobserve(entry.target);</span><br><span class="line">      }</span><br><span class="line">    });</span><br><span class="line">  })</span><br><span class="line">  : <span class="hljs-literal">null</span>;</span><br></pre></td></tr></tbody></table></figure>
+<p>IntersectionObserver의 constructor는 요소가 뷰포트로 들어오거나 벗어나는 등 행위가 발생했을 때 Observer가 호출할 콜백 함수를 전달 인자로 받는다. 과거 scroll 이벤트로 비슷한 행동을 처리했지만 이벤트는 동기적으로 반응하기 때문에 메인 스레드의 응답성, 간단하게 말하면 퍼포먼스에 영향을 준다. scroll 이벤트는 워낙 빈번하게 호출되기 때문에 scroll 이벤트 핸들러에서 조금만 많은 처리를 해도 화면이 뚝뚝 끊기는 등 문제가 발생하는 모습을 볼 수 있다.<small>(이벤트 옵션 중 passive 옵션을 사용하면 어느 정도 이 현상을 방어할 수는 있다.)</small></p>
+<p>그러나 Observer는 비동기적으로 동작하기 때문에 메인 스레드의 처리 스택과 독립적으로 실행된다. 브라우저 지원률이 90%가 안된다는 점만 해결된다면 진짜 좋을 텐데…<br>이제 Observer를 구현했으니 디렉티브를 뚝딱 만들면 된다.</p>
+<figure class="highlight ts hljs"><figcaption><span>lazy-background-image.directive.ts</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">import</span> { Vue } <span class="hljs-keyword">from</span> <span class="hljs-string">'vue-property-decorator'</span>;</span><br><span class="line"><span class="hljs-keyword">import</span> { VNode, VNodeDirective } <span class="hljs-keyword">from</span> <span class="hljs-string">'vue'</span>;</span><br><span class="line"></span><br><span class="line">Vue.directive(<span class="hljs-string">'lazy-background-image'</span>, {</span><br><span class="line">  bind (el: <span class="hljs-built_in">any</span>, binding: VNodeDirective, vnode: VNode) {</span><br><span class="line">    <span class="hljs-keyword">if</span> (isSupportIntersectionObserver) {</span><br><span class="line">      <span class="hljs-keyword">if</span> (!el.style.backgroundImage) {</span><br><span class="line">        <span class="hljs-keyword">return</span>;</span><br><span class="line">      }</span><br><span class="line">      el.setAttribute(<span class="hljs-string">'data-lazy-background-image'</span>, el.style.backgroundImage);</span><br><span class="line">      el.style.backgroundImage = <span class="hljs-string">''</span>;</span><br><span class="line">      intersectionObserver.observe(el);</span><br><span class="line">    }</span><br><span class="line">  },</span><br><span class="line">  unbind (el: <span class="hljs-built_in">any</span>) {</span><br><span class="line">    <span class="hljs-keyword">if</span> (isSupportIntersectionObserver) {</span><br><span class="line">      intersectionObserver.unobserve(el);</span><br><span class="line">    }</span><br><span class="line">  },</span><br><span class="line">});</span><br></pre></td></tr></tbody></table></figure>
+<p>이렇게 디렉티브를 사용하여 이미지 지연 로딩을 한 결과 최초 요청하는 이미지 개수를 60개에서 39개로 대폭 줄일 수 있었다.</p>
+<center><br>  <img src="/2019/06/03/client-render-optimizing/lazy_load_before.png" title="lazy_load_before"><br>  <img src="/2019/06/03/client-render-optimizing/lazy_load_after.png" title="lazy_load_after"><br>  <br><br></center>
+
+<h4 id="컴포넌트-지연-로딩"><a href="#컴포넌트-지연-로딩" class="headerlink" title="컴포넌트 지연 로딩"></a>컴포넌트 지연 로딩</h4><p>숨고 프론트엔드는 SEO를 위해 첫 요청은 <code>SSR(서버사이드렌더링)</code>을 하지만 그 외에는 일반적인 SPA와 동일한 방식으로 작동한다. 그렇기 때문에 처음 애플리케이션이 초기화될 때 애플리케이션 내에서 사용될 모든 JavaScript와 CSS를 받아온다. 이 방식은 애플리케이션이 작을 때는 딱히 문제가 되지 않지만 애플리케이션이 커질수록 번들의 용량도 비례하여 늘어나므로 점점 부담이 되기 마련이다. 그래서 Webpack에서 제공하는 기능인 Dynamic Import를 사용하여 해당 페이지에서 사용하는 코드만을 비동기적으로 로드하여 사용하도록 변경하였다.</p>
+<figure class="highlight ts hljs"><figcaption><span>router/search.ts</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// Sync</span></span><br><span class="line"><span class="hljs-keyword">import</span> SearchPro <span class="hljs-keyword">from</span> <span class="hljs-string">'@/pages/Search/SearchPro'</span>;</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// Async</span></span><br><span class="line"><span class="hljs-keyword">const</span> SearchPro = <span class="hljs-function"><span class="hljs-params">()</span> =></span> <span class="hljs-keyword">import</span>(<span class="hljs-comment">/* webpackChunkName: "search" */</span> <span class="hljs-string">'src/pages/Search/SearchPro'</span>);</span><br></pre></td></tr></tbody></table></figure>
+<p><code>webpackChunkName</code> 주석을 사용하면 일정 단위의 모듈들을 하나의 청크로 묶어줄 수 있다. 숨고는 현재 HTTP/1.1 프로토콜을 사용하고 있으므로 한번에 요청할 수 있는 리소스의 개수가 6개 정도로 한정되어있다.<small>(이 개수는 브라우저의 정책에 따라 조금씩 다르다)</small><br>청크의 개수가 너무 많아지면 오히려 로딩 속도가 느려질 수 있으므로 관련있는 모듈을 묶어주어 청크의 개수가 너무 많아지지 않도록 조절하였다.</p>
+<p>여기까지는 솔직히 별로 어려울 것도 없고 순조로웠는데 CSS를 별도의 번들로 분리하기 위해 사용하는 <code>mini-css-extract-plugin</code>에서 문제가 발생했다. 이 플러그인이 Dynamic import로 불러온 CSS 모듈을 처리하는 방식 때문에 SSR 사이클에서 <code>ReferenceError: document is not defined</code>라는 참조 에러가 발생했던 것이다.</p>
+<figure class="highlight js hljs"><figcaption><span>node_modules/mini-css-extract-plugin/dist/index.js</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">var</span> linkTag = <span class="hljs-built_in">document</span>.createElement(<span class="hljs-string">"link"</span>);</span><br><span class="line">linkTag.rel = <span class="hljs-string">"stylesheet"</span>;</span><br><span class="line">linkTag.type = <span class="hljs-string">"text/css"</span>;</span><br><span class="line">linkTag.onload = resolve;</span><br><span class="line">linkTag.href = fullhref;</span><br><span class="line">head.appendChild(linkTag);</span><br></pre></td></tr></tbody></table></figure>
+<p>원래 코드는 엄청 거대하지만 간단하게 한번 추려보자면 여기가 문제가 발생한 부분이다.<br>SSR 사이클은 NodeJS 프로세스에서 실행되므로 당연히 document고 나발이고 없기 때문에 참조 에러가 발생한 것이다. 다행히 빌드 설정은 <code>client.config</code>와 <code>server.config</code>로 나눠서 관리되고 있기 때문에 적절한 조치를 취해줄 수 있었다. 클라이언트 사이드 렌더링 사이클은 문제 없으므로 최초 요청 시 Express가 Vue를 컴파일할때만 손봐주면 된다.</p>
+<p>역시 StackOverflow에 필자와 같은 삽질을 했었던 전 세계의 개발랭이들이 이미 열띤 토론을 통해 <a href="https://github.com/webpack-contrib/mini-css-extract-plugin/issues/90" target="_blank" rel="external nofollow noopener noreferrer">mini-css-extract-plugin의 SSR 관련 이슈</a>에 대해 어느 정도 결론을 내놓은 것을 발견했다. 위아 더 월드.</p>
+<p>다양한 방법들이 논의되었지만 필자는 <code>css-loader</code>의 <code>exportOnlyLocals</code> 옵션을 사용하는 방법을 선택했다. 해당 이슈에는 <code>css-loader/locals</code>로 사용하라고 되어있지만 이 이슈가 논의된 이후에 css-loader가 업데이트 되었기 때문에 이제는 옵션 객체를 사용해야 한다.</p>
+<figure class="highlight js hljs"><figcaption><span>webpack.server.config.js</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-built_in">module</span>.exports = merge(baseConfig, {</span><br><span class="line">  <span class="hljs-comment">// ...</span></span><br><span class="line">  <span class="hljs-built_in">module</span>: {</span><br><span class="line">    rules: [</span><br><span class="line">      {</span><br><span class="line">        test: <span class="hljs-regexp">/\.scss$/</span>,</span><br><span class="line">        use: [</span><br><span class="line">          {</span><br><span class="line">            loader: <span class="hljs-string">'css-loader'</span>,</span><br><span class="line">            options: { <span class="hljs-attr">exportOnlyLocals</span>: <span class="hljs-literal">true</span> }</span><br><span class="line">          },</span><br><span class="line">          <span class="hljs-string">'postcss-loader'</span>,</span><br><span class="line">          <span class="hljs-string">'sass-loader'</span></span><br><span class="line">        ]</span><br><span class="line">      },</span><br><span class="line">    ]</span><br><span class="line">  }</span><br><span class="line">  <span class="hljs-comment">// ...</span></span><br><span class="line">})</span><br></pre></td></tr></tbody></table></figure>
+<p>이렇게 문제는 해결했지만 일단 이 기술의 안정성이 프론트엔드 챕터 내에서 충분히 확인되지 않았다고 판단되어 일단 원래 목표였던 고수 찾기 페이지에 관련된 컴포넌트들만 지연 로딩하고 있는 중이다. 향후 안정성이 검증되면 점진적으로 커버리지를 넓혀 적용할 예정이다.</p>
+<h4 id="텍스트-컨텐츠-gzip-압축-적용"><a href="#텍스트-컨텐츠-gzip-압축-적용" class="headerlink" title="텍스트 컨텐츠 gzip 압축 적용"></a>텍스트 컨텐츠 gzip 압축 적용</h4><p>이건 그냥 Nginx 설정에 gzip 관련 설정들을 추가해주면 된다.</p>
+<figure class="highlight nginx hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-section">server</span> {</span><br><span class="line">  <span class="hljs-comment"># ...</span></span><br><span class="line">  <span class="hljs-attribute">gzip</span> <span class="hljs-literal">on</span>;</span><br><span class="line">  <span class="hljs-attribute">gzip_disable</span> <span class="hljs-string">"msie6"</span>;</span><br><span class="line"></span><br><span class="line">  <span class="hljs-attribute">gzip_proxied</span> any;</span><br><span class="line">  <span class="hljs-attribute">gzip_comp_level</span> <span class="hljs-number">6</span>;</span><br><span class="line">  <span class="hljs-attribute">gzip_buffers</span> <span class="hljs-number">16</span> <span class="hljs-number">8k</span>;</span><br><span class="line">  <span class="hljs-attribute">gzip_http_version</span> <span class="hljs-number">1</span>.<span class="hljs-number">1</span>;</span><br><span class="line">  <span class="hljs-attribute">gzip_types</span> text/plain text/css application/json application/javascript text/xml application/xml text/javascript;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>사실 숨고는 IE6 지원 따위 하지도 않지만 유저가 아예 페이지를 못보는 상황보다는 망가진 페이지라도 보는게 낫다고 생각하여 혹시 몰라 추가해두었다. <code>컴포넌트 지연 로딩</code>과 <code>텍스트 컨텐츠 gzip 압축 적용</code>을 마치고나서 한번 번들의 크기와 로딩 속도를 확인해 보았다.</p>
+<p><strong>JS</strong><br>Before<br><img src="/2019/06/03/client-render-optimizing/js_before.png" title="js_before"><br>After<br><img src="/2019/06/03/client-render-optimizing/js_after.png" title="js_after"></p>
+<p><strong>CSS</strong><br>Before<br><img src="/2019/06/03/client-render-optimizing/css_before.png" title="css_before"><br>After<br><img src="/2019/06/03/client-render-optimizing/css_after.png" title="css_after"></p>
+<p>JS before의 제일 상단에 있는 변태같은 1.2MB 크기의 번들이 node_modules 라이브러리를 묶어놓은 vendor이다. 항상 이 놈을 볼때마다 눈물이 나고 마음이 아팠는데 이렇게 간단하게 끝낼 수 있는 걸 왜 이리 시간을 끌었나 싶었다.</p>
+<h4 id="SEO가-필요한-페이지는-인증-과정을-기다리지-않고-바로-페이지를-렌더하도록-변경"><a href="#SEO가-필요한-페이지는-인증-과정을-기다리지-않고-바로-페이지를-렌더하도록-변경" class="headerlink" title="SEO가 필요한 페이지는 인증 과정을 기다리지 않고 바로 페이지를 렌더하도록 변경"></a>SEO가 필요한 페이지는 인증 과정을 기다리지 않고 바로 페이지를 렌더하도록 변경</h4><p>사실 이건 숨고의 기술 부채와도 관련이 있는 내용이다. 현재 로그인한 사용자의 정보를 받아오는 API가 엄청 느리다. 보통 때는 응답 시간이 1.5초 정도이고 트래픽 피크 타임때는 2초에 가까워 지는 경우도 있다. 이건 DB 스키마와도 관련있는 깊은 기술 부채이기 때문에 짧은 시간 안에 해결하기에는 조금 힘든 문제다.</p>
+<p>그렇다 하더라도 외부 네트워크 요인 때문에 사용자가 화면을 볼 수 있는 시간이 2초씩이나 딜레이된다는 것은 너무 아깝다. 근데 생각을 해보자.</p>
+<blockquote>
+<p>SEO가 필요한 페이지는 무조건 비로그인 유저도 볼 수 있는 페이지이다.</p>
+</blockquote>
+<p>응? 사실 너무나 당연한 사실인데 놓치고 있었다. 그럼 이런 의식의 흐름이 생긴다.</p>
+<ol>
+<li>SEO가 중요한 페이지의 로딩 시간을 단축시키는 것이 목표였다.</li>
+<li>SEO가 되고 있는 페이지는 애초에 비로그인 유저도 접근 가능한 페이지다.</li>
+<li>인증 API를 기다릴 필요가 없다…?</li>
+</ol>
+<p>그렇다면 그냥</p>
+<figure class="highlight js hljs"><figcaption><span>client-entry.js</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// ...</span></span><br><span class="line">router.onReady(<span class="hljs-keyword">async</span> () => {</span><br><span class="line">  <span class="hljs-keyword">if</span> (isAllowGuestPage(router.currentRoute)) {</span><br><span class="line">    init();</span><br><span class="line">  }</span><br><span class="line">  <span class="hljs-keyword">else</span> {</span><br><span class="line">    <span class="hljs-keyword">await</span> init();</span><br><span class="line">  }</span><br><span class="line">  <span class="hljs-comment">// ...</span></span><br><span class="line">});</span><br></pre></td></tr></tbody></table></figure>
+<p>이렇게 바로 질러버린다. 라우터 퍼미션을 검사해서 비회원 유저도 접근 가능한 페이지는 <code>init</code>의 프로미스를 기다리지 않고 다음 초기화 로직을 실행하도록 변경하였다. 그 결과 비회원 접근 가능 페이지들의 로딩 속도가 1초 정도 더 빨라진 것을 확인할 수 있었다.</p>
+<table>
+<thead>
+<tr>
+<th>Before</th>
+<th>After</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2513.9ms</td>
+<td>1111.5ms</td>
+</tr>
+</tbody>
+</table>
+<h2 id="결과"><a href="#결과" class="headerlink" title="결과"></a>결과</h2><p>이렇게 이것 저것 열심히 했더니 그래도 조금 빨라지긴 했다.</p>
+<p>Before</p>
+<center><br>  <img src="/2019/06/03/client-render-optimizing/result_before.png" width="500"><br>  <br><br></center>
+
+<p>After</p>
+<center><br>  <img src="/2019/06/03/client-render-optimizing/result_after.png" width="500"><br>  <br><br></center>
+
+<p>원래 목표였던 <code>First Meaningful Paint</code>를 1초 아래로 떨어트리는 목표는 달성했지만 다른 수치가 이 정도로 영향을 안받을 줄은 몰랐다. 퍼포먼스 점수도 꼴랑 2점 올라갔다. 다른 팀원들은 “그래도 2점이 어디야~”라고 해주셨지만 뭔가 마음 한켠이 찜찜하다…<br>다음에는 다른 점수를 좀 더 올려보는 걸 목표로 삼아봐야겠다. PWA 세팅해놓으면 Accessibility 점수는 좀 더 올라갈 것 같기도 한데 생각해놓은 다른 이슈들은 백엔드 개발자 분들의 도움이 필요한 것들이 꽤 있어서 혼자서는 힘들 듯하다.</p>
+<p>이상으로 클라이언트 사이드 렌더링 최적화 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/10/27/inheritance-with-prototype/" title="[JS 프로토타입] 프로토타입을 사용하여 상속하기" rel="bookmark">[JS 프로토타입] 프로토타입을 사용하여 상속하기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/03/calculate-orbit-1/" title="[JavaScript로 천체 구현하기] 케플러 6요소 알아보기" rel="bookmark">[JavaScript로 천체 구현하기] 케플러 6요소 알아보기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/06/gravity-via-js-1/" title="[JavaScript로 중력 구현하기] 1. 중력이란 무엇일까?" rel="bookmark">[JavaScript로 중력 구현하기] 1. 중력이란 무엇일까?</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/06/gravity-via-js-2/" title="[JavaScript로 중력 구현하기] 2. 코딩하기" rel="bookmark">[JavaScript로 중력 구현하기] 2. 코딩하기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/06/15/diving-into-js-array/" title="JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기" rel="bookmark">JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/javascript/">JavaScript</a><a class="tag -link" href="/tags/render-optimizing/">Render Optimizing</a><a class="tag -link" href="/tags/seo/">SEO</a><a class="tag -link" href="/tags/렌더-최적화/">렌더 최적화</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2019/06/06/what-is-good-programmer/">
+                <i class="fas fa-chevron-left"></i> 좋은 프로그래머란 무엇일까?
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2019/02/26/simple-ann/">
+                TypeScript를 사용하여 간단한 인공 신경망 개발 삽질기 <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#최적화를-진행하게-된-이유" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>최적화를 진행하게 된 이유?</span>
+        </a></li><li>
+        <a class="is-flex" href="#문제점-파악" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>문제점 파악</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#Text-압축-미사용" data-link-name="toc">
+        <span class="has-mr-6">2.1</span>
+        <span>Text 압축 미사용</span>
+        </a></li><li>
+        <a class="is-flex" href="#오프스크린-이미지-지연이-필요함" data-link-name="toc">
+        <span class="has-mr-6">2.2</span>
+        <span>오프스크린 이미지 지연이 필요함</span>
+        </a></li><li>
+        <a class="is-flex" href="#네트워크-페이로드-크기가-너무-크다" data-link-name="toc">
+        <span class="has-mr-6">2.3</span>
+        <span>네트워크 페이로드 크기가 너무 크다</span>
+        </a></li><li>
+        <a class="is-flex" href="#기본-스레드-작업-최소화-하기" data-link-name="toc">
+        <span class="has-mr-6">2.4</span>
+        <span>기본 스레드 작업 최소화 하기</span>
+        </a></li><li>
+        <a class="is-flex" href="#웹폰트가-로드되는-동안-텍스트가-계속-표시되는지-확인하기" data-link-name="toc">
+        <span class="has-mr-6">2.5</span>
+        <span>웹폰트가 로드되는 동안 텍스트가 계속 표시되는지 확인하기</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#조치" data-link-name="toc">
+        <span class="has-mr-6">3</span>
+        <span>조치</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#이미지-지연-로딩" data-link-name="toc">
+        <span class="has-mr-6">3.1</span>
+        <span>이미지 지연 로딩</span>
+        </a></li></ul></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="클라이언트 사이드 렌더링 최적화" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

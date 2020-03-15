@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>V8 엔진은 어떻게 내 코드를 실행하는 걸까? - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="이번 포스팅에서는 구글의 V8 엔진이 어떤 방식으로 자바스크립트를 해석하고 실행하는지 살펴 보는지에 대해 포스팅하려고 한다. V8은 C++로 작성되었지만 필자의 메인 언어가 C++이 아니기도 하고, 워낙 소스가 방대하기 때문에 자세한 분석까지는 아니라도 최대한 웹 상에 있는 정보들과 필자가 분석한 V8의 소스코드를 비교해가면서 살펴보려고 한다.">
+<meta name="keywords" content="JavaScript,NodeJS,V8">
+<meta property="og:type" content="article">
+<meta property="og:title" content="V8 엔진은 어떻게 내 코드를 실행하는 걸까?">
+<meta property="og:url" content="https://evan-moon.github.io/2019/06/28/v8-analysis/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="이번 포스팅에서는 구글의 V8 엔진이 어떤 방식으로 자바스크립트를 해석하고 실행하는지 살펴 보는지에 대해 포스팅하려고 한다. V8은 C++로 작성되었지만 필자의 메인 언어가 C++이 아니기도 하고, 워낙 소스가 방대하기 때문에 자세한 분석까지는 아니라도 최대한 웹 상에 있는 정보들과 필자가 분석한 V8의 소스코드를 비교해가면서 살펴보려고 한다.">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2019/06/28/v8-analysis/thumbnail.png">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.132Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="V8 엔진은 어떻게 내 코드를 실행하는 걸까?">
+<meta name="twitter:description" content="이번 포스팅에서는 구글의 V8 엔진이 어떤 방식으로 자바스크립트를 해석하고 실행하는지 살펴 보는지에 대해 포스팅하려고 한다. V8은 C++로 작성되었지만 필자의 메인 언어가 C++이 아니기도 하고, 워낙 소스가 방대하기 때문에 자세한 분석까지는 아니라도 최대한 웹 상에 있는 정보들과 필자가 분석한 V8의 소스코드를 비교해가면서 살펴보려고 한다.">
+<meta name="twitter:image" content="https://evan-moon.github.io/2019/06/28/v8-analysis/thumbnail.png">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2019/06/28/v8-analysis/">
+
+
+<link rel="alternative" href="/feed.xml" title="V8 엔진은 어떻게 내 코드를 실행하는 걸까?" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="V8 엔진은 어떻게 내 코드를 실행하는 걸까?" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2019/06/28/v8-analysis/thumbnail.png" alt="V8 엔진은 어떻게 내 코드를 실행하는 걸까?">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-06-28T06:58:28.000Z">2019-06-28</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/programming/">Programming</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/programming/javascript/">JavaScript</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                V8 엔진은 어떻게 내 코드를 실행하는 걸까?
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>이번 포스팅에서는 구글의 <strong>V8</strong> 엔진이 어떤 방식으로 자바스크립트를 해석하고 실행하는지 살펴 보는지에 대해 포스팅하려고 한다. <code>V8</code>은 <code>C++</code>로 작성되었지만 필자의 메인 언어가 <code>C++</code>이 아니기도 하고, 워낙 소스가 방대하기 때문에 자세한 분석까지는 아니라도 최대한 웹 상에 있는 정보들과 필자가 분석한 <code>V8</code>의 소스코드를 비교해가면서 살펴보려고 한다.<br><a id="more"></a></p>
+<h2 id="V8-엔진이란"><a href="#V8-엔진이란" class="headerlink" title="V8 엔진이란?"></a>V8 엔진이란?</h2><p><code>V8</code> 엔진은 구글이 주도하여 <code>C++</code>로 작성된 고성능의 자바스크립트 & 웹 어셈블리 엔진이다. 또한 <code>V8</code>은 오픈 소스이기 때문에 <a href="https://github.com/v8/v8" target="_blank" rel="external nofollow noopener noreferrer">V8 엔진 깃허브 레파지토리</a>에서 클론받을 수 있다. 현재 <code>Google Chrome</code>과 <code>NodeJS</code>에서 사용되고 있으며 <code>ECMAScript</code>와 <code>Web Assembly</code>를 표준에 맞게 구현하였다.</p>
+<p><a href="https://kangax.github.io/compat-table/es2016plus/" target="_blank" rel="external nofollow noopener noreferrer">Kangax Table</a>에서 확인해보면, <code>V8</code>을 사용하고 있는 <code>CH(Google Chrome)</code>과 <code>Node</code>는 거의 대부분의 ES2016+(ES7+)의 기능을 구현해놓은 반면 MicroSoft의 <code>Chakra</code>나 Mozila의 <code>SpiderMonkey</code>의 경우 붉은 색으로 표시된 부분이 꽤 존재한다는 것을 볼 수 있다.</p>
+<blockquote><p>다른 플랫폼과의 호환과 서로 간의 리스크를 줄이기 위해, 마이크로소프트 Edge는 이제 이 변경 사항의 일부분으로 인해 V8 엔진을 사용할 것 입니다. 우리가 배워야할 것들은 아직 많지만 그래도 우리는 V8 커뮤니티의 일원이 된 것과 이 프로젝트에 기여하게 된 것이 매우 기대됩니다.</p>
+<footer><strong>ChakraCore team</strong><cite><a href="https://github.com/Microsoft/ChakraCore/issues/5865" target="_blank" rel="external nofollow noopener noreferrer">ChakraCore Github Issue</a></cite></footer></blockquote>
+<p>하지만 <code>Chakra</code> 엔진을 사용하던 <code>Microsoft Edge</code>의 경우, 이제 Chromium 오픈소스 프로젝트에 동참하면서 <code>V8</code>을 사용할 예정이라고 한다. 음… 좋은 건지 나쁜 건지 아직은 잘 모르겠다.</p>
+<p>만약 <code>V8</code>을 빌드해서 실제로 디버깅까지 해보고 싶다면 단순히 <code>git</code>을 사용하여 클론 받는 것으로는 빌드를 할 수 없다. 빌드까지 해보고 싶은 분은 <code>V8</code> 공식 홈페이지의 <a href="https://v8.dev/docs/source-code" target="_blank" rel="external nofollow noopener noreferrer">Checking out the V8 source code</a>를 읽어보자.</p>
+<center><br>  <img src="/2019/06/28/v8-analysis/meme1.jpeg" width="400"><br>  <sub>Chromium이 워낙 대형 프로젝트다보니 빌드 한번 하려면 설치 과정부터 까다롭다</sub><br>  <br><br></center>
+
+<p>필자는 예전에 한번 셋업해본 적이 있는데, 당연하게도 순순히 잘 설치되어주지는 않으니 시간 많은 주말에 시도하는 것을 추천한다. 이번에는 단순히 소스 코드만 분석할 예정이므로 필자는 <code>git</code>을 이용하여 직접 클론받았다.</p>
+<h2 id="V8-엔진의-작동원리를-살펴보자"><a href="#V8-엔진의-작동원리를-살펴보자" class="headerlink" title="V8 엔진의 작동원리를 살펴보자."></a>V8 엔진의 작동원리를 살펴보자.</h2><p>일반적으로 우리가 자바스크립트를 사용할 때 엔진의 작동 원리와 같은 로우 레벨(Low Level)의 내용까지 깊게 신경쓸 필요는 없다. 사실 개발자들이 그런 것까지 일일히 신경쓰지 말라고 엔진을 사용하는 것이기 때문이다. 그러나 정말 자바스크립트로 뽑아낼 수 있는 최적의 성능을 사용하고 싶다면 내 코드가 어떤 식으로 실행되는 지에 대한 이해는 어느 정도 있어야한다.</p>
+<p>그럼 먼저 간단한 그림으로 <code>V8</code>이 우리의 자바스크립트 소스 코드를 어떻게 해석하고 실행하는 지 살펴보자. 자세한 설명은 밑에서 다시 할 예정이므로 그냥 한번 흝고 넘어간다는 느낌으로 보면 된다.</p>
+<center><br>  <img src="/2019/06/28/v8-analysis/v8compiler-pipeline.png"><br>  <small>JSConf EU 2017에서 발표한 <strong>Franziska Hinkelmann</strong>님의 자료</small><br>  <br><br></center>
+
+<p><code>V8</code>은 우리의 소스 코드를 가져와서 가장 먼저 <code>파서(Parser)</code>에게 넘긴다. 이 친구는 소스 코드를 분석한 후 <code>AST(Abstract Syntax Tree), 추상 구문 트리</code>로 변환하게 된다.<br>그 다음에 이 <code>AST</code>를 그림에 나와있는 <code>Ignition</code>에게 넘기는데 이 친구는 자바스크립트를 <code>바이트 코드(Bytecode)</code>로 변환하는 인터프리터이다. 원본 소스 코드보다 컴퓨터가 해석하기 쉬운 바이트 코드로 변환함으로써 원본 코드를 다시 <code>파싱(Parsing)</code>해야하는 수고를 덜고 코드의 양도 줄이면서 코드 실행 때 차지하는 메모리 공간을 아끼려는 것이다.</p>
+<p>이후 이 바이트 코드를 실행함으로써 우리의 소스 코드가 실제로 작동하게 되고, 그 중 자주 사용되는 코드는 <code>TurboFan</code>으로 보내져서 <code>Optimized Machine Code</code>, 즉 최적화된 코드로 다시 컴파일된다. 그러다가 다시 사용이 덜 된다 싶으면 <code>Deoptimizing</code> 하기도 한다.</p>
+<p>여기서 사용되는 용어들이 굉장히 재미있는데, <code>V8</code>은 원래 8기통 엔진의 종류를 의미하는 단어다. 제네시스 G90이나 기아 K9같은 차에 들어간다고 한다.<br>그럼 <code>Ignition</code>은 뭐냐. 엔진에 시동걸 때 사용하는 <code>점화기</code>이다. 내 소스 코드가 부릉부릉 실행되는 것이다. 그러다가 너무 많이 호출되서 내 코드가 뜨거워지면 <code>TurboFan</code>으로 최적화해서 너무 과열되지 않게 식혀주는 그런 느낌적인 느낌…? 분명히 다 노리고 네이밍한거다.</p>
+<p><code>V8</code> 분석 포스팅에서 컴파일 파이프라인을 설명할 때 빠지지 않던 <code>Full-codegen</code>과 <code>Crankshaft</code>는 어디로 갔냐 하면…</p>
+<blockquote><p>V8 v5.9부터 처음으로 Ignition과 TurboFan은 자바스크립트 실행을 위해 전체적으로 사용됩니다. 또한 V8의 v5.9부터 V8을 잘 지탱해준 기술이었던 Full-codegen과 Crankshaft는 새로운 자바스크립트의 기능과 이러한 기능들이 요구하는 최적화 기능을 더 이상 따라갈 수 없기 때문에 V8에서 더 이상 사용되지 않습니다. 우리는 이것들을 곧 완전히 제거할 계획이며, 이는 V8이 앞으로 훨씬 더 단순하고 유지 보수 가능한 아키텍처를 갖게 된다는 것을 의미합니다.</p>
+<footer><strong>V8 team</strong><cite><a href="https://v8.dev/blog/launching-ignition-and-turbofan" target="_blank" rel="external nofollow noopener noreferrer">Launching Ignition and TurboFan</a></cite></footer></blockquote>
+<center><br>  <img src="/2019/06/28/v8-analysis/bye.jpg"><br>  <small>네. V8의 v5.9부터 세대 교체 당했습니다.</small><br>  <br><br></center>
+
+<p><code>v5.9</code> 이전까지는 <code>Full-codegen</code>과 <code>Crankshaft</code>도 공존하고 있었지만 이건 <code>V8</code> 팀이 원했던 것이 아니라 초창기의 <code>Ignition</code>과 <code>TurboFan</code>의 성능이 생각만큼 잘 나와주지 않았던 것도 있고 <code>Optimizing</code>된 코드를 다시 <code>Deoptimizing</code>할 때 바이트 코드로 바로 변환할 수 없던 이슈들이 있어서 어쩔 수 없이 중간에 <code>Full-codegen</code>과 <code>Crankshaft</code>를 살려둔 것이다.</p>
+<p><code>V8</code> 팀의 원래 목적은 처음부터 <code>Ignition</code>과 <code>TurboFan</code>만 사용하여 <code>바이트 코드 <-> 최적화된 코드</-></code> 사이를 왔다갔다 하는 것이었다.</p>
+<div class="video-container"><iframe src="//www.youtube.com/embed/r5OWCtuKiAk" frameborder="0" allowfullscreen></iframe></div>
+<p><br></p>
+<p>이 영상은 BlinkOn 2016에서 <code>Chrome Mobile Performance London Team</code>팀의 <strong>Ross McIlroy</strong>이 <code>Ignition</code>을 소개하는 영상인데, <code>9:47 ~ 11:14</code> 구간에서 레거시 코드인 <code>Full-codegen</code>과 <code>Crankshaft</code>를 삭제하지 못한 슬픈 사정을 설명해준다. 본인도 말하면서 웃긴듯.</p>
+<p>그럼 이제 <code>V8</code>이 자바스크립트를 어떤 식으로 파싱하고 실행시키는 지 간략하게 한번 알아보자.</p>
+<h3 id="Parsing-코드의-의미-파악하기"><a href="#Parsing-코드의-의미-파악하기" class="headerlink" title="Parsing, 코드의 의미 파악하기"></a>Parsing, 코드의 의미 파악하기</h3><p><code>파싱(Parsing)</code>이란, 소스코드를 불러온 후 <code>AST(Abstract Syntax Tree), 추상 구문 트리</code>로 변환하는 과정이다.<br><code>AST</code>는 컴파일러에서 널리 사용되는 자료 구조인데, 우리가 일반적으로 작성한 소스 코드를 컴퓨터가 알아먹기 쉽게 <code>구조화</code>한다고 생각하면 된다.</p>
+<p>예를 들어, 자바스크립트로 자바스크립트를 파싱한다고 하면 이런 느낌이다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">hello</span> (<span class="hljs-params">name</span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">return</span> <span class="hljs-string">'Hello,'</span> + name;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// 위 코드는 대략 이렇게 구조화 할 수 있다.</span></span><br><span class="line"></span><br><span class="line">{</span><br><span class="line">  type: <span class="hljs-string">'FunctionDeclaration'</span>,</span><br><span class="line">  name: <span class="hljs-string">'hello'</span></span><br><span class="line">  <span class="hljs-built_in">arguments</span>: [</span><br><span class="line">    {</span><br><span class="line">      type: <span class="hljs-string">'Variable'</span>,</span><br><span class="line">      name: <span class="hljs-string">'name'</span></span><br><span class="line">    }</span><br><span class="line">  ]</span><br><span class="line">  <span class="hljs-comment">// ...</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>이렇게 놓고 보니 생각보다 심플하다. 다만 이것은 예시 중 하나일 뿐이고 컴파일러는 <code>for</code>, <code>if</code>, <code>a = 1 + 2</code>, <code>function () {}</code>과 같은 문법도 모두 해석하여 파싱해야 하다보니 <code>파서(Parser)</code>의 내부는 생각보다 거대하다. 당장 <code>V8</code>의 <code>parser.cc</code> 파일도 3000줄이 넘는다.</p>
+<p>어쨌든 파싱이라는 개념 자체는 컴퓨터가 분석하기 쉬운 형태인 <code>추상 구문 트리</code>로 변경하는 작업이라는 것만 기억하자. <code>V8</code> 엔진은 방금 예시에서 자바스크립트로 표현했던 것을 <code>C++</code>을 사용하여 그대로 할 뿐이다.</p>
+<p>그럼 <code>V8</code> 엔진의 파싱 코드 중 <code>1 + 2</code>와 같이 <code>리터럴로 선언된 수식</code>을 담당하는 메소드를 한번 살펴보자.</p>
+<figure class="highlight cpp hljs"><figcaption><span>v8/src/parsing/parser.cc</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">bool</span> <span class="hljs-title">Parser::ShortcutNumericLiteralBinaryExpression</span><span class="hljs-params">(Expression** x, Expression* y, Token::Value op, <span class="hljs-keyword">int</span> pos)</span> </span>{</span><br><span class="line">  <span class="hljs-keyword">if</span> ((*x)->IsNumberLiteral() && y->IsNumberLiteral()) {</span><br><span class="line">    <span class="hljs-keyword">double</span> x_val = (*x)->AsLiteral()->AsNumber();</span><br><span class="line">    <span class="hljs-keyword">double</span> y_val = y->AsLiteral()->AsNumber();</span><br><span class="line">    <span class="hljs-keyword">switch</span> (op) {</span><br><span class="line">      <span class="hljs-keyword">case</span> Token::ADD:</span><br><span class="line">        *x = factory()->NewNumberLiteral(x_val + y_val, pos);</span><br><span class="line">        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;</span><br><span class="line">      <span class="hljs-keyword">case</span> Token::SUB:</span><br><span class="line">        *x = factory()->NewNumberLiteral(x_val - y_val, pos);</span><br><span class="line">        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;</span><br><span class="line">      <span class="hljs-comment">// ...</span></span><br><span class="line">      <span class="hljs-keyword">default</span>:</span><br><span class="line">        <span class="hljs-keyword">break</span>;</span><br><span class="line">    }</span><br><span class="line">  }</span><br><span class="line">  <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>이 코드는 <code>V8</code> 엔진의 <code>parser.cc</code>에 선언된 <code>Parser</code> 클래스의 <code>ShortcutNumericLiteralBinaryExpression</code><small>(이름이 더럽게 길다…)</small> 스태틱 메소드이다.</p>
+<p>인자를 한번 살펴보면 <code>Expression</code> 클래스의 객체인 <code>x</code>와 <code>y</code>는 <code>표현식</code>에 사용된 값들 의미한다. <code>op</code>는 이 표현식이 의미하는 것이 <code>x + y</code>인지 <code>x - y</code>인지와 같은 실제 구문 내용과 그 타입을 의미하고 <code>pos</code>는 전체 소스 코드 중 현재 파싱하는 소스 코드의 위치를 의미한다.</p>
+<p>이 메소드는 위에서 설명했듯이 <code>1 + 2</code>와 같은 소스 코드를 만났을 경우 호출되며, 인자로 받은 표현을 <code>Token::ADD</code>나 <code>Token::SUB</code>와 같은 조건으로 검사하여 조건에 맞게 파싱하고 있는 모습을 볼 수 있다. 여기서 말하는 <code>토큰</code>은 소스 코드를 자바스크립트의 문법 규칙에 따라 어휘 분석하여 나온 문자열 조각들이다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// 토큰은 대충 이런 느낌</span></span><br><span class="line">[<span class="hljs-string">'const'</span>, <span class="hljs-string">'a'</span>, <span class="hljs-string">'='</span>, <span class="hljs-string">'1'</span>, <span class="hljs-string">'+'</span>, <span class="hljs-string">'2'</span>]</span><br></pre></td></tr></tbody></table></figure>
+<p>이후 알맞게 계산되어 나온 값을 <code>AstNodeFactory</code> 클래스의 <code>NewNumberLiteral</code> 스태틱 메소드를 사용하여 <code>추상 구문 트리</code>의 노드로 만드는 모습을 볼 수 있다.</p>
+<figure class="highlight cpp hljs"><figcaption><span>v8/src/ast/ast.cc</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function">Literal* <span class="hljs-title">AstNodeFactory::NewNumberLiteral</span><span class="hljs-params">(<span class="hljs-keyword">double</span> number, <span class="hljs-keyword">int</span> pos)</span> </span>{</span><br><span class="line">  <span class="hljs-keyword">int</span> int_value;</span><br><span class="line">  <span class="hljs-keyword">if</span> (DoubleToSmiInteger(number, &int_value)) {</span><br><span class="line">    <span class="hljs-keyword">return</span> NewSmiLiteral(int_value, pos);</span><br><span class="line">  }</span><br><span class="line">  <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> (zone_) Literal(number, pos);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p><code>V8</code>은 이 과정에서 <code>변수</code>, <code>함수</code>, <code>조건문</code>과 같은 코드의 의미를 파악하며, 우리에게 익숙한 자바스크립트의 <code>스코프</code> 또한 이 과정에서 설정된다.<br>이 중 변수 선언에 관한 자세한 내용은 <a href="/2019/06/18/javascript-let-const/" title="JavaScript의 let과 const, 그리고 TDZ">JavaScript의 let과 const, 그리고 TDZ</a>을 참고하자.</p>
+<h3 id="Ignition으로-바이트-코드-Bytecode-생성하기"><a href="#Ignition으로-바이트-코드-Bytecode-생성하기" class="headerlink" title="Ignition으로 바이트 코드(Bytecode) 생성하기"></a>Ignition으로 바이트 코드(Bytecode) 생성하기</h3><center><br>  <img src="/2019/06/28/v8-analysis/ignition.svg" width="200" title="v8-ignition"><br></center>
+
+<p><code>바이트 코드(Bytecode)</code>는 고오급 언어로 작성된 소스 코드를 가상머신이 한결 편하게 이해할 수 있도록 중간 코드로 한번 컴파일 한 것을 의미한다. <code>V8</code>에서는 <code>Ignition</code>이 이 역할을 수행하고 있다.</p>
+<h4 id="Ignition이란"><a href="#Ignition이란" class="headerlink" title="Ignition이란?"></a>Ignition이란?</h4><p><code>Ignition</code>은 기존의 <code>Full-codegen</code>을 완벽히 대체하는 인터프리터이다. 기존에 사용하고 있던 <code>Full-codegen</code>은 전체 소스 코드를 한번에 컴파일했는데, 위에서 설명했듯 <code>V8</code>팀은 기존의 <code>Full-codegen</code>이 모든 소스 코드를 한번에 컴파일할때 메모리 점유를 굉장히 많이 한다는 사실을 인지하고 있었다.</p>
+<p>또 자바스크립트는 <code>C++</code>과 같은 <code>정적 타이핑 언어</code>가 아닌 <code>동적 타이핑 언어</code>라서 소스 코드가 실행되기 전에는 알 수 없는 값들이 너무 많았기 때문에 이런 접근 방법으로는 최적화를 하기도 힘들었다고 한다.</p>
+<p>그래서 <code>Ignition</code>을 개발할 때는 모든 소스를 한번에 해석하는 컴파일 방식이 아닌 코드 한줄 한줄이 실행될 때마다 해석하는 인터프리트 방식을 채택하여 다음 세가지 이점을 가져가고자 하였다.</p>
+<blockquote><ol>
+<li><strong>메모리 사용량 감소.</strong> 자바스크립트 코드에서 기계어로 컴파일하는 것보다 바이트 코드로 컴파일하는 것이 더 편하다.</li>
+<li><strong>파싱 시 오버헤드 감소.</strong> 바이트 코드는 간결하기 때문에 다시 파싱하기도 편하다.</li>
+<li><strong>컴파일 파이프 라인의 복잡성 감소.</strong> <code>Optimizing</code>이든 <code>Deoptimizing</code>이든 바이트 코드 하나만 생각하면 되기 때문에 편하다.</li>
+</ol>
+<footer><strong>Ross McIlroy</strong><cite>Ignition - an interpreter for V8</cite></footer></blockquote>
+<p>이렇게 <code>Ignition</code>은 코드가 한줄한줄 실행될 때마다 코드를 <code>바이트 코드</code>로 바꿔주는 친구라는 정도만 알아두면 된다.<br>그럼 바이트 코드라는 게 도대체 어떻게 생겨먹었길래 컴퓨터가 해석하기 더 편하다는 걸까? 아까 위에서 사용했던 <code>hello</code> 함수를 가져와서 한번 어떤 바이트 코드가 생성되는 지 살펴보자.</p>
+<h4 id="바이트-코드를-직접-확인하기"><a href="#바이트-코드를-직접-확인하기" class="headerlink" title="바이트 코드를 직접 확인하기"></a>바이트 코드를 직접 확인하기</h4><figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">hello</span> (<span class="hljs-params">name</span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">return</span> <span class="hljs-string">'Hello,'</span> + name;</span><br><span class="line">}</span><br><span class="line"><span class="hljs-built_in">console</span>.log(hello(<span class="hljs-string">'Evan'</span>)) <span class="hljs-comment">// 함수를 호출해서 코드를 사용하지 않는다면 바이트 코드로 인터프리팅하지 않는다.</span></span><br></pre></td></tr></tbody></table></figure>
+<p>만약 <code>NodeJS v8.3+</code>을 사용하고 있다면 <code>--print-bytecode</code> 옵션을 주는 것만으로 내 소스 코드가 바이트 코드로 어떻게 인터프리팅되었는지 확인할 수 있다. 혹은 <code>V8</code>이 제공하고 있는 <code>D8</code> 디버깅 도구를 사용해도 되는데 이 친구는 <code>V8</code>을 빌드해야 사용할 수 있고, 위에서 설명했듯이 빌드 환경 세팅이 순탄하지는 않기 때문에 필자는 그냥 <code>--print-bytecode</code>를 사용했다.</p>
+<figure class="highlight shell hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">$</span><span class="hljs-bash"> node --<span class="hljs-built_in">print</span>-bytecode add.js</span></span><br><span class="line">...</span><br><span class="line">[generated bytecode for function: hello]</span><br><span class="line">Parameter count 2</span><br><span class="line">Frame size 8</span><br><span class="line">   15 E> 0x2ac4000d47b2 @    0 : a0                StackCheck</span><br><span class="line">   30 S> 0x2ac4000d47b3 @    1 : 12 00             LdaConstant [0]</span><br><span class="line">         0x2ac4000d47b5 @    3 : 26 fb             Star r0</span><br><span class="line">         0x2ac4000d47b7 @    5 : 25 02             Ldar a0</span><br><span class="line">   46 E> 0x2ac4000d47b9 @    7 : 32 fb 00          Add r0, [0]</span><br><span class="line">   53 S> 0x2ac4000d47bc @   10 : a4                Return</span><br><span class="line">...</span><br></pre></td></tr></tbody></table></figure>
+<p>필자가 선언한 <code>hello</code> 함수가 바이트 코드로 변환된 모습이다. 어라? 근데 필자는 분명히 <code>name</code> 인자 한개만 사용했는데 <code>Parameter count</code>가 <code>2</code>라고 찍혀있다.<br>이 중 하나는 암시적 리시버인 <code>this</code>이다. 함수 내부에서 <code>this</code>를 사용하면 함수 자신을 가리킬 수 있는 그 <code>this</code> 맞다.</p>
+<p>이제 그 밑으로는 레지스터에 값들을 할당하는 모습을 볼 수 있는데, 간단하게만 설명하고 넘어가겠다.</p>
+<p>혹시 모르실 분들을 위해 간단히 설명하자면, <code>레지스터(Register)</code>는 CPU가 가지고 있는 고속 메모리이고 <code>누산기(Accumulator)</code>는 계산한 중간 결과를 저장하기 위한 레지스터이다.</p>
+<hr>
+<ol>
+<li><code>StackCheck</code>: 스택 포인터의 상한값을 확인한 것이다. 이때 스택이 임계 값을 넘어가면 <code>Stack Overflow</code>가 발생하기 때문에 함수 실행을 중단해버린다.</li>
+<li><code>LdaConstant [0]</code>: <code>Ld</code>는 <code>Load</code>의 약자이다. 말 그대로 어떠한 상수를 <code>누산기(Accumulator)</code>에 불러온 것이다. 이 상수는 <code>Hello,</code>이다.</li>
+<li><code>Star r0</code>: 누산기에 들어있는 값을 레지스터 <code>r0</code>번으로 이동시킨다. <code>r0</code>은 지역 변수를 위한 레지스터이다.</li>
+<li><code>Ldar a0</code>: 누산기에 레지스터 <code>a0</code>번에 있는 값을 담는다. 이 경우 <code>a0</code> 레지스터의 값은 인자 <code>name</code>이다.</li>
+<li><code>Add r0, [0]</code>: <code>r0</code>에 있는 <code>Hello,</code>와 <code>0</code>을 더하고 누산기에 저장한다. 이때 상수 <code>0</code>은 코드가 실행될 때 인자 <code>name</code>으로 매핑된다.</li>
+<li><code>Return</code>: 누산기에 있는 값을 반환한다.</li>
+</ol>
+<hr>
+<p><code>hello</code> 함수는 평소에 자바스크립트를 사용할 때는 아무 생각 없이 선언할 수 있는 정도의 가벼운 함수였지만 내부적으로는 6단계를 거쳐서 값을 반환하고 있었다.</p>
+<center><br>  <img src="/2019/06/28/v8-analysis/slow.png"><br>  <sub>이렇게 일 많이 하니까 가끔 느리다고 너무 뭐라 하지 맙시다</sub><br>  <br><br></center>
+
+<p><code>바이트 코드</code>는 직접 CPU 내의 레지스터와 누산기를 어떤 식으로 사용하라고 명령하는 명령문이나 마찬가지기 때문에 사람 입장에서는 머리 터지겠지만 컴퓨터 입장에서는 한결 이해하기가 편한 방식이다.<br><code>V8</code> 엔진은 우리가 작성한 자바스크립트 코드를 내부적으로는 이런 모습의 <code>바이트 코드</code>로 전부 변환해놓기 때문에 코드 라인이 처음 실행될 때는 조금 시간이 걸리겠지만 그 이후부터는 거의 컴파일 언어에 가까운 성능을 보일 수 있다.</p>
+<h3 id="TurboFan으로-뜨거워진-코드-식히기"><a href="#TurboFan으로-뜨거워진-코드-식히기" class="headerlink" title="TurboFan으로 뜨거워진 코드 식히기"></a>TurboFan으로 뜨거워진 코드 식히기</h3><center><br>  <img src="/2019/06/28/v8-analysis/turbofan.svg" width="200" title="v8-turbofan"><br></center>
+
+<p><code>TurboFan</code>은 <code>V8</code>의 <code>v5.9</code>부터 기존에 사용하던 <code>Crankshaft</code> 컴파일러를 완전히 대체한 최적화 담당 컴파일러이다.</p>
+<p>그럼 <code>Crankshaft</code>는 왜 사라졌을까?<br>처음 <code>V8</code>이 세상에 나온 이후로 새로운 컴퓨터 아키텍처도 나오고 자바스크립트도 계속 발전했기 때문에 <code>V8</code>도 계속해서 이런 것들을 지원해줘야 했다. <code>V8</code> 팀은 이런 새로운 사양에 맞춰서 <code>V8</code>을 계속 개량했어야 했는데, 어떻게든 계속 해서 땜빵치다가 결국 <code>Crankshaft</code>의 구조로는 지속적인 확장이 어렵다고 판단했고, 여러 레이어로 계층화되어 좀 더 유연하게 확장에 용이하도록 설계한 <code>TurboFan</code>을 만들어서 사용하고 있다.</p>
+<center><br>  <img src="/2019/06/28/v8-analysis/legacy.png"><br>  <sub>Crankshaft와 TurboFan을 동시에 굴릴 때 왠지 이런 느낌이었을 것 같다…</sub><br>  <br><br></center>
+
+<p>7개의 아키텍처를 지원할 때 <code>Crankshaft</code>로는 <code>13,000 ~ 16,000</code>라인의 코드로 작성했던 게 <code>TurboFan</code>에서는 <code>3,000</code>라인 미만의 코드로 커버가 가능하다고 한다.</p>
+<p><code>V8</code>은 런타임 중에 <code>Profiler</code>라는 친구에게 함수나 변수들의 호출 빈도와 같은 데이터를 모으라고 시킨다. 이렇게 모인 데이터를 들고 TurboFan에게 가져가면 TurboFan은 자기 기준에 맞는 코드를 가져와서 최적화를 하는 것이다.</p>
+<p>최적화 기법으로는 <code>히든 클래스(Hidden Class)</code>나 <code>인라인 캐싱(Inline Caching)</code> 등 여러가지 기법을 사용하지만 이 내용은 추후 다른 포스팅에서 더 자세히 다루도록 하겠다.<br>간단히만 설명하자면 <code>히든 클래스</code>는 비슷한 놈들끼리 분류해놓고 가져다 쓰는 것, <code>인라인 캐싱</code>은 자주 사용되는 코드가 만약 <code>hello()</code>와 같은 함수의 호출부라면 이걸 <code>function hello () { ... }</code>와 같이 함수의 내용으로 바꿔버리는 것이다. 말 그대로 <code>캐싱(Caching)</code>이다.</p>
+<h4 id="어떤-조건으로-최적화-하는-걸까"><a href="#어떤-조건으로-최적화-하는-걸까" class="headerlink" title="어떤 조건으로 최적화 하는 걸까?"></a>어떤 조건으로 최적화 하는 걸까?</h4><p>그렇다면 <code>TurboFan</code>은 정확히 어떤 조건으로 최적화될 코드를 구분하는 걸까?<br>우선 <code>V8</code> 소스 내에서 함수를 최적화할지 말지를 판별하는 <code>RuntimeProfiler</code>의 <code>ShouldOptimize</code> 메소드를 예시로 한번 살펴보자.</p>
+<figure class="highlight cpp hljs"><figcaption><span>v8/src/execution/rumtime-profiler.cc</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function">OptimizationReason <span class="hljs-title">RuntimeProfiler::ShouldOptimize</span><span class="hljs-params">(JSFunction function, BytecodeArray bytecode)</span> </span>{</span><br><span class="line">  <span class="hljs-comment">// int ticks = 이 함수가 몇번 호출되었는지</span></span><br><span class="line">  <span class="hljs-keyword">int</span> ticks = function.feedback_vector().profiler_ticks();</span><br><span class="line">  <span class="hljs-keyword">int</span> ticks_for_optimization =</span><br><span class="line">      kProfilerTicksBeforeOptimization +</span><br><span class="line">      (bytecode.length() / kBytecodeSizeAllowancePerTick);</span><br><span class="line">  <span class="hljs-keyword">if</span> (ticks >= ticks_for_optimization) {</span><br><span class="line">    <span class="hljs-comment">// 함수가 호출된 수가 임계점인 ticks_for_optimization을 넘기면 뜨거워진 것으로 판단</span></span><br><span class="line">    <span class="hljs-keyword">return</span> OptimizationReason::kHotAndStable;</span><br><span class="line">  } <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!any_ic_changed_ && bytecode.length() < kMaxBytecodeSizeForEarlyOpt) {</span><br><span class="line">    <span class="hljs-comment">// 이 코드가 인라인 캐싱되지 않았고 바이트 코드의 길이가 작다면 작은 함수로 판단</span></span><br><span class="line">    <span class="hljs-keyword">return</span> OptimizationReason::kSmallFunction;</span><br><span class="line">  }</span><br><span class="line">  <span class="hljs-comment">// 해당 사항 없다면 최적화 하지 않는다.</span></span><br><span class="line">  <span class="hljs-keyword">return</span> OptimizationReason::kDoNotOptimize;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>생각보다 조건이 별로 없어서 당황했다. 물론 이 메소드에서 판별 하지않는 좀 더 디테일한 조건들도 존재하지만 일단 큰 틀은 이 메소드가 거의 다 가지고 있다.</p>
+<p><code>kHotAndStable</code>은 코드가 뜨겁고 안정적이라는 것인데, 쉽게 말하면 <code>자주 호출되고(뜨겁고) 코드가 안 변함(안정적)</code>이라는 것이다.<br>매번 같은 행동을 수행하는 반복문 내에 있는 코드 같은 경우가 여기에 해당하기 쉽다.</p>
+<p><code>kSmallFunction</code>은 말 그대로 인터프리팅된 바이트 코드의 길이를 보고 특정 임계점을 넘기지 않으면 작은 함수라고 판단해서 최적화를 진행하는 것이다. 작고 단순한 함수는 크고 복잡한 함수보다 동작이 매우 추상적이거나 제한적인 확률이 높기 때문에 안정적이라고 볼 수 있다.</p>
+<h4 id="TurboFan이-일하는-모습-훔쳐보기"><a href="#TurboFan이-일하는-모습-훔쳐보기" class="headerlink" title="TurboFan이 일하는 모습 훔쳐보기"></a>TurboFan이 일하는 모습 훔쳐보기</h4><p>그럼 간단한 코드 예제를 통해 최적화가 어떤 방식으로 진행되는 지 확인해보자. 필자는 작은 함수 하나를 선언하고 반복문을 통해서 계속 호출해줄 것이다.<br>필자의 목표는 선언한 함수가 <code>ticks >= ticks_for_optimization</code> 조건에 걸려서 <code>kHotAndStable</code> 상태가 되는 것이다. 필자 생각으로는 대충 아무 함수나 선언해서 같은 타입의 인자를 사용하고 반복적으로 파바박! 호출하면 <code>ShouldOptimize</code> 메소드의 <code>ticks >= ticks_for_optimization</code> 조건에 걸릴 것이고, <code>kHotAndStable</code> 상태가 되어 최적화가 진행될 거라고 생각한다.</p>
+<p><code>NodeJS</code>를 실행할 때 <code>--trace-opt</code> 옵션을 주면 런타임 때 코드가 최적화되는 것을 확인해볼 수 있다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sample</span>(<span class="hljs-params">a, b, c</span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">const</span> d = c - <span class="hljs-number">100</span>;</span><br><span class="line">  <span class="hljs-keyword">return</span> a + d * b;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i < <span class="hljs-number">100000</span>; i++) {</span><br><span class="line">  sample(i, <span class="hljs-number">2</span>, <span class="hljs-number">100</span>);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight shell hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">$</span><span class="hljs-bash"> node --trace-opt test.js</span></span><br><span class="line"></span><br><span class="line">[marking 0x010e66b69c09 <jsfunction (sfi="0x10eacdd4279)"> for optimized recompilation, reason: small function, ICs with typeinfo: 3/3 (100%), generic ICs: 0/3 (0%)]</jsfunction></span><br><span class="line">[marking 0x010e66b6a001 <jsfunction sample (sfi="0x10eacdd4371)"> for optimized recompilation, reason: small function, ICs with typeinfo: 3/3 (100%), generic ICs: 0/3 (0%)]</jsfunction></span><br><span class="line">[compiling method 0x010e66b6a001 <jsfunction sample (sfi="0x10eacdd4371)"> using TurboFan]</jsfunction></span><br><span class="line">[compiling method 0x010e66b69c09 <jsfunction (sfi="0x10eacdd4279)"> using TurboFan OSR]</jsfunction></span><br><span class="line">[optimizing 0x010e66b69c09 <jsfunction (sfi="0x10eacdd4279)"> - took 0.132, 0.453, 0.027 ms]</jsfunction></span><br><span class="line">[optimizing 0x010e66b6a001 <jsfunction sample (sfi="0x10eacdd4371)"> - took 0.850, 0.549, 0.012 ms]</jsfunction></span><br><span class="line">[completed optimizing 0x010e66b6a001 <jsfunction sample (sfi="0x10eacdd4371)">]</jsfunction></span><br></pre></td></tr></tbody></table></figure>
+<p>오 최적화가 되긴 했다. <code>ICs with typeinfo: 3/3 (100%)</code>라고 적혀있는걸 보니 인라인 캐싱을 했나보다. 근데 최적화를 한 이유를 보니 <code>small function</code>이라고 적혀있다. 필자가 원했던 조건은 <code>kHotAndStable</code>으로 빠지는 것이었기 때문에 코드를 조금 바꿔서 다시 해봐야겠다. 함수가 너무 간단하니까 <code>TurboFan</code>이 필자의 함수를 만만하게 봤나보다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">sample</span> (<span class="hljs-params"></span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">if</span> (!<span class="hljs-built_in">arguments</span>) {</span><br><span class="line">    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'인자를 주시오'</span>);</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  <span class="hljs-keyword">const</span> array = <span class="hljs-built_in">Array</span>.from(<span class="hljs-built_in">arguments</span>);</span><br><span class="line">  <span class="hljs-keyword">return</span> array.map(<span class="hljs-function"><span class="hljs-params">el</span> =></span> el * el)</span><br><span class="line">              .filter(<span class="hljs-function"><span class="hljs-params">el</span> =></span> el < <span class="hljs-number">20</span>)</span><br><span class="line">              .reverse();</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i < <span class="hljs-number">100000</span>; ++i) {</span><br><span class="line">  sample(<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">4</span>, <span class="hljs-number">5</span>);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>그냥 아무 의미 없지만 적당히 더 복잡하게 만들어 보았다. <code>sample</code> 함수는 그냥 인자를 받아서 변형하고 걸러내고 순서를 뒤집어서 반환하는 역할을 수행한다. 여기서 <code>Turbofan</code>이 감시하고 있는 최적화 대상은 <code>sample</code>, <code>map</code>, <code>filter</code>, <code>reverse</code>, <code>Array.from</code> 같은 친구들이 될 것이다. 감시 대상이 많으므로 로그도 어마무시하게 나오기 때문에 <code>TurboFan</code>이 함수를 최적화 대상으로 <code>marking</code> 하는 부분만 가져오겠다.</p>
+<figure class="highlight shell hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-meta">$</span><span class="hljs-bash"> node --trace-opt test.js</span></span><br><span class="line"></span><br><span class="line">[marking 0x1a368a90cc51 <jsfunction (sfi="0x1a36218d4279)"> for optimized recompilation, reason: small function, ICs with typeinfo: 3/3 (100%), generic ICs: 0/3 (0%)]</jsfunction></span><br><span class="line"></span><br><span class="line">[marking 0x1a36bcfa9611 <jsfunction array.map.el (sfi="0x1a36218d46f9)"> for optimized recompilation, reason: small function, ICs with typeinfo: 1/1 (100%), generic ICs: 0/1 (0%)]</jsfunction></span><br><span class="line"></span><br><span class="line">[marking 0x1a36bcfa96a1 <jsfunction array.map.filter.el (sfi="0x1a36218d4761)"> for optimized recompilation, reason: small function, ICs with typeinfo: 1/1 (100%), generic ICs: 0/1 (0%)]</jsfunction></span><br><span class="line"></span><br><span class="line">[marking 0x1a368a90cc11 <jsfunction sample (sfi="0x1a36218d4371)"> for optimized recompilation, reason: hot and stable, ICs with typeinfo: 10/11 (90%), generic ICs: 0/11 (0%)]</jsfunction></span><br><span class="line"></span><br><span class="line">[marking 0x1a36e4785c01 <jsfunction usesparsevariant (sfi="0x1a36660866d9)"> for optimized recompilation, reason: small function, ICs with typeinfo: 1/5 (20%), generic ICs: 0/5 (0%)]</jsfunction></span><br><span class="line"></span><br><span class="line">[marking 0x1a36e4786fc1 <jsfunction reverse (sfi="0x1a3666086f21)"> for optimized recompilation, reason: hot and stable, ICs with typeinfo: 4/5 (80%), generic ICs: 0/5 (0%)]</jsfunction></span><br></pre></td></tr></tbody></table></figure>
+<p>오 드디어 <code>reason: hot and stable</code>이 나왔다. <code><jsfunction 함수 이름></jsfunction></code>과 같은 포맷으로 함수 정보가 함께 출력되기 때문에 <code>hot and stable</code>의 이유로 최적화 대상을 찍힌 친구가 <code>sample</code>과 <code>reverse</code> 함수라는 것을 알 수 있다. 이와 같이 <code>TurboFan</code>은 한가지 데이터가 아니라 여러가지 데이터를 프로파일링하며 이 코드를 최적화할 것인지 구분한다.</p>
+<h2 id="마치며"><a href="#마치며" class="headerlink" title="마치며"></a>마치며</h2><p>최근 잘 짜여진 자바스크립트는 <code>C++</code>에 근사하는 성능을 낼 수도 있다고 한다. 처음 이 이야기를 들었을 때는 “인터프리터 언어가 어떻게 컴파일 언어 성능을 내?”라고 생각했었지만 <code>V8</code>의 작동 원리를 살펴보니 생각보다 많은 최적화 기법이 들어가 있어서 놀랐다.</p>
+<p>그리고 이렇게 자바스크립트 엔진을 하나하나 뜯어보면서 내가 좋아하는 언어에 대한 이해도를 높히는 과정은 굉장히 재밌었다.<small>(학교 다닐 때 C++ 좀 많이 써볼걸…)</small></p>
+<p>사실 <code>V8</code> 엔진 내부에는 <strong>“오…개쩌는데…?”</strong> 라는 말이 나올만한 최적화 기법이 많이 적용되어 있기 때문에 이것저것 다 소개하고 싶었지만, 포스팅을 쓰다보니 뭔가 내용이 길어지면서 점점 산으로 가고…<br>그래서 이번에는 전체적인 흐름을 설명하는 선까지만 하고 다음 포스팅때 <code>Ignition</code>과 <code>TurboFan</code>의 작동에 대해서 좀 더 디테일하게 설명해보도록 하겠다.<br>특히 <code>TurboFan</code>의 동작 흐름을 아는 것은 내 자바스크립트 코드를 최적화할 수 있는 지름길이기 때문에 알아두면 요긴하게 써먹을 수 있을 것 같다.</p>
+<p>이상으로 V8 엔진은 어떻게 내 코드를 실행하는 걸까? 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/08/08/fix-webpack-dev-memory-leak/" title="Webpack Watch의 메모리 누수 고치기" rel="bookmark">Webpack Watch의 메모리 누수 고치기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/06/18/javascript-let-const/" title="JavaScript의 let과 const, 그리고 TDZ" rel="bookmark">JavaScript의 let과 const, 그리고 TDZ</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/08/01/nodejs-event-loop-workflow/" title="로우 레벨로 살펴보는 Node.js 이벤트 루프" rel="bookmark">로우 레벨로 살펴보는 Node.js 이벤트 루프</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/08/19/javascript-audio-effectors-gain/" title="[JavaScript로 오디오 이펙터를 만들어보자] 소리의 흐름을 파악하자" rel="bookmark">[JavaScript로 오디오 이펙터를 만들어보자] 소리의 흐름을 파악하자</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/06/15/diving-into-js-array/" title="JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기" rel="bookmark">JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/javascript/">JavaScript</a><a class="tag -link" href="/tags/nodejs/">NodeJS</a><a class="tag -link" href="/tags/v8/">V8</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2019/07/02/what-is-agile/">
+                <i class="fas fa-chevron-left"></i> 애자일이 도대체 뭐길래?
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2019/06/25/hashtable-with-js/">
+                JavaScript와 함께 해시테이블을 파헤쳐보자 <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#V8-엔진이란" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>V8 엔진이란?</span>
+        </a></li><li>
+        <a class="is-flex" href="#V8-엔진의-작동원리를-살펴보자" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>V8 엔진의 작동원리를 살펴보자.</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#Parsing-코드의-의미-파악하기" data-link-name="toc">
+        <span class="has-mr-6">2.1</span>
+        <span>Parsing, 코드의 의미 파악하기</span>
+        </a></li><li>
+        <a class="is-flex" href="#Ignition으로-바이트-코드-Bytecode-생성하기" data-link-name="toc">
+        <span class="has-mr-6">2.2</span>
+        <span>Ignition으로 바이트 코드(Bytecode) 생성하기</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#Ignition이란" data-link-name="toc">
+        <span class="has-mr-6">2.2.1</span>
+        <span>Ignition이란?</span>
+        </a></li><li>
+        <a class="is-flex" href="#바이트-코드를-직접-확인하기" data-link-name="toc">
+        <span class="has-mr-6">2.2.2</span>
+        <span>바이트 코드를 직접 확인하기</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#TurboFan으로-뜨거워진-코드-식히기" data-link-name="toc">
+        <span class="has-mr-6">2.3</span>
+        <span>TurboFan으로 뜨거워진 코드 식히기</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#어떤-조건으로-최적화-하는-걸까" data-link-name="toc">
+        <span class="has-mr-6">2.3.1</span>
+        <span>어떤 조건으로 최적화 하는 걸까?</span>
+        </a></li><li>
+        <a class="is-flex" href="#TurboFan이-일하는-모습-훔쳐보기" data-link-name="toc">
+        <span class="has-mr-6">2.3.2</span>
+        <span>TurboFan이 일하는 모습 훔쳐보기</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#마치며" data-link-name="toc">
+        <span class="has-mr-6">3</span>
+        <span>마치며</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="V8 엔진은 어떻게 내 코드를 실행하는 걸까?" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

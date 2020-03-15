@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>TCP의 헤더에는 어떤 정보들이 담겨있는걸까? - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="저번에 HTTP/3는 왜 UDP를 선택한 것일까? 포스팅을 진행하며 TCP에 대해 간단한 언급을 했었지만, 해당 포스팅에서는 기존의 HTTP에서 사용하던 TCP에 어떤 문제가 있었는지에 집중해서 이야기했었지만 이번에는 TCP 자체에 조금 더 집중해서 이야기해보려고 한다.">
+<meta name="keywords" content="TCP,헤더,ECN,TCP 플래그,SYN,ACK">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TCP의 헤더에는 어떤 정보들이 담겨있는걸까?">
+<meta property="og:url" content="https://evan-moon.github.io/2019/11/10/header-of-tcp/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="저번에 HTTP/3는 왜 UDP를 선택한 것일까? 포스팅을 진행하며 TCP에 대해 간단한 언급을 했었지만, 해당 포스팅에서는 기존의 HTTP에서 사용하던 TCP에 어떤 문제가 있었는지에 집중해서 이야기했었지만 이번에는 TCP 자체에 조금 더 집중해서 이야기해보려고 한다.">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2019/11/10/header-of-tcp/thumbnail.png">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.434Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="TCP의 헤더에는 어떤 정보들이 담겨있는걸까?">
+<meta name="twitter:description" content="저번에 HTTP/3는 왜 UDP를 선택한 것일까? 포스팅을 진행하며 TCP에 대해 간단한 언급을 했었지만, 해당 포스팅에서는 기존의 HTTP에서 사용하던 TCP에 어떤 문제가 있었는지에 집중해서 이야기했었지만 이번에는 TCP 자체에 조금 더 집중해서 이야기해보려고 한다.">
+<meta name="twitter:image" content="https://evan-moon.github.io/2019/11/10/header-of-tcp/thumbnail.png">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2019/11/10/header-of-tcp/">
+
+
+<link rel="alternative" href="/feed.xml" title="TCP의 헤더에는 어떤 정보들이 담겨있는걸까?" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="TCP의 헤더에는 어떤 정보들이 담겨있는걸까?" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2019/11/10/header-of-tcp/thumbnail.png" alt="TCP의 헤더에는 어떤 정보들이 담겨있는걸까?">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-11-10T09:39:00.000Z">2019-11-10</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/programming/">Programming</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/programming/network/">Network</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                TCP의 헤더에는 어떤 정보들이 담겨있는걸까?
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>저번에 <a href="/2019/10/08/what-is-http3/" title="HTTP/3는 왜 UDP를 선택한 것일까?">HTTP/3는 왜 UDP를 선택한 것일까?</a> 포스팅을 진행하며 TCP에 대해 간단한 언급을 했었지만, 해당 포스팅에서는 기존의 HTTP에서 사용하던 TCP에 어떤 문제가 있었는지에 집중해서 이야기했었지만 이번에는 TCP 자체에 조금 더 집중해서 이야기해보려고 한다.</p>
+<a id="more"></a>
+<p>원래는 이 포스팅에서 TCP의 개괄적인 내용을 모두 다루려고 했으나 생각보다 양이 너무 많아서 몇 개의 포스팅으로 나누어 작성하려고 한다.<small>(파도파도 끝이 없는 이 놈의 할배 프로토콜…)</small></p>
+<p>그런 이유로 이번 포스팅에서는 TCP의 헤더 안에 들어 있는 필드들이 어떤 의미를 가지고 있는지에만 집중해서 이야기 해보도록 하겠다.</p>
+<h2 id="TCP-Transmission-Control-Protocol"><a href="#TCP-Transmission-Control-Protocol" class="headerlink" title="TCP, Transmission Control Protocol"></a>TCP, Transmission Control Protocol</h2><p><code>TCP(Transmission Control Protocol)</code>는 OSI 7계층 중 전송 계층에서 사용되고 있는 프로토콜로, 장비들 간의 통신 과정에서 정보를 안정적으로, 순서대로, 에러없이 교환할 수 있도록 하는 것에 목적을 둔 프로토콜이다.</p>
+<p>컴퓨터 공학에서는 컴퓨터에게 가까운 부분일 수록 <code>낮다</code>거나 <code>뒤에 있다</code>는 표현을, 사람에게 가까운 <code>높다</code>거나 <code>앞에 있다</code>라는 표현을 자주 사용하는데, OSI 7계층에서도 마찬가지로 낮은 계층일수록 기계에 가까운 부분이고 높은 부분일수록 사람에게 가까운 부분이라고 생각하면 편하다.</p>
+<center><br>  <img src="/2019/11/10/header-of-tcp/osi.png" width="500"><br>  <br><br></center>
+
+<p>이때 우리에게 친숙한 <code>HTTP</code>, <code>SMTP</code>, <code>FTP</code>와 같은 프로토콜 친구들이 가장 높은 계층인 응용 계층에 위치한다. 그에 비해 더 낮은 계층에 존재하는 <code>TCP</code>, <code>UDP</code>, <code>IP</code> 같은 프로토콜들은 상대적으로 접할 일이 많이 없기는 하다.</p>
+<p>이런 프로토콜들은 대부분 OS에서 알아서 처리해주기 때문에 상위 계층에서 프로그래밍을 하는 개발자가 굳이 여기서 일어나는 일까지 하나하나 신경쓸 필요가 없기 때문이다.</p>
+<p>애초에 이게 레이어 모델이 존재하는 이유 중 하나이다. 네트워크라는 것이 수많은 기술의 집약체인 만큼 한 명의 개발자가 모든 것을 다 알기는 힘들다. 그래서 각 계층 간 철저한 역할 분담을 통해 어떤 작업을 할 때 신경써야하는 범위를 좁혀주는 것이다.</p>
+<p>덕분에 우리는 HTTP를 사용할 때 DNS는 어디를 사용할지, 패킷은 어떻게 처리할지 등 여러 가지 작업을 한번에 신경쓸 필요가 없다.</p>
+<p>하지만 아무리 레이어가 나누어져 있다고 한들 하위 레이어에서 일어나는 일을 전혀 모르고 있다면, 어플리케이션 레이어에서는 아무 문제 없지만 하위 레이어에서 문제가 발생했을 때 전혀 손도 못 대는 케이스도 발생할 수 있다.</p>
+<p>이런 이유로 자신이 사용하고 있는 프로토콜의 대략적인 작동 원리와 개요 정도는 알고 있으면 좋다고 생각하기 때문에, 이번 포스팅을 작성하며 그 동안 대략적인 몇 가지 특징으로만 알고 있던 TCP를 조금 뜯어보려고 한다.</p>
+<h2 id="TCP는-왜-만들어진걸까"><a href="#TCP는-왜-만들어진걸까" class="headerlink" title="TCP는 왜 만들어진걸까?"></a>TCP는 왜 만들어진걸까?</h2><p>개인적으로 어떤 기술을 공부할 때, 무작정 외우는 것이 아니라 <code>이게 왜 필요한 것인지</code>를 알고 그 이유에 대해 공감하며 공부하는 편이 효과적이라고 생각한다.</p>
+<p>TCP는 워낙 옛날에 나온 기술이니 당시 상황을 100% 공감하기는 쉽지 않겠지만, 그래도 이 프로토콜이 개발된 이유를 살펴보면 당시 엔지니어들의 고충을 알아볼 수 있다.</p>
+<h3 id="패킷-교환-방식을-사용해보자"><a href="#패킷-교환-방식을-사용해보자" class="headerlink" title="패킷 교환 방식을 사용해보자!"></a>패킷 교환 방식을 사용해보자!</h3><p>TCP는 방금 이야기 했듯이 1970년 냉전 당시 미 국방성이 개발하던 알파넷 프로젝트의 일부로 개발되었는데, 그 당시 알파넷을 연구할 때 관심을 가진 주제 중에 하나가 바로 <code>핵전쟁이 나도 살아남는 네트워크</code>였다.<small>(핵전쟁의 상대방은 당연히 마더 러씨아…)</small></p>
+<p>왜냐하면 1970년대의 네트워크는 <code>회선 교환 방식</code>을 사용하고 있었기 때문에 중계국이 폭격을 맞아서 박살나거나 중간에 연결된 선이 하나가 잘려나가면 그대로 통신이 끊어져 버렸기 때문이다.</p>
+<center><br>  <img src="/2019/11/10/header-of-tcp/old-telephone.jpg" width="500"><br>  <small>직접 보지는 않았지만 이런 느낌이지 않았을까…?</small><br>  <br><br></center>
+
+<p>저 당시 중계국이 하는 일은 그냥 이거다. A가 중계국에 “B랑 연결해주세요!”라고 하면, 위의 사진과 같이 케이블이 마구 꽂혀있는 패치 테이블에서 A 라벨이 붙은 구멍과 B 라벨이 붙은 구멍을 찾아서 케이블로 연결해준다.</p>
+<p>말 그대로 <code>회선을 교환하는 방식</code>인 것이다. 저러다가 A가 C랑 통신하고 싶으면 B 구멍에서 케이블을 빼서 C 구멍에 꽂으면 된다.</p>
+<p>이렇게 회선 교환 방식의 경우에는 통신을 하고 싶은 상대방과 물리적으로 회선을 하나 딱 잡아놓고 계속 통신을 하는 것이기 때문에 회선의 효율이 낮을 수 밖에 없다. 우리가 전화를 걸 때 상대방이 통화 중이면 <code>상대방이 통화 중이니...</code> 어쩌고 나오는 것과 같은 원리이다.</p>
+<p>물론 회선을 독점하기 때문에 대량의 데이터를 빠른 속도로 주르륵 보낼 수 있는 등의 장점도 있긴 하지만, 이때 미국에게 중요한 것은 <code>핵이 터져도 끊기지 않는 연결</code>이었기 때문에 하나의 회선에 전적으로 의존하는 연결이라는 건 큰 단점으로 다가왔을 것이다.</p>
+<p>그래서 나온 아이디어가 바로 <code>패킷 교환 방식</code>이다. 데이터를 하나의 회선을 사용하여 보내다가 해당 회선이나 중계국이 개박살나면 전송되던 데이터와도 영원히 이별하게 되니, 데이터를 잘게 쪼갠 후 여러 개의 회선을 통해 보내자는 것이다. 일종의 분산투자랄까.</p>
+<center><br>  <img src="/2019/11/10/header-of-tcp/packets.png" width="500"><br>  <small>이렇게 되면 노드 하나가 박살나도 모든 데이터가 유실되진 않을 것이다</small><br>  <br><br></center>
+
+<p>최악의 경우 중간에 있는 회선이나 중계국이 박살나서 데이터가 약간 유실될 수는 있겠지만 전체 네트워크를 한 번에 타격하지 않는 이상 모든 데이터가 유실될 가능성은 적다. 또한 하나의 회선을 잡아놓고 계속 통신하는 것이 아니라 패킷에 목적지를 마킹해놓고 그냥 보내기만 하면 되니, 회선의 사용 효율 또한 높아질 수 있다.</p>
+<p>이런 이유로 미 국방성은 이 아이디어를 채택하여 알파넷에 적용했고, 초기 테스트도 대성공하여 패킷 교환 방식의 실용성을 증명했다.</p>
+<p>이후 몇 개의 대학과 군에서만 사용되던 알파넷이 대중들에게 공개되고 전 세계적으로 연결되며 인터넷으로 발전하게 되었고, 덩달아 알파넷의 통신 프로토콜이었던 TCP도 함께 떡상하게 된 것이다.</p>
+<h3 id="패킷-교환-방식의-문제점"><a href="#패킷-교환-방식의-문제점" class="headerlink" title="패킷 교환 방식의 문제점"></a>패킷 교환 방식의 문제점</h3><p>하지만 패킷 교환 방식도 당연히 만능이 아니기에, 몇 가지 문제가 있었다. 우리가 TCP를 공부할 때 함께 따라오는 ARQ나 SYN, ACK 등의 개념들이 바로 이런 문제들을 해결하기 위해 과거의 엔지니어들이 머리를 싸맨 결과인 것이다.</p>
+<blockquote><p>Q: 전송 중간에 패킷이 쥐도새도 모르게 사라지거나 훼손되면 어떡해요?<br>A: <strong>그럼 그 패킷만 다시 보내라고 해!(ARQ)</strong></p>
+<p>Q: 송신 측이 패킷을 쪼갠 순서를 알아야 수신 측이 재조립할 수 있겠는데요?<br>A: <strong>그럼 순서번호를 패킷이랑 같이 보내!(시퀀스 번호)</strong></p>
+<p>Q: 수신 측이 처리할 수 있는 속도보다 송신 측이 패킷을 빠르게 보내버리면 어떡하죠?<br>A: <strong>그럼 수신 측이 처리할 수 있는 양을 송신 측에 알려주고 그 만큼만 보내라고 해! (슬라이딩 윈도우)</strong></p>
+</blockquote>
+<p>TCP가지고 있는 많은 기능과 개념들은 마냥 글로만 봤을 땐 복잡해보이고 뭔가 외울 것도 많아보이지만, 당시 상황을 생각해보면 반드시 필요한 것들이었음을 알 수 있다.</p>
+<p>그리고 이런 기능들은 상대방이 보낸 세그먼트의 헤더에 들어있는 정보를 파악하여 작동하기 때문에, 이 기능들을 하나씩 알아보기 전에 TCP의 헤더에는 어떤 정보들이 들어있고, 이 정보들이 의미하는 것이 무엇인지 살펴보려고 한다.</p>
+<h2 id="TCP의-헤더를-까보자"><a href="#TCP의-헤더를-까보자" class="headerlink" title="TCP의 헤더를 까보자"></a>TCP의 헤더를 까보자</h2><p>HTTP, TCP, IP와 같은 프로토콜들은 각자 자신이 맡은 역할이 있고, 보내고자 하는 데이터에 자신의 헤더를 붙혀서 데이터의 정보를 표현한다.</p>
+<p>TCP는 전송의 신뢰성과 흐름 제어, 혼잡 제어 등의 역할을 맡고 있는 프로토콜이기 때문에, TCP 헤더에도 이러한 기능을 사용하기 위한 여러가지 값들이 담겨있다.</p>
+<p>즉, 이 헤더를 보면 개괄적인 TCP의 기능들을 한 차례 쓱 훑어볼 수 있다는 말이고, 그런 이유로 필자는 TCP 포스팅의 첫 번째 스텝으로 <code>헤더 까보기</code>를 골랐다.</p>
+<center><br>  <img src="/2019/11/10/header-of-tcp/tcp-header.png"><br>  <br><br></center>
+
+<p>TCP는 여러 개의 필드로 나누어진 <code>20 bytes</code>, 즉 <code>160 bits</code>의 헤더를 사용하며, 각 필드의 비트를 0 또는 1로 변경하여 전송하고자 하는 세그먼트의 정보를 나타낸다.</p>
+<p>하지만 이 <code>20 bytes</code>라는 것은 아무 옵션도 없는 기본적인 헤더일 때의 용량이고, TCP의 여러가지 옵션들을 사용하면 헤더 맨 뒤에 옵션 필드들이 추가로 붙기 때문에 최대 <code>40 bytes</code>가 더해진 <code>60 bytes</code>까지도 사용할 수도 있다.</p>
+<p>그럼 이 그림에 표기된 순서대로 각 필드가 어떤 정보를 담고 있는지 한번 살펴보도록 하자.</p>
+<h3 id="Source-port-Destination-port"><a href="#Source-port-Destination-port" class="headerlink" title="Source port, Destination port"></a>Source port, Destination port</h3><center><br>  <img src="/2019/11/10/header-of-tcp/header-source-destination.png"><br>  <br><br></center>
+
+<p>이 필드들은 세그먼트의 출발지와 목적지를 나타내는 필드로, 각각 16 bits 를 할당받는다. 이때 출발지와 목적지의 주소를 판별하기 위해서는 <code>IP 주소</code>와 <code>포트 번호</code>가 필요하다.</p>
+<p>IP 주소는 당연히 한 계층 밑인 네트워크 계층에 있는 IP의 헤더에 담기기 때문에, TCP 헤더에는 IP 주소를 나타내는 필드가 없고 포트를 나타내는 필드만 존재한다.</p>
+<h3 id="Sequence-Number"><a href="#Sequence-Number" class="headerlink" title="Sequence Number"></a>Sequence Number</h3><center><br>  <img src="/2019/11/10/header-of-tcp/header-sequence.png"><br>  <br><br></center>
+
+<p>시퀀스 번호는 전송하는 데이터의 순서를 의미하며, 32 bits를 할당받는다. 최대 <code>4,294,967,296</code> 까지의 수를 담을 수 있기 때문에 시퀀스 번호가 그리 쉽게 중복되지는 않는다.</p>
+<p>이 시퀀스 번호 덕분에, 수신자는 쪼개진 세그먼트의 순서를 파악하여 올바른 순서로 데이터를 재조립할 수 있게 된다.</p>
+<p>송신자가 최초로 데이터를 전송할 때는 이 번호를 랜덤한 수로 초기화 하며, 이후 자신이 보낼 데이터의 1 bytes당 시퀀스 번호를 1씩 증가시키며 데이터의 순서를 표현하다 <code>4,294,967,296</code>를 넘어갈 경우 다시 0부터 시작한다.</p>
+<h3 id="Acknowledgment-Number"><a href="#Acknowledgment-Number" class="headerlink" title="Acknowledgment Number"></a>Acknowledgment Number</h3><center><br>  <img src="/2019/11/10/header-of-tcp/header-ack.png"><br>  <br><br></center>
+
+<p>승인 번호는 데이터를 받은 수신자가 예상하는 다음 시퀀스 번호를 의미하며, 32 bits를 할당받는다.</p>
+<p>연결 설정과 연결 해제 때 발생하는 핸드쉐이크 과정에서는 <code>상대방이 보낸 시퀀스 번호 + 1</code>로 자신의 승인 번호를 만들어내지만, 실제로 데이터를 주고 받을 때는 <code>상대방이 보낸 시퀀스 번호 + 자신이 받은 데이터의 bytes</code>로 승인 번호를 만들어낸다.</p>
+<p>예를 들어 1 MB짜리 데이터를 전송한다고 생각해보자. 이렇게 큰 데이터를 한번에 전송할 수는 없으므로, 송신자는 이 데이터를 여러 개의 세그먼트로 쪼개서 조금씩 전송해야한다. 이때 송신자가 한번에 전송할 수 있는 데이터 양은 네트워크나 수신자의 상태에 따라 가변적이긴 하지만, 그냥 <code>100 bytes</code>라고 가정해보자.</p>
+<p>송신자는 첫 전송으로 100 bytes 만큼만 데이터를 전송하며 시퀀스 번호를 <code>0</code>으로 초기화한다. 시퀀스 번호는 1 bytes당 1씩 증가하기 때문에 첫 번째 바이트 뭉치는 0, 두 번째 바이트 뭉치는 1, 세 번째 바이트 뭉치는 2와 같은 순서로 매겨질 것이다.</p>
+<p>즉, 이번 전송을 통해 수신자는 0~99까지 총 100개의 바이트 뭉치를 받았고, 그 다음 전송 때 받아야할 시퀀스 번호는 2가 아닌 100이 되는 것이다.</p>
+<center><br>  <img src="/2019/11/10/header-of-tcp/ack.png"><br>  <small>100 bytes 만큼 하나의 세그먼트로 묶어서 전송한다</small><br>  <br><br></center>
+
+<p><code>tcpdump</code>를 사용하여 패킷을 캡쳐해보면 실제로 송신 측이 보낸 데이터의 길이만큼 수신 측의 승인 번호가 증가하는 모습을 확인해 볼 수 있다.</p>
+<figure class="highlight bash hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">localhost.http-alt > localhost.49680: Flags [P.], seq 160:240, ack 161, win 6374, length 80</span><br><span class="line">localhost.49680 > localhost.http-alt: Flags [.], ack 240, win 6374</span><br></pre></td></tr></tbody></table></figure>
+<p>송신 측이 보낸 세그먼트를 보면 시퀀스 번호가 <code>seq 160:240</code>로 찍혀있고, 수신 측은 자신의 승인 번호로 콜론 뒤 쪽의 값을 사용하고 있다.</p>
+<p>이때 시퀀스 번호의 형식은 <code>n 이상:m 미만</code>의 범위를 나타낸다. 콜론 뒤쪽의 번호는 송신 측의 시퀀스 범위에 포함되지 않으므로 수신 측이 저 번호를 그대로 가져다 쓰는 것이다.</p>
+<p>즉, 승인 번호는 <code>다음에 보내줘야하는 데이터의 시작점</code>을 의미한다는 것을 알 수 있다.</p>
+<h3 id="Data-Offset"><a href="#Data-Offset" class="headerlink" title="Data Offset"></a>Data Offset</h3><center><br>  <img src="/2019/11/10/header-of-tcp/header-data-offset.png"><br>  <br><br></center>
+
+<p>데이터 오프셋 필드에는 전체 세그먼트 중에서 헤더가 아닌 <code>데이터</code>가 시작되는 위치가 어디부터인지를 표시한다.</p>
+<p>이 오프셋을 표기할 때는 <code>32비트 워드</code> 단위를 사용하며, 32 비트 체계에서의 <code>1 Word = 4 bytes</code>를 의미한다. 즉, 이 필드의 값에 4를 곱하면 세그먼트에서 헤더를 제외한 실제 데이터의 시작 위치를 알 수 있는 것이다.</p>
+<p>이 필드에 할당된 4 bits로 표현할 수 있는 값의 범위는 <code>0000 ~ 1111</code>, 즉 <code>0 ~ 15 Word</code>이므로 기본적으로 <code>0 ~ 60 bytes</code>의 오프셋까지 표현할 수 있다. 하지만 옵션 필드를 제외한 나머지 필드는 필수로 존재해야 하기 때문에 최소 값은 20 bytes, 즉 <code>5 Word</code>로 고정되어 있다.</p>
+<p>이 필드가 필요한 이유는, 밑에서 설명할 <code>옵션(Option)</code> 필드의 길이가 고정되어 있지 않기 때문이다.</p>
+<h3 id="Reserved-3-bits"><a href="#Reserved-3-bits" class="headerlink" title="Reserved (3 bits)"></a>Reserved (3 bits)</h3><center><br>  <img src="/2019/11/10/header-of-tcp/header-reserved.png"><br>  <br><br></center>
+
+<p>미래를 위해 예약된 필드로, 모두 <code>0</code>으로 채워져야 한다. 상단의 헤더 그림에도 그냥 <code>0 0 0</code>으로 찍혀있는 것을 확인해볼 수 있다.</p>
+<h3 id="Flags-NS-FIN"><a href="#Flags-NS-FIN" class="headerlink" title="Flags (NS ~ FIN)"></a>Flags (NS ~ FIN)</h3><center><br>  <img src="/2019/11/10/header-of-tcp/header-flags.png"><br>  <br><br></center>
+
+<p>9개의 비트 플래그이다. 이 플래그들은 현재 세그먼트의 속성을 나타낸다. 기존에는 6개의 플래그만을 사용했지만, 혼잡 제어 기능의 향상을 위해 <code>Reserved</code> 필드를 사용하여 <code>NS, CWR, ECE</code> 플래그가 추가되었다.</p>
+<p>먼저 기존에 존재하던 플래그들의 의미는 다음과 같다.</p>
+<table>
+<thead>
+<tr>
+<th>필드</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>URG</td>
+<td><code>Urgent Pointer(긴급 포인터)</code> 필드에 값이 채워져있음을 알리는 플래그. 이 포인터가 가리키는 긴급한 데이터는 높게 처리되어 먼저 처리된다. 요즘에는 많이 사용되지 않는다.</td>
+</tr>
+<tr>
+<td>ACK</td>
+<td><code>Acknowledgment(승인 번호)</code> 필드에 값이 채워져있음을 알리는 플래그. 이 플래그가 0이라면 승인 번호 필드 자체가 무시된다.</td>
+</tr>
+<tr>
+<td>PSH</td>
+<td><code>Push</code> 플래그. 수신 측에게 이 데이터를 최대한 빠르게 응용프로그램에게 전달해달라는 플래그이다. 이 플래그가 0이라면 수신 측은 자신의 버퍼가 다 채워질 때까지 기다린다. 즉, 이 플래그가 1이라면 이 세그먼트 이후에 더 이상 연결된 세그먼트가 없음을 의미하기도 한다.</td>
+</tr>
+<tr>
+<td>RST</td>
+<td><code>Reset</code> 플래그. 이미 연결이 확립되어 <code>ESTABLISHED</code> 상태인 상대방에게 연결을 강제로 리셋해달라는 요청의 의미이다.</td>
+</tr>
+<tr>
+<td>SYN</td>
+<td><code>Synchronize</code> 플래그. 상대방과 연결을 생성할 때, 시퀀스 번호의 동기화를 맞추기 위한 세그먼트임을 의미한다.</td>
+</tr>
+<tr>
+<td>FIN</td>
+<td><code>Finish</code> 플래그. 상대방과 연결을 종료하고 싶다는 요청인 세그먼트임을 의미한다.</td>
+</tr>
+</tbody>
+</table>
+<p>기존의 Reserved 필드를 사용하여 새롭게 추가된 <code>NS</code>, <code>CWR</code>, <code>ECE</code> 플래그는 네트워크의 <code>명시적 혼잡통보(Explicit Congestion Notification, ECN)</code>을 위한 플래그이다.</p>
+<p>ECN을 사용하지 않던 기존의 네트워크 혼잡 상황 인지 방법은 타임아웃을 이용한 방법이었다. 그러나 처리 속도에 민감한 어플리케이션에서는 이런 대기 시간 조차 아깝기 때문에, 송신자와 수신자에게 네트워크의 혼잡 상황을 명시적으로 알리기 위한 특별한 매커니즘이 필요하게 되었는데, 이것이 바로 <code>ECN</code>이다.</p>
+<p>이때 <code>CWR</code>, <code>ECE</code>, <code>ECT</code>, <code>CE</code> 플래그를 사용하여 상대방에게 혼잡 상태를 알려줄 수 있는데, 이 중 <code>CWR</code>, <code>ECE</code>는 TCP 헤더에 존재하고 <code>ECT</code>, <code>CE</code>는 IP 헤더에 존재한다.</p>
+<table>
+<thead>
+<tr>
+<th>필드</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>NS</td>
+<td>ECN에서 사용하는 CWR, ECE 필드가 실수나 악의적으로 은폐되는 경우를 방어하기 위해 RFC 3540에서 추가된 필드</td>
+</tr>
+<tr>
+<td>ECE</td>
+<td><code>ECN Echo</code> 플래그. 해당 필드가 1이면서, SYN 플래그가 1일 때는 ECN을 사용한다고 상대방에게 알리는 의미. SYN 플래그가 0이라면 네트워크가 혼잡하니 세그먼트 윈도우의 크기를 줄여달라는 요청의 의미이다.</td>
+</tr>
+<tr>
+<td>CWR</td>
+<td>이미 ECE 플래그를 받아서, 전송하는 세그먼트 윈도우의 크기를 줄였다는 의미이다.</td>
+</tr>
+</tbody>
+</table>
+<p>ECN은 이 포스팅의 주제와는 또 다른 이야기이므로 궁금하신 분들은 MR.ZERO님의 <a href="https://mr-zero.tistory.com/20" target="_blank" rel="external nofollow noopener noreferrer">Explict Congestion Notification?</a> 블로그를 참고하길 바란다.</p>
+<h3 id="Window-Size"><a href="#Window-Size" class="headerlink" title="Window Size"></a>Window Size</h3><center><br>  <img src="/2019/11/10/header-of-tcp/header-window-size.png"><br>  <br><br></center>
+
+<p>윈도우 사이즈 필드에는 한번에 전송할 수 있는 데이터의 양을 의미하는 값을 담는다. $2^{16} = 65535$ 만큼의 값을 표현할 수 있고 단위는 바이트이므로, 윈도우의 최대 크기는 <code>64KB</code>라는 말이 된다.</p>
+<p>하지만 이 최대 크기는 옛날 옛적에 생긴 기준이라 요즘같이 대용량 고속 통신 환경에는 맞지 않는 경우도 있다. 그래서 비트를 왼쪽으로 시프트하는 방식으로 윈도우 사이즈의 최대 크기를 키울 수 있는 방식도 사용하고 있으며, 몇 번 시프트할 지는 옵션 필드의 <code>WSCALE</code> 필드를 사용하여 표기한다.</p>
+<h3 id="Checksum"><a href="#Checksum" class="headerlink" title="Checksum"></a>Checksum</h3><center><br>  <img src="/2019/11/10/header-of-tcp/header-checksum.png"><br>  <br><br></center>
+
+<p>체크섬은 데이터를 송신하는 중에 발생할 수 있는 오류를 검출하기 위한 값이다.</p>
+<p>TCP의 체크섬은 전송할 데이터를 16 Bits씩 나눠서 차례대로 더해가는 방법으로 생성한다. 방식은 단순하지만 16 bits의 덧셈을 그대로 보자니 숫자가 너무 길어질 것이 뻔하므로 간단하게 반토막인 8 bits로만 한번 해보도록 하겠다.</p>
+<figure class="highlight plain hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">  11010101</span><br><span class="line">+ 10110100</span><br><span class="line">-----------</span><br><span class="line"> 110001001</span><br></pre></td></tr></tbody></table></figure>
+<p>앗, 8 bits인 두 수를 더 했더니 자리 수가 하나 올라가서 9 bits가 되었다. 이렇게 자리 수가 넘쳐버리면 체크섬 필드에 담을 수 없다.</p>
+<p>이렇게 두 개의 수를 더했을 때 자리 수가 하나 올라간 부분을 <code>캐리(Carry)</code>라고 하는데, 계산 결과에서 이 부분만 떼어내서 다시 계산 결과에 더해주면 된다.</p>
+<figure class="highlight plain hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">  10001001</span><br><span class="line">+        1 (방금 해에서 넘친 부분)</span><br><span class="line">-----------</span><br><span class="line">  10001010</span><br></pre></td></tr></tbody></table></figure>
+<p>이런 방식을 <code>Warp Around</code>라고 한다. 이제 마지막 계산 결과에 <code>1의 보수</code>를 취해주면 체크섬이 된다. <code>1의 보수</code>라고 하면 뭐지 싶겠지만 그냥 비트를 반전하면 된다.</p>
+<figure class="highlight plain hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">10001010</span><br><span class="line">01110101 (1의 보수를 취한 모습)</span><br></pre></td></tr></tbody></table></figure>
+<p>이제 <code>01110101</code>이 이 데이터의 체크섬이 되는 것이다. 이 예제에서는 8 bits를 가지고 진행했기 때문에 8 bits짜리 체크섬이 나왔지만, 실제로는 16 bits 단위로 데이터를 잘라서 이 과정을 진행하기 때문에 16 bits인 체크섬 필드에 딱 들어맞는 이쁜 값이 나온다.</p>
+<p>수신 측은 데이터를 받으면 위의 과정을 동일하게 거치되 1의 보수를 취하지 않은 값인 <code>10001010</code>까지만 만든 다음, 이 값과 송신 측이 보낸 체크섬을 더해서 모든 비트가 1이라면 이 데이터가 정상이라고 판단할 수 있다.</p>
+<figure class="highlight plain hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">  10001010</span><br><span class="line">+ 01110101</span><br><span class="line">-----------</span><br><span class="line">  11111111</span><br></pre></td></tr></tbody></table></figure>
+<p>만약 이 값에 0이 하나라도 있으면 송신 측이 보낸 데이터에 뭔가 변조가 있었음을 알 수 있다.</p>
+<h3 id="Urgent-Pointer"><a href="#Urgent-Pointer" class="headerlink" title="Urgent Pointer"></a>Urgent Pointer</h3><center><br>  <img src="/2019/11/10/header-of-tcp/header-urgent.png"><br>  <br><br></center>
+
+<p>말 그대로 긴급 포인터이다. URG 플래그가 1이라면 수신 측은 이 포인터가 가르키고 있는 데이터를 우선 처리한다.</p>
+<h3 id="Options"><a href="#Options" class="headerlink" title="Options"></a>Options</h3><center><br>  <img src="/2019/11/10/header-of-tcp/header-options.png"><br>  <br><br></center>
+
+<p>옵션 필드는 TCP의 기능을 확장할 때 사용하는 필드들이며, 이 필드는 크기가 고정된 것이 아니라 가변적이다. 그래서 수신 측이 어디까지가 헤더고 어디서부터 데이터인지 알기 위해 위에서 설명한 데이터 오프셋 필드를 사용하는 것이다.</p>
+<p>데이터 오프셋 필드는 <code>20 ~ 60 bytes</code>의 값을 표현할 수 있다고 했는데, 아무런 옵션도 사용하지 않은 헤더의 길이, 즉 Source Port 필드부터 Urgent Pointer 필드까지의 길이가 <code>20 bytes</code>이고, 옵션을 모두 사용했을 때 옵션 필드의 최대 길이가 <code>40 bytes</code>이기 때문이다.</p>
+<p>만약 데이터 오프셋 필드의 값이 5, 즉 20 bytes보다 크지만 TCP의 옵션을 하나도 사용하고 있지 않다면, 초과한 bytes 만큼 이 필드를 0으로 채워줘야 수신 측이 헤더의 크기를 올바르게 측정할 수 있다.</p>
+<p>대표적인 옵션으로는 윈도우 사이즈의 최대 값 표현을 확장할 수 있는 <code>WSCALE</code>, Selective Repeat 방식을 사용하기 위한 <code>SACK</code> 등이 있으며, 이외에도 거의 30개 정도의 옵션을 사용할 수 있기 때문에 이 친구들을 하나하나 설명하는 것은 조금 힘들 것 같다.</p>
+<h2 id="마치며"><a href="#마치며" class="headerlink" title="마치며"></a>마치며</h2><p>이렇게 간략한 TCP의 개요와 헤더 구조에 대해서 알아보았다. 사실 이 내용들은 TCP라는 놈의 껍데기 한 겹 정도에 불과한 내용이지만, 이게 거의 50년 묵은 프로토콜이다보니 포스팅 하나로 정리하기에는 내용이 굉장히 방대하다.</p>
+<p>서두에서 이야기 했듯이 TCP나 IP 같은 프로토콜은 소켓 프로그래밍이라도 하지 않는 이상 직접적으로 마주할 기회가 흔치 않은 것이 사실이다.</p>
+<p>하지만 직접 마주하지 않더라도 필자는 매일 HTTP를 사용하는 웹 개발자이기 때문에, 자신이 매일 사용하는 프로토콜이 어떤 식으로 굴러가는 지 정도는 알고 있는 것이 좋다고 생각한다.</p>
+<p>TCP가 커널에 어떻게 구현되어있는지 직접 확인해보고싶은 분은 깃허브에 올라가있는 리눅스 소스인 <a href="https://github.com/torvalds/linux/tree/master/net/ipv4" target="_blank" rel="external nofollow noopener noreferrer">linux/net/ipv4</a> 안에 있는 구현체들을 통해 확인해볼 수 있다.<small>(리눅스 소스 자체가 너무 커서 클론 받는 데 한 세월이라는 게 함정)</small></p>
+<p>혹시 자신이 직접 TCP 통신 과정을 확인해보고 싶은 분은 간단한 <a href="https://github.com/evan-moon/simple-tcp-example" target="_blank" rel="external nofollow noopener noreferrer">TCP 예제 프로그램</a>과 <code>tcpdump</code>, <code>netstat</code> 등의 유틸리티를 통해 확인해볼 수 있다. <code>tcpdump</code>를 클라이언와 서버가 주고 받는 패킷의 내용을 확인해보고, <code>netstat</code>을 사용하여 클라이언트와 서버의 TCP 상태를 확인해볼 수도 있다.</p>
+<p>다음 포스팅에서는 TCP의 핸드쉐이크나 흐름 제어, 혼잡 제어 기법에 대해서 한번 다뤄보도록 하겠다.</p>
+<p>이상으로 TCP의 헤더에는 어떤 정보들이 담겨있는걸까? 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/11/17/tcp-handshake/" title="TCP가 연결을 생성하고 종료하는 방법, 핸드쉐이크" rel="bookmark">TCP가 연결을 생성하고 종료하는 방법, 핸드쉐이크</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/11/22/tcp-flow-control-error-control/" title="패킷의 흐름과 오류를 제어하는 TCP" rel="bookmark">패킷의 흐름과 오류를 제어하는 TCP</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/11/26/tcp-congestion-control/" title="사이 좋게 네트워크를 나눠 쓰는 방법, TCP의 혼잡 제어" rel="bookmark">사이 좋게 네트워크를 나눠 쓰는 방법, TCP의 혼잡 제어</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/10/08/what-is-http3/" title="HTTP/3는 왜 UDP를 선택한 것일까?" rel="bookmark">HTTP/3는 왜 UDP를 선택한 것일까?</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/ack/">ACK</a><a class="tag -link" href="/tags/ecn/">ECN</a><a class="tag -link" href="/tags/syn/">SYN</a><a class="tag -link" href="/tags/tcp/">TCP</a><a class="tag -link" href="/tags/tcp-플래그/">TCP 플래그</a><a class="tag -link" href="/tags/헤더/">헤더</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2019/11/16/the-way-to-control-anxiety/">
+                <i class="fas fa-chevron-left"></i> 불안한 마음 정면으로 마주보기
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2019/10/30/make-simple-with-math/">
+                수학과 함께 복잡한 문제를 단순하게 만들자! <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#TCP-Transmission-Control-Protocol" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>TCP, Transmission Control Protocol</span>
+        </a></li><li>
+        <a class="is-flex" href="#TCP는-왜-만들어진걸까" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>TCP는 왜 만들어진걸까?</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#패킷-교환-방식을-사용해보자" data-link-name="toc">
+        <span class="has-mr-6">2.1</span>
+        <span>패킷 교환 방식을 사용해보자!</span>
+        </a></li><li>
+        <a class="is-flex" href="#패킷-교환-방식의-문제점" data-link-name="toc">
+        <span class="has-mr-6">2.2</span>
+        <span>패킷 교환 방식의 문제점</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#TCP의-헤더를-까보자" data-link-name="toc">
+        <span class="has-mr-6">3</span>
+        <span>TCP의 헤더를 까보자</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#Source-port-Destination-port" data-link-name="toc">
+        <span class="has-mr-6">3.1</span>
+        <span>Source port, Destination port</span>
+        </a></li><li>
+        <a class="is-flex" href="#Sequence-Number" data-link-name="toc">
+        <span class="has-mr-6">3.2</span>
+        <span>Sequence Number</span>
+        </a></li><li>
+        <a class="is-flex" href="#Acknowledgment-Number" data-link-name="toc">
+        <span class="has-mr-6">3.3</span>
+        <span>Acknowledgment Number</span>
+        </a></li><li>
+        <a class="is-flex" href="#Data-Offset" data-link-name="toc">
+        <span class="has-mr-6">3.4</span>
+        <span>Data Offset</span>
+        </a></li><li>
+        <a class="is-flex" href="#Reserved-3-bits" data-link-name="toc">
+        <span class="has-mr-6">3.5</span>
+        <span>Reserved (3 bits)</span>
+        </a></li><li>
+        <a class="is-flex" href="#Flags-NS-FIN" data-link-name="toc">
+        <span class="has-mr-6">3.6</span>
+        <span>Flags (NS ~ FIN)</span>
+        </a></li><li>
+        <a class="is-flex" href="#Window-Size" data-link-name="toc">
+        <span class="has-mr-6">3.7</span>
+        <span>Window Size</span>
+        </a></li><li>
+        <a class="is-flex" href="#Checksum" data-link-name="toc">
+        <span class="has-mr-6">3.8</span>
+        <span>Checksum</span>
+        </a></li><li>
+        <a class="is-flex" href="#Urgent-Pointer" data-link-name="toc">
+        <span class="has-mr-6">3.9</span>
+        <span>Urgent Pointer</span>
+        </a></li><li>
+        <a class="is-flex" href="#Options" data-link-name="toc">
+        <span class="has-mr-6">3.10</span>
+        <span>Options</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#마치며" data-link-name="toc">
+        <span class="has-mr-6">4</span>
+        <span>마치며</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="TCP의 헤더에는 어떤 정보들이 담겨있는걸까?" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

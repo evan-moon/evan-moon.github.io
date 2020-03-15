@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>흔한 개발랭이의 작가 입문기 - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="필자는 최근 커피 한잔 마시며 끝내는 VueJS라는 책을 집필했다. 필자는 책처럼 긴 글을 적는 게 사실 처음이라, 책을 쓰는 과정이나 책을 출판하는 과정에 대해서 무지한 상태로 집필을 시작했고 그래서 중간에 우여곡절도 꽤 많았다.그래서 이번 포스팅에서는 필자와 같이 책을 집필하고 싶어하는 분들을 위해서 2018년 8월부터 2019년 7월까지 책을 집필했던">
+<meta name="keywords" content="Vue,회고록,개발서적,프로그래밍서적,공동집필,커피 한잔 마시며 끝내는 VueJS">
+<meta property="og:type" content="article">
+<meta property="og:title" content="흔한 개발랭이의 작가 입문기">
+<meta property="og:url" content="https://evan-moon.github.io/2019/07/21/vuejs-book-retrospective/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="필자는 최근 커피 한잔 마시며 끝내는 VueJS라는 책을 집필했다. 필자는 책처럼 긴 글을 적는 게 사실 처음이라, 책을 쓰는 과정이나 책을 출판하는 과정에 대해서 무지한 상태로 집필을 시작했고 그래서 중간에 우여곡절도 꽤 많았다.그래서 이번 포스팅에서는 필자와 같이 책을 집필하고 싶어하는 분들을 위해서 2018년 8월부터 2019년 7월까지 책을 집필했던">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2019/07/21/vuejs-book-retrospective/thumbnail.jpg">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.206Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="흔한 개발랭이의 작가 입문기">
+<meta name="twitter:description" content="필자는 최근 커피 한잔 마시며 끝내는 VueJS라는 책을 집필했다. 필자는 책처럼 긴 글을 적는 게 사실 처음이라, 책을 쓰는 과정이나 책을 출판하는 과정에 대해서 무지한 상태로 집필을 시작했고 그래서 중간에 우여곡절도 꽤 많았다.그래서 이번 포스팅에서는 필자와 같이 책을 집필하고 싶어하는 분들을 위해서 2018년 8월부터 2019년 7월까지 책을 집필했던">
+<meta name="twitter:image" content="https://evan-moon.github.io/2019/07/21/vuejs-book-retrospective/thumbnail.jpg">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2019/07/21/vuejs-book-retrospective/">
+
+
+<link rel="alternative" href="/feed.xml" title="흔한 개발랭이의 작가 입문기" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="흔한 개발랭이의 작가 입문기" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2019/07/21/vuejs-book-retrospective/thumbnail.jpg" alt="흔한 개발랭이의 작가 입문기">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-07-20T23:37:04.000Z">2019-07-21</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/essay/">Essay</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                흔한 개발랭이의 작가 입문기
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>필자는 최근 <code>커피 한잔 마시며 끝내는 VueJS</code>라는 책을 집필했다. 필자는 책처럼 긴 글을 적는 게 사실 처음이라, 책을 쓰는 과정이나 책을 출판하는 과정에 대해서 무지한 상태로 집필을 시작했고 그래서 중간에 우여곡절도 꽤 많았다.<br>그래서 이번 포스팅에서는 필자와 같이 책을 집필하고 싶어하는 분들을 위해서 2018년 8월부터 2019년 7월까지 책을 집필했던 과정과 어려움에 대해서 이야기 해보려고 한다.<br><a id="more"></a></p>
+<h2 id="책은-어떻게-쓰게-되었나"><a href="#책은-어떻게-쓰게-되었나" class="headerlink" title="책은 어떻게 쓰게 되었나?"></a>책은 어떻게 쓰게 되었나?</h2><p>먼저 책을 집필하게 된 계기는 친구인 김영훈 개발자로부터 함께 책을 공동집필해보자는 제의를 받았기 때문이었다. 사실 필자는 대학 교양 레포트 이후로 몇 개의 블로그 포스팅와 회사의 기술 문서 작성을 제외하면 글을 써본 적이 없었다. 지금 이 블로그의 포스트 아카이브를 봐도 한눈에 알 수 있는데, 본격적으로 블로그 뽕에 취하기 전인 2019년 6월 이전에는 지금처럼 일주일에 한두번씩 글을 쏟아내는 정도가 아닌 그냥 생각날 때 간간히 쓰는 수준이었다.</p>
+<p>게다가 저 친구의 제의를 처음 받았을 때 이걸 쓸지 말지 두 가지 이유 때문에 고민을 조금 했었는데, 그 중 첫 번째 이유는 <code>내가 책을 쓸 실력이 되나?</code>였다. 그리고 두 번째 이유가 조금 치명적인데…</p>
+<blockquote>
+<p>사실 필자는 대학 교재 이후로 기술 서적을 읽어본 적이 없는 사람이다.</p>
+</blockquote>
+<center><br>  <img src="/2019/07/21/vuejs-book-retrospective/what.jpg" width="400"><br>  <small>이렇게 또 책밍아웃을 합니다…</small><br>  <br><br></center>
+
+<p>필자는 독서를 좋아하긴 하지만, 공부에 있어서는 <code>인터넷이 더 편한데?</code>라고 생각하는 쪽이라서 기술 서적보다는 소설이나 에세이, 조직 문화나 철학 같이 기술과는 관련 없는 책을 주로 읽는 편이다. 게다가 필자의 포스팅을 몇번 보신 분들은 아실 지도 모르겠지만 필자의 공부 스타일이 책을 하나 하나 읽어보면서 기초부터 하는 스타일은 아니다. 일단 뭘 만들지부터 정해놓고 그때그때 필요한 정보를 찾고 습득한 후에 바로 사용하고 넘어가는 스타일이다.<small>(물론 그래서 지식의 깊이는 넓고 얕은 편이다.)</small></p>
+<center><br>  <img src="/2019/07/21/vuejs-book-retrospective/books.jpg" width="400"><br>  <small>필자의 독서 취향은 이 쪽에 가깝다.(왠지 스파이가 하나 껴있는 것 같지만 신경쓰지말자.)</small><br>  <br><br></center>
+
+<p>그럼 왜 책을 쓰게 되었냐? 뭐 여러가지 이유가 있겠지만 몇가지로 추려보자면 대충 이렇다.</p>
+<blockquote><ol>
+<li>코드 같은 무형의 작품이 아니라 내 손에 잡히고 내 눈에 보이는 유형의 작품을 만들어 내보고 싶다.</li>
+<li>책을 쓰면서 내가 두루뭉술하게 알고 있던 지식을 정리할 수 있지 않을까?</li>
+<li>생각보다 코딩을 배우기 위해서 책으로 입문하시는 분들이 많았다.</li>
+</ol>
+</blockquote>
+<p>필자가 책 쓴다고 하니까 몇몇 분들께서 <code>와, 에반! 이제 책으로도 돈벌겠네요?</code>라는 드립을 간간히 쳐주셨는데 애초에 책을 팔아서 벌 수 있는 돈은 생각보다 많지 않다고 생각했기 때문에 별로 기대를 안했다.</p>
+<p>오히려 필자에게는 책이 돈을 벌 수 있는 부수입이라기보다 책을 집필했다는 <code>나 자신의 만족</code>과 내가 알고 있는 무엇인가를 <code>다른 사람들에게 알릴 수 있는 점</code>에서 매력으로 다가왔기 때문에 집필 제의를 받아들일 수 있었던 것 같다.</p>
+<p>그건 이 블로그도 마찬가지인데, 이 블로그로 돈을 벌어봤자 솔직히 얼마나 벌겠는가? 애초에 필자의 포스팅들은 대중적으로 소비할 수 있는 컨텐츠가 아니다. 그렇기 때문에 블로그가 진짜 흥해서 많이 벌어봤자 한달에 한 <code>100만원</code> 벌면 많이 버는 거다.<br>물론 <code>100만원</code>이 작은 돈은 아니지만 그렇다고 내 인생이 바뀌는 돈도 아니니 별 의미는 없다고 생각한다. 그래서 필자는 그냥 필자의 생각과 지식을 다른 사람과 공유하고 싶은 마음으로 블로그를 운영하고 있다.</p>
+<h3 id="손에-잡히는-작품을-만들어-보고-싶다"><a href="#손에-잡히는-작품을-만들어-보고-싶다" class="headerlink" title="손에 잡히는 작품을 만들어 보고 싶다."></a>손에 잡히는 작품을 만들어 보고 싶다.</h3><p>필자는 개발자다 보니까 매일 <code>프로그램</code>을 만들어 낸다. 하지만 프로그램은 현실에 존재하는 <code>물건</code>이라는 느낌이라기 보다는 좀 더 추상적인 느낌으로 다가온다. 손으로 만질 수도 없고 냄새를 맡아볼 수도 없는 그런 무형의 개념체 같은 느낌이다.</p>
+<p>하지만 필자에게 책이라고 하면 딱 떠오르는 이미지는 <code>새 책을 펼쳤을 때 풍기는 종이 냄새</code>, <code>책꽂이에서 책을 꺼내올 때 느껴지는 감촉</code>, <code>책장을 하나하나 넘길 때 들리는 소리</code>와 같이 여러가지 감각이 함께 하는 공감각적인 이미지이기 때문에 프로그램을 만드는 것과는 매우 다르게 다가왔던 것 같다. 결과물이 기계적인 무언가가 아니라 어떤 형태를 지닌 물건으로 나온다는 것이 굉장히 새로운 느낌이었다.</p>
+<p>그리고 결정적으로 필자는 5살 때부터 할아버지 손 붙잡고 광화문 교보문고를 굉장히 자주 다닌 <code>교보문고 빠돌이</code>다. 그런 추억이 있는 광화문 교보문고에 내가 쓴 책이 진열될수도 있다는 것을 상상하니 뭔가 기분이 뭉클하면서도 묘했던 것 같다.</p>
+<h3 id="책을-쓰면서-내-지식도-정리하자"><a href="#책을-쓰면서-내-지식도-정리하자" class="headerlink" title="책을 쓰면서 내 지식도 정리하자."></a>책을 쓰면서 내 지식도 정리하자.</h3><p>필자가 <code>VueJS</code>에 관한 책을 쓰긴 했지만, 당연히 <code>VueJS</code>에 대한 모든 것을 완벽하게 알고 있는 상태로 책의 집필을 시작한 건 아니다. 물론 2년 동안 <code>VueJS</code>를 사용했던 짬이 있으니 익숙하긴 하지만 그게 <code>잘한다</code>라고 할 순 없다.</p>
+<p>그래서 필자도 다시 기초부터 <code>VueJS</code>를 쭉 공부한다는 생각으로 공식 문서부터 다시 읽어봤다. 가만보면 이런 점이 블로그 포스팅과 비슷한데, 예를 들어서 <code>VueJS의 라이프 사이클</code>에 대한 글을 작성한다고 하면 당연히 대부분의 사람들은 <code>리서치</code>를 한다. 왜냐면 <code>내가 알고 있는 것이 정답이다</code>라고 확신하지 못하기 때문이다. 이런 점에서 보면 책이든 블로그든 불특정 다수의 사람들이 내 글을 읽는다는 점에서 느껴지는 부담감은 비슷한 것 같다.</p>
+<p>게다가 필자는 사실 <code>VueJS</code>를 따로 공부했던 적이 없다. 그냥 회사에 입사했는데 그 회사에서 <code>VueJS</code>를 이미 도입한 상태였기 때문에 필자도 <code>VueJS</code>를 사용한 게 시작이었고, 그 이후로는 그냥 비즈니스를 개발하면서 필요한 건 그때그때 찾아보면서 사용했었다.<small>(그래서 입사 초반에 작성한 컴포넌트를 보면 완전 개판 오분전이다.)</small></p>
+<p>이런 이유로 필자는 <code>기왕 이렇게 된 김에 VueJS에 대한 내 지식을 제대로 한번 다져보자</code>라고 생각하게 되었던 것이다.</p>
+<h3 id="생각보다-코딩을-배우기-위해서-책으로-입문하는-사람이-많았다"><a href="#생각보다-코딩을-배우기-위해서-책으로-입문하는-사람이-많았다" class="headerlink" title="생각보다 코딩을 배우기 위해서 책으로 입문하는 사람이 많았다."></a>생각보다 코딩을 배우기 위해서 책으로 입문하는 사람이 많았다.</h3><p>위에서도 얘기했듯이 필자는 <code>공부는 책보다는 인터넷이 편하지!</code>라고 생각하는 사람이라서 기술 서적에 대한 시각이 회의적인 편이었다. 그래서 처음 친구가 공동 집필 제의를 해줬을 때도 책을 쓴다는 것 자체가 조금은 의미 없는 일로 느껴졌고 <code>요즘 시대에 누가 책보고 공부하냐? 다 인터넷으로 검색해서 하지.</code>라는 말도 했었는데, 그 친구 말이 딱 이랬다.</p>
+<blockquote>
+<p>야, 처음 공부하시는 분들은 인터넷에서 어떤 키워드로 뭘 찾아봐야 하는지도 알기 힘들수도 있어.</p>
+</blockquote>
+<p>이 얘기를 듣고 필자가 생각이 많이 짧았다는 것을 바로 깨달을 수 있었다. 어디선가 <code>인간은 무의식적으로 타인에게 자신의 모습을 투영하려고 한다</code>라는 글을 본 적이 있는데, 필자가 딱 그 모양이었던 것이다. 필자가 늘 인터넷으로 공부하는 것이 익숙했기 때문에 당연히 다른 분들도 그럴 것이라 생각했던 것인데, 기본적으로 인터넷으로 공부를 한다는 것은 어떤 키워드로 구글링을 해야 내가 원하는 정보가 나오는 지 알고 있다는 전제가 필요하다는 사실을 잊고 있었다.</p>
+<p>당연히 처음 개발을 접하거나 혹은 구글링이 익숙하지 않은 분들은 이런 점에서 진입 장벽을 느낄 수 있는데, 필자는 그 부분을 생각 안하고 있던 것이다. 그래서 친구의 저 말을 듣고 필자는 이런 마음이 들었다.</p>
+<blockquote>
+<p>상대적으로 진입 장벽이 낮은 책을 통해 공부한 후에 혼자 구글링을 할 수 있는 역량을 만드는 게 더 나을 수 있겠다.</p>
+</blockquote>
+<p>물론 당연히 책 한권 읽었다고 갑자기 Vue의 절대 고수가 되거나 그런건 아니겠지만, 적어도 책을 읽고 전반적인 내용을 이해한 후에 더 알아보고 싶은 것은 혼자서 키워드를 찾아내서 구글링 및 공부를 할 수 있는 능력을 독자 분들이 가질 수 있도록 도와주고 싶었다.</p>
+<p>이 이외에도 <code>이력서에 뭐라도 한줄 더 쓸 수 있다</code>나 <code>작가라니 조금 근사한 걸...?</code>처럼 좀 깨는 이유도 있고 <code>개발랭이들의 생태계에 조금이라도 도움이 될 수 있겠다</code>라는 이타적인 이유도 있었지만 필자의 동기 부여에 큰 영향을 끼친 대표적인 이유는 저 위의 3가지였다. 결국 고민 끝에 <code>2018년 8월 말</code>, 필자는 친구 손을 잡고 고난의 길로 들어서게 되었다.</p>
+<h2 id="책을-쓰기-전에"><a href="#책을-쓰기-전에" class="headerlink" title="책을 쓰기 전에"></a>책을 쓰기 전에</h2><p>친구와 공동 집필이 결정된 후 제일 먼저 출판사 직원분과 역삼역 근처 카페에서 간단한 미팅을 가졌다. 내용은 뭐 대략 <code>집필 계획서를 보내달라</code>, <code>인세는 어떻게 나온다</code>, <code>계약은 어떻게 진행될 것이다</code>와 같은 간단한 내용들이었다.</p>
+<p>이때까지만 해도 필자와 친구는 <code>대략 이러이러한 내용을 써야겠다</code> 정도로만 얘기가 된 상태였지만 이제 출판사에 보낼 <code>집필 계획서</code>를 작성하기 위해 상세한 논의를 해야했다. 이때 협의되었던 몇가지 내용들 중 핵심 포인트는 <code>이 책을 읽고 회사에 입사했을 때 최소한 어플리케이션 개발 자체는 할 수 있어야 한다</code>였다.</p>
+<p>이 얘기는 지금 시중에 나와있는 다른 <code>VueJS</code> 책을 몇개 읽어보고 나서 나오게 된 것이다. 시중에 판매되고 있는 책들은 대부분 해당 기술에 대한 API나 기술의 원리 등을 중점으로 설명하고 있었고, 예제 또한 간단한 <code>To Do</code> 리스트 또는 그와 비슷한 아키텍처를 가지는 작은 어플리케이션을 만들어 보는 편이었다.</p>
+<p>이런 책들을 읽어보며 필자와 친구가 느꼈던 아쉬운 점은 <code>이걸 읽고 바로 실무에 투입되면 일을 할 수 있나?</code>라는 점이었다. 아무리 책을 통해 <code>VueJS</code>의 API가 어떤 것이 있는지, 라이프 사이클은 어떤 순서로 실행 되는 지와 같은 지식을 익혔다고 해도 회사에 입사한 후에 신입 개발자가 마주하는 문제들은 <code>어떤 라이프 사이클에 이 로직을 넣을까?</code>같은 단순한 문제가 아니라 <code>컴포넌트는 어떤 단위로 나누어야 하나?</code>, <code>API 통신 로직은 컴포넌트에 있어야 할까? 아니면 Vuex 스토어에 있어야 할까?</code>, <code>유저가 로그인한 상태는 어떻게 관리해야하지?</code>와 같이 한 수준 더 높은 문제들이다.</p>
+<p>그래서 필자는 독자 분들이 이 책의 예제를 한번 작성해보고 회사에 갔을 때, 그 문제를 해결하는 건 둘째치고 <code>어, 이거랑 비슷한거 언제 한번 해봤는데?</code>라는 생각이 들게 하는 것만 해도 성공이라고 생각했고 친구도 필자와 동일하게 생각하고 있었기 때문에 책의 큰 방향을 정하는 건 어렵지 않았다.</p>
+<center><br>  <img src="/2019/07/21/vuejs-book-retrospective/plans.png" width="300"><br>  <small>어디선가 많이 본 짤이 떠오르는 장면</small><br>  <br><br></center>
+
+<p>책의 큰 방향이 정해진 후 필자와 친구는 퇴근 후에 일주일에 한두번은 꼭 만나서 근처 카페로 간 뒤에 집필 계획서를 함께 작성하기 시작했다. 집필 계획서에는 대략 이런 정보가 포함된다.</p>
+<blockquote><ol>
+<li>제목(가제)</li>
+<li>작성자</li>
+<li>작성일</li>
+<li>책의 핵심 컨셉</li>
+<li>내용 요약 및 특징</li>
+<li>이 책과 관련된 기술의 동향</li>
+<li>예상되는 탈고 날짜</li>
+</ol>
+</blockquote>
+<p>이외에도 몇가지 정보가 더 있지만 큰 틀은 대충 이렇다. 이때 작성한 집필 계획서는 향후 출판사가 책을 홍보할 때 사용하는 자료이기도 한 만큼 되도록이면 자세하게 작성하는 것이 좋다.</p>
+<p>어쨌든 출판사에서 요구한 대로 집필 계획서를 작성해서 제출한 뒤 본격적인 집필을 시작했다.</p>
+<h2 id="개발자처럼-집필하자"><a href="#개발자처럼-집필하자" class="headerlink" title="개발자처럼 집필하자!"></a>개발자처럼 집필하자!</h2><p>처음에는 <code>구글 독스(Google Docs)</code>를 사용하여 집필을 시작했다. 구글 독스는 <code>H1</code>, <code>H2</code>과 같은 글꼴 스타일 기능을 제공해주기 때문에 미리 합의한 스타일을 정해놓고 문서를 작성할 수 있었다. 하지만 구글 독스로 챕터 3개 정도를 작성했을 때, 필자는 구글 독스가 굉장히 비생산적이라는 생각이 들기 시작했다.</p>
+<p>글꼴을 변경하거나 이미지를 첨부하는 등의 행위를 할 때 변경하고자 하는 부분에 커서를 위치시킨 뒤 마우스로 메뉴를 클릭해서 진행해야하는 방식이 너무 번거로웠고, 그때마다 집중의 흐름이 끊겨서 불편했다. 게다가 각 챕터 별로 문서를 새로 만들때마다 글꼴 스타일을 출판사 규격에 맞게 매번 설정해줘야 한다는 점 또한 생산성을 저하시켰다.</p>
+<p>그리고 필자와 친구는 서로 놓치고 간 부분을 잡아주거나 문체의 통일을 위해 구글 독스 문서에 코멘트를 남기는 방식으로 서로 작성한 부분을 리뷰했다. 그러나 이 방식은 필자가 생각하기에 조금 비생산적이었는데, 리뷰를 하는 입장에서는 이번에 추가된 내용이 무엇인지, 삭제된 내용이 무엇인지 알기 힘들었고, 리뷰를 받는 입장에서는 댓글이 문서의 어느 부분에 달렸는지도 한 눈에 알아보기가 힘들었다.</p>
+<p>그래서 필자는 <code>어떻게 하면 글쓰기 외의 다른 행동에 시간을 쓰지 않고 글쓰기에만 집중할 수 있을까?</code> 라는 고민을 하기 시작했다.</p>
+<h3 id="Markdown을-사용하여-책-집필하기"><a href="#Markdown을-사용하여-책-집필하기" class="headerlink" title="Markdown을 사용하여 책 집필하기"></a>Markdown을 사용하여 책 집필하기</h3><p>필자가 고민한 결과로 선택한 것은 바로 <code>마크다운(Markdown, md)</code> 포맷이었다. 필자와 친구 둘 다 개발자이기 때문에 일단 <code>마크다운</code> 포맷은 우리에게 굉장히 익숙한 포맷이었고, 문서의 전체적인 스타일도 이미 정해져있기 때문에 스타일에 관한 걱정이나 별다른 작업 없이 계속 글쓰기에만 집중할 수 있을 것 같았다.</p>
+<p>하지만 결국 출판사에 원고를 보낼때는 <code>docx(MS Word)</code> 파일로 보내야 했고, 다른 리뷰어 분들에게 책에 대한 리뷰를 받을 때에는 <code>PDF</code> 파일로 보내드려야 했기 때문에 <code>md to docx</code> 컨버팅 혹은 <code>md to pdf</code> 컨버팅을 할 수 있는 방법을 찾아야 했다.</p>
+<p>그래서 찾아낸 게 <a href="https://pandoc.org/" target="_blank" rel="external nofollow noopener noreferrer">pandoc</a>과 <a href="https://github.com/alanshaw/markdown-pdf" target="_blank" rel="external nofollow noopener noreferrer">markdown-pdf</a>라는 라이브러리였다. <code>pandoc</code>은 홈페이지에 Universal Document Converter라고 홍보하고 있을 만큼 다양한 포맷의 문서 변환을 지원해준다. 물론 <code>Markdown to Docx</code>도 지원한다. 하지만 <code>Markdown to PDF</code>는 지원하지 않기 때문에 해당 기능을 구현하기 위해 다른 라이브러리를 찾아야했는데, 그 과정에서 <code>markdown-pdf</code>라는 라이브러리를 찾았다.</p>
+<p>여기까지 리서치를 마친 필자는 친구에게 <code>구글 독스</code>에서 <code>마크다운</code>으로 갈아타자는 제안을 했고, 친구도 고민 끝에 수락하여 이후 책의 집필은 모두 <code>마크다운</code>과 <code>깃(Git)</code>을 사용하여 진행했다.</p>
+<h3 id="Git을-이용한-문서의-버전관리"><a href="#Git을-이용한-문서의-버전관리" class="headerlink" title="Git을 이용한 문서의 버전관리"></a>Git을 이용한 문서의 버전관리</h3><p><code>구글 독스</code>를 사용할 때 겪었던 또 다른 문제점 중 하나가 바로 <code>문서의 버전관리</code>가 힘들다는 것이다. 물론 <code>구글 독스</code>도 <code>파일 > 버전기록</code> 메뉴에 들어가면 각 버전에서 추가된 내용이나 삭제된 내용을 확인할 수 있지만, 그 버전이 정확히 어떤 단위로 묶인 단위인지 명확하지않다는 것이 단점이다.</p>
+<p>하지만 <code>깃</code>을 사용하면 커밋을 할 때 의미있는 단위로 나누고 정확한 커밋 메세지를 작성함으로써 정확히 문서의 어떤 부분을 수정했는지 상대방에게 알릴 수 있다. 또한 일정 단위의 문서를 작성하고나면 <code>풀 리퀘스트(Pull Request)</code>를 통해 상대방에게 리뷰를 받는 식으로 서로 작성한 부분에 대해서 최소 1번 이상은 리뷰를 하도록 할 수 있다.</p>
+<p>그래서 필자와 친구는 <code>깃허브(Github)</code>에 레파지토리를 하나 생성하고 챕터 단위로 하나씩 맡아서 집필을 진행하되, 내용을 마스터 브랜치에 머지하고 싶을 땐 반드시 <code>풀 리퀘스트</code>를 보내고 머지하도록 협의하였고 그 결과 서로 작성한 부분이 아니더라도 내용을 파악하는데 큰 어려움이 없이 집필을 진행할 수 있었다.</p>
+<center><br>  <img src="/2019/07/21/vuejs-book-retrospective/review.png" width="600"><br>  <small>리뷰를 하면 좋은 점.jpg</small><br>  <br><br></center>
+
+<p>물론 나중에 전체 리뷰를 할 때 한번에 고쳐야 될 부분이 많아지는 경우가 있어서 <code>충돌(Merge Conflict)</code> 때문에 조금 고생하기는 했지만, 구글 독스로 진행했다면 두 명이 동시에 수정한 부분이 어딘지도 모르고 넘어갔을 가능성이 컸을 것이다.</p>
+<h3 id="문서-컨버팅-하기"><a href="#문서-컨버팅-하기" class="headerlink" title="문서 컨버팅 하기"></a>문서 컨버팅 하기</h3><p>이렇게 작성된 문서는 중간중간 <code>PDF</code>로 변경되어 부분 출판되었다. 밑에서 다시 설명하겠지만, 집필 초기에 친구가 제안했던 <code>책의 타겟 독자층을 모집해서 우리 책으로 스터디를 진행해보자</code>라는 아이디어를 냈었다. 그래서 매주 토요일마다 집필된 책을 참고 자료로 사용하여 스터디를 진행하고 있었기 때문에 지속적으로 <code>md</code> 파일을 <code>PDF</code>로 변경해야했었다.</p>
+<p>그래서 <code>markdown-pdf</code> 라이브러리를 사용하여 간단한 출판 스크립트를 작성했고 챕터 하나의 집필이 끝날 때 지속적으로 부분 출판하여 스터디에 참여하신 분들이 끊기지 않고 진도를 나갈 수 있도록 했다.</p>
+<figure class="highlight js hljs"><figcaption><span>vuejs-book/scripts/publish.js</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">glob(<span class="hljs-string">'book/**/*.md'</span>, <span class="hljs-literal">null</span>, (err, mdFiles) => {</span><br><span class="line">  <span class="hljs-keyword">const</span> pdfFilePaths = mdFiles.map(<span class="hljs-function"><span class="hljs-params">path</span> =></span> {</span><br><span class="line">    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Ready <span class="hljs-subst">${path}</span>`</span>);</span><br><span class="line">    <span class="hljs-keyword">const</span> newPath = path</span><br><span class="line">      .replace(<span class="hljs-string">'book/'</span>, <span class="hljs-string">`<span class="hljs-subst">${destDir}</span>/`</span>)</span><br><span class="line">      .replace(<span class="hljs-string">'.md'</span>, <span class="hljs-string">'.pdf'</span>);</span><br><span class="line">    <span class="hljs-keyword">return</span> newPath;</span><br><span class="line">  });</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">  mdpdf({</span><br><span class="line">    preProcessHtml: preProcessHtml(basePath),</span><br><span class="line">    cssPath: <span class="hljs-string">'./custom.css'</span>,</span><br><span class="line">    remarkable: {</span><br><span class="line">      html: <span class="hljs-literal">true</span>,</span><br><span class="line">    }</span><br><span class="line">  }).from(mdFiles).to(pdfFilePaths, () => {</span><br><span class="line">    pdfFilePaths.forEach(<span class="hljs-function"><span class="hljs-params">pdf</span> =></span> {</span><br><span class="line">      <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Created <span class="hljs-subst">${pdf}</span>`</span>);</span><br><span class="line">    });</span><br><span class="line">  });</span><br><span class="line">});</span><br></pre></td></tr></tbody></table></figure>
+<p><code>preProcessHtml</code>는 컨버팅을 진행한 후 책에 들어간 이미지의 경로가 맞지 않아 <code>pdf</code>파일에서 이미지가 출력되지 않는 이슈 때문에 작성한 함수인데, <code>마크다운</code>을 우선 <code>HTML</code>로 파싱한 후 <code>img</code> 엘리먼트를 찾아서 <code>file://</code> 프로토콜을 사용한 링크로 바꿔주는 역할을 한다. 이 과정을 거치고 난 후 <code>HTML to pdf</code> 컨버팅을 진행했더니 이미지가 정상적으로 첨부되는 것을 확인할 수 있었다.</p>
+<p>이렇게 출판한 <code>pdf</code> 파일들을 <code>구글 드라이브</code>에 업로드해서 스터디원이나 리뷰어 분들이 부분 출판된 내용을 바로바로 확인할 수 있도록 진행하였다. 그리고 출판사에 보낼 <code>MS Word</code>파일은 <code>pandoc</code>을 이용하여 컨버팅하였다.</p>
+<figure class="highlight js hljs"><figcaption><span>vuejs-book/scripts/deploy.js</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">glob(<span class="hljs-string">'book/**/*.md'</span>, <span class="hljs-literal">null</span>, (err, mdFiles) => {</span><br><span class="line">  mdFiles.forEach(<span class="hljs-function"><span class="hljs-params">path</span> =></span> {</span><br><span class="line">    <span class="hljs-keyword">const</span> chapter = path.split(<span class="hljs-string">'/'</span>)[<span class="hljs-number">1</span>];</span><br><span class="line">    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Ready for <span class="hljs-subst">${chapter}</span>`</span>);</span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">const</span> newPath = path</span><br><span class="line">      .replace(<span class="hljs-string">'book/'</span>, <span class="hljs-string">`<span class="hljs-subst">${destDir}</span>/`</span>)</span><br><span class="line">      .replace(<span class="hljs-string">`<span class="hljs-subst">${chapter}</span>/README.md`</span>, <span class="hljs-string">`<span class="hljs-subst">${chapter}</span>.docx`</span>);</span><br><span class="line">    <span class="hljs-keyword">const</span> args = <span class="hljs-string">`-f markdown -t docx -o <span class="hljs-subst">${newPath}</span>`</span>; <span class="hljs-comment">// https://pandoc.org/MANUAL.html#syntax-highlighting 코드 하이라이팅 볼것</span></span><br><span class="line">    <span class="hljs-keyword">const</span> originSource = fs.readFileSync(<span class="hljs-string">`<span class="hljs-subst">${path}</span>`</span>, <span class="hljs-string">'utf-8'</span>);</span><br><span class="line">    <span class="hljs-keyword">const</span> source = originSource.replace(<span class="hljs-regexp">/\(\/assets/g</span>, <span class="hljs-string">`(<span class="hljs-subst">${basePath}</span>/assets`</span>);</span><br><span class="line"></span><br><span class="line">    nodePandoc(source, args, (err) => {</span><br><span class="line">      <span class="hljs-keyword">if</span> (err) {</span><br><span class="line">        <span class="hljs-built_in">console</span>.error(err);</span><br><span class="line">      }</span><br><span class="line">      <span class="hljs-keyword">else</span> {</span><br><span class="line">        <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Finish <span class="hljs-subst">${chapter}</span>`</span>);</span><br><span class="line">      }</span><br><span class="line">    });</span><br><span class="line">  });  </span><br><span class="line">});</span><br></pre></td></tr></tbody></table></figure>
+<p>이렇게 작성된 문서 컨버팅 스크립트들은 <code>npm script</code>로 등록하여 언제든 간편하게 <code>md</code> 포맷을 <code>pdf</code>와 <code>docx</code> 포맷으로 뽑아낼 수 있도록 했다.</p>
+<figure class="highlight json hljs"><figcaption><span>package.json</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">{</span><br><span class="line">  <span class="hljs-attr">"scripts"</span>: {</span><br><span class="line">    <span class="hljs-attr">"publish"</span>: <span class="hljs-string">"node scripts/publish.js"</span>,</span><br><span class="line">    <span class="hljs-attr">"deploy"</span>: <span class="hljs-string">"node scripts/deploy.js"</span></span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>사실 처음에 <code>md</code> 포맷을 <code>pdf</code>로만 변경할 때는 별 문제가 없었는데 나중에 <code>pandoc</code>을 통해 <code>docx</code> 포맷으로 변경할 때 글꼴 스타일에 관련된 이슈가 발생했다.</p>
+<p><code>pandoc</code>을 사용하여 <code>docx</code> 포맷으로 컨버팅할 때 일명 <code>레퍼런스 문서</code>라는 것을 설정할 수 있는데, 이 문서에 커스텀 글꼴 스타일을 설정해놓으면 컨버팅 되는 문서에서 이 문서의 글꼴 스타일을 참고하여 동일한 글꼴 스타일을 사용한 문서로 만들어준다. 그래서 처음에는 이 기능만 믿고 <code>출판사 포맷대로 글꼴 스타일을 설정해놓은 레퍼런스 문서를 하나 만들어놓으면 되겠구나</code>했었는데 막상 레퍼런스 문서 옵션을 사용하여 스크립트를 돌려보니 문서에 첨부한 <code>코드 블록</code>의 스타일이 와장창나는 사태가 발생했다.</p>
+<p>그래서 결국은 마지막에 출판사에 원고를 보낼 때에는 <code>pandoc</code>을 사용하여 <code>md</code> 포맷을 <code>docx</code> 포맷의 기본 글꼴 스타일로 컨버팅 한 후에 그 문서의 글꼴 스타일을 직접 수작업으로 변경하는 방법을 사용했다. 뭐 마지막에는 꽤 삽질을 하긴 했지만 그래도 <code>md</code> 포맷을 택함으로써 집필 과정에서 시간을 많이 줄일 수 있었고, 게다가 <code>Git</code>을 사용한 버전관리도 할 수 있엇으므로 결과적으로는 좋은 선택이었다고 생각한다.<small>(라고 필자만 생각하고 있는 것 같다. 친구는 별로였던 듯…)</small></p>
+<h2 id="공동-집필-과정에서의-충돌"><a href="#공동-집필-과정에서의-충돌" class="headerlink" title="공동 집필 과정에서의 충돌"></a>공동 집필 과정에서의 충돌</h2><p>필자는 혼자 책을 집필한 것이 아니라 친구와 함께 공동 집필을 한 것이기 때문에 서로의 의견을 일치시키고 합의점을 도출해내는 커뮤니케이션도 굉장히 중요한 일 중 하나였다.</p>
+<p>사실 필자와 이 친구는 함께 사이드 프로젝트를 진행해본 경험도 있고 평소에도 성격이 꽤 잘맞는 편이라서 같이 해외여행도 다녀온 막역한 사이이다. 하지만 책이라는 매체의 특성 상 코드와 다르게 <code>배포 후 수정</code>이 불가능해서 <code>최대한 완벽하게 끝내고 싶다</code>라는 마음 때문에 서로 의견의 일치를 보는 것이 평소보다 더 어려웠던 것 같다.</p>
+<h3 id="설계에-대한-관점의-차이"><a href="#설계에-대한-관점의-차이" class="headerlink" title="설계에 대한 관점의 차이"></a>설계에 대한 관점의 차이</h3><p>처음에 의견 충돌이 많이 났던 것은 <code>예제 어플리케이션의 설계</code>였다. 책에 들어가는 예제는 불특정 다수에게 노출되는 정보이기 때문에 최대한 주관성을 배제하고 널리 통용될 수 있는 지식을 사용하여 작성되어야한다. 그래서 필자와 친구는 <code>예제 어플리케이션의 설계를 어떻게 가져갈 것인가?</code>로 엄청 많은 이야기를 나누었다. 간단하게는 <code>컴포넌트의 네이밍과 프로젝트의 디렉토리 구조</code>에서부터 <code>스토어의 상태의 변경을 위한 액션은 어떤 컴포넌트가 Dispatch하는 것이 맞는 것이냐</code>와 같이 심도있는 주제까지 다양한 이야기를 나누었다. 결국 이런 끊임없는 커뮤니케이션을 거쳐서 합의점을 도출해내고 나서야 예제 어플리케이션 개발에 들어갈 수 있었다.</p>
+<center><br>  <img src="/2019/07/21/vuejs-book-retrospective/meeting.png" width="400"><br>  <small>Form 컴포넌트의 정의부터 시작해서 어떤 라이브러리를 사용할 것인지까지 일일히 다 정했었다.</small><br></center>
+
+<h3 id="일하는-스타일의-차이"><a href="#일하는-스타일의-차이" class="headerlink" title="일하는 스타일의 차이"></a>일하는 스타일의 차이</h3><p>두 번째는 바로 <code>일하는 스타일</code>이었다. 사실 이게 정말 의외인 부분이었는데, 이미 필자는 이 친구와 사이드 프로젝트를 진행한 경험이 있었고, 도중에 의견 충돌이 나더라도 굉장히 서로 만족할 만한 결론을 도출해내면서 진행해왔기 때문에 이번에도 마찬가지일 것이라고 생각했다. 근데 이게 돈받고 하는 일이라서 그런지, 아니면 마감 기한이 정해져 있는 일이라서 그런지는 몰라도 사이드 프로젝트 때와는 굉장히 다른 상황이 펼쳐졌다.</p>
+<p>일단 필자는 어떤 일을 하든 마감 기한에 쫓기면서 하는 스타일이 아니다. 이렇게 할 수 있는 이유는 필자가 일하는 중간에 생기는 변수를 최소화하고 리스크가 생길 것 같은 일을 아예 차단해버리는 스타일이기 때문이다. 그리고 결정적으로 성격 자체가 좀 느긋하다. 좋게 말하면 느긋한거고 나쁘게 말하면 게으른거긴 한데, 뭐 어쨌든 그런 성격이다.</p>
+<p>하지만 이 친구는 뭘 하든 열정이 장난아니다. 하기 싫은 일이든 하고 싶은 일이든 항상 최선을 다하는 스타일이다. 이 친구가 이렇게 할 수 있는 이유는 기본적으로 <code>책임감</code>이 큰 성격이라서 그렇다고 생각한다.<small>(뭐 아닐 수도 있다. 아무리 친구라도 모르는 부분은 있으니)</small></p>
+<p>이 친구의 바로 이런 부분들이 필자에게 굉장히 자극을 주는 부분이고 친구라는 부분을 제외하고 개발자 대 개발자로 생각해도 굉장히 좋은 개발자라고 생각한다.</p>
+<p>하지만 같이 마감기한이 있는 일을 하다보니 이 친구 입장에서는 필자가 적극적으로 참여하지 않는다는 마음이 있었던 것 같고, 필자는 필자대로 <code>이게 이렇게까지 스트레스를 받으면서 할 일은 아닌데</code>라는 생각이 있었던 것 같다. 그리고 이게 사람인 이상 마감기한이 다가올수록 <code>출판사와의 약속을 지키지 못하면 어떡하나</code>라는 불안감도 들기 마련이고, 둘 다 직장을 다니고 있기 때문에 회사 일은 또 회사 일대로 해야하는 상황이었다. 그래서 육체적인 피로감과 정신적인 피로감이 점점 쌓여서 그랬던 것 같기도 하다.</p>
+<p>그래도 다행히 이 친구와 필자의 가장 큰 공통점은 커뮤니케이션과 같은 <code>소프트 스킬</code>의 중요성을 알고 있다는 점이었다. 그래서 서로 마감기한에 쫓겨 스트레스를 받고 있는 상황에서도 최대한 서로를 배려하고 서로의 의견을 많이 듣고 교환하는 과정을 통해 큰 갈등 없이 책 집필을 마칠 수 있었다.</p>
+<center><br>  <img src="/2019/07/21/vuejs-book-retrospective/halong.jpg" width="450"><br>  <small>저희 친해요^^</small><br>  <br><br></center>
+
+<h2 id="책-리뷰하기"><a href="#책-리뷰하기" class="headerlink" title="책 리뷰하기"></a>책 리뷰하기</h2><p>책을 집필하는 동안 필자와 친구가 <code>풀 리퀘스트</code>를 사용한 리뷰를 계속 하긴 했지만 작가 시점의 리뷰는 주로 <code>오탈자 수정</code>, <code>문체의 통일</code> 등의 기계적인 리뷰라면 다른 리뷰어 분들이 해주시는 리뷰는 <code>이 내용이 정말 도움이 되는가?</code>, <code>이런 내용이 있으면 더 좋을 것 같다.</code>와 같이 작가의 시점에서는 알아차리기 힘든 정성적인 리뷰들이다. 그래서 책을 집필하는 중이나 책을 집필한 후에 리뷰어 분들의 피드백을 최대한 많이 수집하고자 했다.</p>
+<p>사실 필자는 개발자 인맥도 별로 없고 사람 만나는 걸 좋아하는 편도 아니라서 직장 동료 외에는 리뷰를 부탁할 수 있는 사람이 많지 않았다. 하지만 친구는 필자보다 인맥도 풍부하고 사회성도 좋아서 리뷰를 부탁할 수 있는 사람도 많았다.<small>(대단쓰…)</small> 그런 이유로 책 리뷰는 필자 혼자서는 진행하지 못했을 일이고 진짜 친구 덕이 크다. 그리고 필자도 이 경험을 바탕으로 <code>아 나도 네트워킹 좀 해야하나...?</code>라는 생각이 싹트기 시작했다.</p>
+<h3 id="스터디원들의-리뷰"><a href="#스터디원들의-리뷰" class="headerlink" title="스터디원들의 리뷰"></a>스터디원들의 리뷰</h3><p>위에서 한번 설명했듯이, 책을 처음 집필할 때 이런 리뷰의 중요성을 알았던 친구가 먼저 <code>책의 타겟 독자층을 모집해서 우리 책으로 스터디를 진행해보자</code>라는 아이디어를 제안해주었고 필자는 처음에는 고민했지만 다른 리뷰어분들이 해주시는 리뷰가 중요하다는 말에 설득당해서 스터디를 진행하게 되었다.</p>
+<p>필자는 낯을 가리는 성격이라 처음 보는 사람들과 스터디를 한다는 것에 대해서 익숙하지가 않다. 그래서 처음에는 <code>내가 스터디원들에게 뭘 해드려야하지...?</code>라는 고민을 굉장히 많이 했는데 막상 스터디가 시작되고 나니 그런 걱정은 필자의 기우였다는 것을 알 수 있었다. 스터디를 지원해주신 모든 분들이 굉장히 열정적으로 질문도 먼저 건네주시고, 더 알고 싶은 부분에 있어서도 확실하게 의사 표현을 해주셔서 필자도 편한 마음으로 스터디를 진행할 수 있었다. 그리고 모두 성격이 좋으셔서 낯가림이 심한 필자도 잘 어울릴 수 있었다.</p>
+<p>책을 집필하는 동안 실제 타겟 독자층이었던 스터디원들로부터 피드백을 받으며 책을 수정하다보니까 뭔가 책에 대한 자신감도 생겼고, 필자가 작성한 책으로 스터디하시면서 막힘없이 학습해나가시는 모습들을 보고 약간 뿌듯함도 느꼈던 것 같다. 실제로 필자는 내가 먼저 나서서 타인에게 지식을 공유하고 싶다는 욕구는 없는 편이었는데, 이번에 책도 집필하고 스터디를 진행하면서 필자는 별 거 아니라고 생각했던 지식들이 다른 분들에게는 큰 도움이 되는 것을 보고 교육에도 조금 관심이 생기기도 했고 낯가림도 조금은 나아진 것 같다.<small>(그래도 역시 인싸의 길은 멀고도 험하다…)</small></p>
+<h3 id="현업-개발자분들의-리뷰"><a href="#현업-개발자분들의-리뷰" class="headerlink" title="현업 개발자분들의 리뷰"></a>현업 개발자분들의 리뷰</h3><p>책을 모두 집필하고 난 후에 주위의 현업 개발자 분들께도 리뷰를 부탁했는데, 이런 분들을 <code>베타 리더</code>라고 부른다고 한다. 필자도 이번에 처음 알았다.</p>
+<p>베타 리더 분들은 각자의 여유 시간에 따라서 <code>전체 리뷰</code>와 <code>챕터 리뷰</code>로 나눠서 진행해주셨는데, 필자가 집필하면서 놓쳤던 부분을 되짚어 주시기도 하고 이해가 어려울 것 같은 설명에 대해서도 지적해주시는 등 정말 꼼꼼하게 피드백을 해주셔서 굉장히 든든했다.</p>
+<h2 id="마치며"><a href="#마치며" class="headerlink" title="마치며"></a>마치며</h2><p>사실 처음 필자는 <code>책? 그냥 조금 긴 포스팅 느낌일 것 같은데</code>라는 안일한 마음으로 시작했는데, 얼마 지나지 않아서 그게 아니라는 것을 깨달았다. 이 포스팅에는 작성하지 않았지만 예제 어플리케이션을 만드는 일도 만만치 않았는데, 문제는 예제 어플리케이션을 수정하면 같은 부분을 책에서 찾아서 코드 블록을 수정하고 코드에 대한 설명도 그에 맞춰서 바꿔줘야하는 것이었다.<small>(게다가 클라이언트 어플리케이션 2개와 API 서버까지 만들어야했다.)</small></p>
+<p>예제 어플리케이션과 책의 내용이 조금만 싱크가 어긋나도 독자는 상당한 혼란을 느낄 수 있기 때문에 이런 부분을 꼼꼼히 체크해야했는데, 이게 제일 힘들었던 것 같다.</p>
+<p>그리고 포스팅과 다르게 책은 한 주제의 호흡을 굉장히 길게 가져가야 하는 매체이다보니까 앞 쪽의 내용과 뒤 쪽이 내용의 컨셉이 달라지면 안되는데, 필자는 이렇게 긴 글을 써본 적이 없기 때문에 주기적으로 앞 쪽의 내용과 문체를 확인해가면서 집필을 해야했다.</p>
+<p>그래도 이렇게 책을 한번 집필하고 나니까 뿌듯하기도 하고 글을 적는 행위에도 많이 익숙해져서 한 주에 한두번 포스팅 올리는 것 정도는 크게 어렵지 않아서 전체적으로는 좋은 느낌이다. 이 책을 보시는 많은 예비 독자들이 <code>유익했다</code>라고 느낄 수 있었으면 좋겠다. 특히 프론트엔드 개발을 처음 시작하시려는 분들이 이 책을 읽고 <code>어 뭐야 생각보다 별 거 없네?</code>라고 생각했으면 진짜 좋을 것 같다.</p>
+<p>그리고 마지막으로 바쁜 개인 시간 쪼개서 책을 리뷰해주신 베타 리더분들과 기술 서적 집필이라는 좋은 기회를 제안해준 김영훈 개발자에게 <strong>압도적인 감사</strong>를 올리고 싶다.</p>
+<center><br>  <img src="/2019/07/21/vuejs-book-retrospective/thanks.jpg" width="400"><br>  <br><br></center>
+
+<p>만약 스터디 회식 때 혹시 노래방을 가게 된다면 필자가 압도적 감사의 마음으로 옆에서 탬버린을 <code>16비트</code>로 쳐보겠다.<small>(준코에서 탬버린치다가 2개 부셔먹은 경력 보유 중입니다)</small></p>
+<p>참고로 필자의 책은 <a href="http://www.yes24.com/Product/Goods/76639545" target="_blank" rel="external nofollow noopener noreferrer">Yes24</a>에서 구경해볼 수 있지만, 아직 초판 인쇄가 끝나지 않았기 때문에 배송은 다음 달부터 가능하다.<br>하지만 필자는 인터넷에서 책을 구매하는 것보다 나중에 <code>교보문고</code>같은 오프라인 서점에 책이 입고되면 가서 직접 한번 읽어보고 사는 것을 추천하고싶다. 이 글을 읽는 미래의 독자님들께서 교보문고에 갔을 때 <code>민트색 표지에 커피 일러스트</code>를 보고나서 필자를 떠올리고 한번 책을 펼쳐보게 만드는 것만으로도 필자는 행복해질 것 같다.</p>
+<p>이상으로 흔한 개발랭이의 작가 입문기 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2018/09/25/vue-ssr/" title="Vue Server Side Rendering" rel="bookmark">Vue Server Side Rendering</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/07/06/pwa-with-notification/" title="PWA 하루 만에 도입하기(삽질기)" rel="bookmark">PWA 하루 만에 도입하기(삽질기)</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/vue/">Vue</a><a class="tag -link" href="/tags/개발서적/">개발서적</a><a class="tag -link" href="/tags/공동집필/">공동집필</a><a class="tag -link" href="/tags/커피-한잔-마시며-끝내는-vuejs/">커피 한잔 마시며 끝내는 VueJS</a><a class="tag -link" href="/tags/프로그래밍서적/">프로그래밍서적</a><a class="tag -link" href="/tags/회고록/">회고록</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2019/07/25/git-tutorial/">
+                <i class="fas fa-chevron-left"></i> Git 뉴비를 위한 기초 사용법 - 시작하기
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2019/07/17/programmer-with-math/">
+                프로그래머는 수학을 잘해야할까? <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#책은-어떻게-쓰게-되었나" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>책은 어떻게 쓰게 되었나?</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#손에-잡히는-작품을-만들어-보고-싶다" data-link-name="toc">
+        <span class="has-mr-6">1.1</span>
+        <span>손에 잡히는 작품을 만들어 보고 싶다.</span>
+        </a></li><li>
+        <a class="is-flex" href="#책을-쓰면서-내-지식도-정리하자" data-link-name="toc">
+        <span class="has-mr-6">1.2</span>
+        <span>책을 쓰면서 내 지식도 정리하자.</span>
+        </a></li><li>
+        <a class="is-flex" href="#생각보다-코딩을-배우기-위해서-책으로-입문하는-사람이-많았다" data-link-name="toc">
+        <span class="has-mr-6">1.3</span>
+        <span>생각보다 코딩을 배우기 위해서 책으로 입문하는 사람이 많았다.</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#책을-쓰기-전에" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>책을 쓰기 전에</span>
+        </a></li><li>
+        <a class="is-flex" href="#개발자처럼-집필하자" data-link-name="toc">
+        <span class="has-mr-6">3</span>
+        <span>개발자처럼 집필하자!</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#Markdown을-사용하여-책-집필하기" data-link-name="toc">
+        <span class="has-mr-6">3.1</span>
+        <span>Markdown을 사용하여 책 집필하기</span>
+        </a></li><li>
+        <a class="is-flex" href="#Git을-이용한-문서의-버전관리" data-link-name="toc">
+        <span class="has-mr-6">3.2</span>
+        <span>Git을 이용한 문서의 버전관리</span>
+        </a></li><li>
+        <a class="is-flex" href="#문서-컨버팅-하기" data-link-name="toc">
+        <span class="has-mr-6">3.3</span>
+        <span>문서 컨버팅 하기</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#공동-집필-과정에서의-충돌" data-link-name="toc">
+        <span class="has-mr-6">4</span>
+        <span>공동 집필 과정에서의 충돌</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#설계에-대한-관점의-차이" data-link-name="toc">
+        <span class="has-mr-6">4.1</span>
+        <span>설계에 대한 관점의 차이</span>
+        </a></li><li>
+        <a class="is-flex" href="#일하는-스타일의-차이" data-link-name="toc">
+        <span class="has-mr-6">4.2</span>
+        <span>일하는 스타일의 차이</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#책-리뷰하기" data-link-name="toc">
+        <span class="has-mr-6">5</span>
+        <span>책 리뷰하기</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#스터디원들의-리뷰" data-link-name="toc">
+        <span class="has-mr-6">5.1</span>
+        <span>스터디원들의 리뷰</span>
+        </a></li><li>
+        <a class="is-flex" href="#현업-개발자분들의-리뷰" data-link-name="toc">
+        <span class="has-mr-6">5.2</span>
+        <span>현업 개발자분들의 리뷰</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#마치며" data-link-name="toc">
+        <span class="has-mr-6">6</span>
+        <span>마치며</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="흔한 개발랭이의 작가 입문기" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

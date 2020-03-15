@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>좋은 프로그래머란 무엇일까? - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="2016년 처음 회사에서 개발자로 일을 시작해서 2019년 이 글을 쓰고 있는 지금까지 늘 의문이었던 좋은 프로그래머, 또는 좋은 개발자는 무엇을 뜻하는 것인가에 대해서 글을 한번 끄적여볼까 한다.">
+<meta name="keywords" content="에세이,Essay,Good Programmer,좋은 프로그래머">
+<meta property="og:type" content="article">
+<meta property="og:title" content="좋은 프로그래머란 무엇일까?">
+<meta property="og:url" content="https://evan-moon.github.io/2019/06/06/what-is-good-programmer/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="2016년 처음 회사에서 개발자로 일을 시작해서 2019년 이 글을 쓰고 있는 지금까지 늘 의문이었던 좋은 프로그래머, 또는 좋은 개발자는 무엇을 뜻하는 것인가에 대해서 글을 한번 끄적여볼까 한다.">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2019/06/06/what-is-good-programmer/3deditor.jpg">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.091Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="좋은 프로그래머란 무엇일까?">
+<meta name="twitter:description" content="2016년 처음 회사에서 개발자로 일을 시작해서 2019년 이 글을 쓰고 있는 지금까지 늘 의문이었던 좋은 프로그래머, 또는 좋은 개발자는 무엇을 뜻하는 것인가에 대해서 글을 한번 끄적여볼까 한다.">
+<meta name="twitter:image" content="https://evan-moon.github.io/2019/06/06/what-is-good-programmer/3deditor.jpg">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2019/06/06/what-is-good-programmer/">
+
+
+<link rel="alternative" href="/feed.xml" title="좋은 프로그래머란 무엇일까?" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="좋은 프로그래머란 무엇일까?" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2019/06/06/what-is-good-programmer/3deditor.jpg" alt="좋은 프로그래머란 무엇일까?">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-06-06T11:18:03.000Z">2019-06-06</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/essay/">Essay</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                좋은 프로그래머란 무엇일까?
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>2016년 처음 회사에서 개발자로 일을 시작해서 2019년 이 글을 쓰고 있는 지금까지 늘 의문이었던 <strong>좋은 프로그래머, 또는 좋은 개발자는 무엇을 뜻하는 것인가</strong>에 대해서 글을 한번 끄적여볼까 한다.<br><a id="more"></a></p>
+<p>사실 대학생 때 처음 프로그래밍이라는 것에 빠져들었을 때는 말 그대로 <code>기술만능주의</code> 였던 것 같다. 사용하는 언어에 잘 어룰리는 패턴을 연구하고 효율적인 알고리즘이 몸에 배어있고 변경사항에 유연하고 확장성이 뛰어난 설계를 하는 그런 것들에 한창 목마를 때였다. 왜 이렇게 생각하게 됐는지는 간단하다.</p>
+<h3 id="기술적으로-뛰어난-사람"><a href="#기술적으로-뛰어난-사람" class="headerlink" title="기술적으로 뛰어난 사람?"></a>기술적으로 뛰어난 사람?</h3><p>필자는 2014년 말 대학생때 친구들과 함께 <a href="https://github.com/Lubycon" target="_blank" rel="external nofollow noopener noreferrer">루비콘</a>이라는 팀을 꾸려서 나름 원대한(?) 꿈의 프로젝트를 시작했었는데 이게 지금 생각해보면 어지간히 정신나간 프로젝트였다. 그때 팀 구성이 대략 이랬다.</p>
+<table>
+<thead>
+<tr>
+<th>역할</th>
+<th>수준</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>프론트엔드(나)</td>
+<td>학교에서 배운 C와 Java가 아는 전부. 마지막으로 해본 JavaScript는 초4 때.</td>
+</tr>
+<tr>
+<td>백엔드</td>
+<td>웹 디자인 기능사 자격증 보유. 나름 이 팀에서 유일한 웹 경험자. 백엔드 롤을 맡았지만 서버 따윈 한번도 안해봄.</td>
+</tr>
+<tr>
+<td>백엔드2</td>
+<td>전자전기전공. 이 분도 DB나 웹에 대한 지식 전무. 바빠서 잘 오지도 못함.</td>
+</tr>
+<tr>
+<td>UI/UX 디자이너</td>
+<td>군인. 아직 전역도 안함. 가끔 휴가나와서 작업함.</td>
+</tr>
+<tr>
+<td>기획자</td>
+<td>캐나다 교포. 음악 전공. IT 경험 전무함.</td>
+</tr>
+</tbody>
+</table>
+<p>팀 구성만 봐도 오합지졸이라는 게 딱 보인다. 다시 써놓고 보니까 진짜 정신나갔던 것 같다. 무슨 자신감이었는지…<br>심지어 전부 웹을 한번도 안해봤다. 무식하면 용감하다는 게 딱 이 꼴인데, 문제는 이 사람들이 모여서 만드려고 했던게 <code>웹 상에서 작동하는 3D 모델 에디터</code> 였다는 거다. 물론 이것도 계획의 일부일 뿐 그 뒤에는 더 많은 삽질이 있었다.<small>(MVP의 중요성을 대학 때 깨닿게 해준 고마운 프로젝트다.)</small></p>
+<p>일단 필자는 프론트엔드를 맡았으니 일단 맨땅에 헤딩하듯 <code>JavaScript</code>와 <code>jQuery</code>로 뭐 어찌어찌 만들어나갔다. 그러다가 <code>3D</code>에서 꽤나 삽질을 많이 했는데, 이때 <a href="https://threejs.org/" target="_blank" rel="external nofollow noopener noreferrer">ThreeJS</a>를 처음 사용해보았다. 사실 정확히 말하자면 Graphics 자체를 처음 해본거다. 그 덕분에 수학을 엄청 공부했고 3달 정도 걸려서 obj파일을 웹 상에 로드한 후 Texture나 Material 등을 변경하거나 빛을 배치해서 공간의 느낌을 바꿀 수 있는 등의 작은 기능을 가진 프로토타입을 만들었었다.</p>
+<center><br>  <img src="/2019/06/06/what-is-good-programmer/3deditor.jpg" width="500"><br>  <sub>추억의 동국대학교 학림관 옆 까페</sub><br>  <br><br></center>
+
+<p>한때 이 대머리 아저씨를 우리 엄마보다 더 많이 봤었다. 이때 이걸 완성하고 나서 필자의 느낌은 대략 이랬다.</p>
+<center><br>  <img src="/2019/06/06/what-is-good-programmer/gonnadie.jpg" width="500"><br>  <br><br></center>
+
+<blockquote>
+<p>아 신이시여… 전 제가 만드려고 했던 게 이런건지 상상도 못했습니다… 오일러는 뭐고 쿼터니온은 뭐죠…?</p>
+</blockquote>
+<p>그래도 어찌어찌 고생 끝에 만들었으니 뭔가 자부심도 생겼고 결과물에 대한 애정도 생기더라. 그때 필자의 머릿 속에는 <code>좋은 개발자는 기술적으로 어려운 걸 뚝딱뚝딱 만들 수 있는 사람</code>이라는 생각이 자리잡았던 것 같다.</p>
+<h3 id="첫-직장-입사-후-비즈니스에-대해서-달라진-시각"><a href="#첫-직장-입사-후-비즈니스에-대해서-달라진-시각" class="headerlink" title="첫 직장 입사 후 비즈니스에 대해서 달라진 시각"></a>첫 직장 입사 후 비즈니스에 대해서 달라진 시각</h3><p>그러다가 2016년에 졸업을 하고 한 2주 뒤에 바로 운좋게 한 스타트업으로 취업하게 되었는데, 이때 필자는 개발자가 아닌 다른 직군과 처음 제대로된 협업을 했었다.<br>내가 만든 프로그램에서 장애가 발생하면 고객들이 CS팀으로 문의를 하고 CS팀은 개발팀에게 버그를 리포팅하거나, 혹은 디자이너와 기획자와 아이디어를 공유하면서 프로덕트를 만드는 그런 경험 말이다. 대학생 때는 아무래도 친구들이랑 반 취미로 만드는 프로젝트였기 때문에 <code>이걸 어떻게 만들지?</code> 같은 단순한 고민만 했다면 회사에서는 전혀 달랐다. 여기서는 이런 고민에 더해 다른 고민들도 함께 해야했다.</p>
+<ul>
+<li>이 기능을 배포하면 파생될 리스크 혹은 이익이 발생할까?</li>
+<li>개발하는 과정에서 시간을 줄이기 위해 외부 솔루션을 쓸까 아니면 장기적으로 보고 직접 개발을 할까?</li>
+<li>A 기능을 개발하는 데 한달 정도가 걸리는 데 이 시간에 다른 기능을 두개 더 만들 수 있다면 어떤 선택을 해야할까?</li>
+<li>이 기능에 관련된 VOC가 많이 들어왔는데 어떤 식으로 해결해야 유저들이 만족할까?</li>
+</ul>
+<p>이런 고민들을 그때 당시 디자이너, 개발자, 기획자 분들끼리 자유롭게 의견을 주고 받았는데 이때 깨달은 것이 결국 회사에 가장 중요한 것은 <strong>고객</strong>과 <strong>돈</strong>이라는 것이다.</p>
+<p>사실 이건 지극히 당연한 말이긴 하다. 그래도 이 생각이 들게 된 것이 지금까지 필자의 개발자로서 가치관에 큰 영향을 줬던 것 같다. 뭐 사실 회사에서 중요한 건 직원의 업무 만족도라던가 문화라던가 다른 것들도 많지만 제일 기본은 고객과 돈인 것 같다.<br>결국 내가 아무리 프로그램을 잘 만들어도 아무도 써주지 않으면 의미가 없는 것이고 아무리 회사의 문화와 복지가 좋더라도 돈이 없으면 결국 그 회사는 망하기 때문이다. 그래서 이때 처음으로</p>
+<blockquote>
+<p>내가 프로그래머라도 기술적인 것만 생각하는 건 좁은 시각일수도 있겠구나.<br>결국 내가 만드는 건 사람이 쓰는 상품이고 사람을 위해 만들어야 하는구나.</p>
+</blockquote>
+<p>라는 생각들이 들기 시작했고 이때부터 본격적으로 “좋은 프로그래머가 되려면 비즈니스나 유저에 대한 생각도 많이 해야하는구나” 라는 생각을 많이 했던 것 같다.</p>
+<h3 id="공적인-업무에서-감정은-불필요하다"><a href="#공적인-업무에서-감정은-불필요하다" class="headerlink" title="공적인 업무에서 감정은 불필요하다?"></a>공적인 업무에서 감정은 불필요하다?</h3><p>필자는 지금도 스타트업에서 계속 일을 하고 있다. 그 이유는 규모가 큰 기업에서는 할 수 없는 다양한 일을 내가 다 맡아서 해볼 수 있다는 점도 있고 내 의견을 자유롭게 이야기하고 건강한 토론을 통해 합리적인 의견을 도출해나가는 과정이 재밌는 것도 있다. 그러나 마냥 좋을 수만은 없는 법. 아무래도 사람 모이는 곳이다 보니 서로 간의 감정이 상하거나 팀원들과 회사 간의 갈등이 생기거나 하는 등 다양한 이벤트가 터진다. 특히 분위기가 자유 그 자체다 보니 팀원들도 약간 친구처럼 지내고 있고, 그러다보면 간혹 <strong>실수</strong>도 하기 마련이다.<small>(물론 아무리 수평적인 조직이고 자유롭다 해도 기본적인 예의는 당연히 다들 지킨다)</small></p>
+<center><br>  <img src="/2019/06/06/what-is-good-programmer/everyone.jpeg" width="300"><br>  <sub>누가 등록한건지 모르겠는 정체불명의 짤. @everyone 멘션을 달면 자동으로 짤이 붙는다…</sub><br>  <br><br></center>
+
+<p>특히 이 중에서도 감정에 관해서 요즘 생각을 많이 하게 된다. 필자는 원래 <code>공과 사는 구분하자</code>라던가 <code>아무리 힘들어도 감정적으로 대응한다면 그건 프로가 아니다</code>라는 말들에 공감을 많이 하는 편이었다. 사실 지금도 공적인 업무에 감정이 껴서 좋을 게 하나도 없다고 생각한다. 그러나 여기에 더해서 요즘에 드는 생각은 이렇다.</p>
+<blockquote>
+<p>아무리 감정을 배제하려고 해도 사람인 이상 그건 불가능한 거 아니야?</p>
+</blockquote>
+<p>뭐, 아무리 똑똑한 사람이든 시니어든 주니어든 결국 사람인데 당연히 힘든 것도 있고 기쁜 것도 있고 할 것 아닌가? 필자는 시니어 프로그래머 중 한분이 이런 걸 <code>징징대는 것</code> 정도로 치부하고 프로페셔널하지 못하다고 하는 경우도 보았다. 물론 저런 감정을 여기저기 발산하고 다닌다면 그 사람은 이상한 사람인게 맞지만 어쩔 수 없이 새어나오는 감정을 무조건 참으라고 하는 것도 좀 이상한 것 같다.</p>
+<center><br>  <img src="/2019/06/06/what-is-good-programmer/brain.jpg" width="500"><br>  <sub>감정은 두뇌의 신호를 받아 호르몬의 분비를 통해 발생한다고 한다. 이건 의지로 통제할 수 있는 것이 아니다.</sub><br>  <br><br></center>
+
+<p>필자는 개인적으로 회사에서 직접적으로 나와 함께 일하는 PO, 디자이너, 개발자들을 단순히 <code>직장 동료</code>로만 생각하지는 않는다. 단순한 직장 동료보다는 <code>직장 동료와 친구 중간의 어딘가</code> 정도가 맞는 것 같다. 뭐 아 다르고 어 다른 표현 같지만, 어쨌든 일반적인 공적인 관계로만 생각하지는 않는다. 전부 같은 목표를 가지고 열심히 함께 달리고 있는 사람들이고 나이도 다 비슷하고 가치관도 생각보다 크게 다르지 않다. 그래서 가끔은 다른 개발자분들에게 그냥 <code>형님~</code> 할때도 있다. 실제로 내가 막내니까 다들 형이 맞기도 하고. 뭐 우리 팀은 조금 그런 분위기다. 반말 존댓말 섞어쓰는 조금 친구같은 그런…?</p>
+<p>근데 이런 <code>팀원</code>이 뭔가 안좋은 일이 생겨서 감정적으로 어려움을 겪고 있고, 또 그게 티가 난다면 내가 도와줄 수 있는 것 아닌가? 라는 생각이 든다. 그런 감정을 회사까지 끌고 왔다고 뭐라하는 게 아니라.<br> 도와준다고 해도 별로 어려운 것도 아니다. 그냥 아무렇지 않게 “워~ 오늘 얼굴 왜 이래? 커피 한잔 하실?” 하면서 카페가서 같이 이야기도 좀 들어주고 20~30분 노닥거리다 오는 게 전부다. 그렇게만 해줘도 고민이 있던 팀원은 어느 정도 생각도 정리되고 다른 사람한테 이야기하면서 감정도 정리되어 다시 일에 더 집중할 수 있지 않을까?</p>
+<p> 사람은 감정적인 동물이다. 감정을 배제하고는 아무 것도 이해할 수 없다는 생각이 든다. 이런 점을 간과하고서는 <strong>건강한 커뮤니케이션</strong>은 없을 것 같다.</p>
+<h3 id="지금까지의-결론"><a href="#지금까지의-결론" class="headerlink" title="지금까지의 결론"></a>지금까지의 결론</h3><p> 결국 요즘에 드는 생각은 직장을 그만 두더라도 다른 사람들에게 “아 그 사람은 좋은 사람이었지. 같이 일할 때 좋았어” 라고 기억될 수 있으려면 <code>프로그래머라고 해도 기술적인 것만 추구해서는 좋은 프로그래머가 될 수 없다</code> 라는 방향으로 많이 기울고 있다. 결국 프로그래머라고 해도 누군가와는 반드시 협업이나 커뮤니케이션을 해야하는 직장인 아닌가? 심지어 프리로 뛰더라도 클라이언트와의 커뮤니케이션은 필수다. 단순히 코딩만 잘하는 프로그래머는 다른 사람들에게 그다지 “같이 일하기 좋은 프로그래머”로 남을 수는 없을 것 같다.</p>
+<blockquote>
+<p><strong>같이 일하고 싶은 사람은 일만 잘하는 사람은 아니다.</strong></p>
+</blockquote>
+<p> 사람들과 회의를 할때도 나와 다른 의견이 있거나 또는 그 사람이 나보다 경력이 낮거나 심지어 그 사람이 초등학생이라고 해도 그 사람의 의견을 온전히 존중해줄 수 있는 태도.<br> 다른 사람이 감정적으로 힘들어 할때 프로페셔널하지 못하다고 비난하는 것보다는 그 고민을 들어주고 얼른 원래 페이스로 돌아올 수 있게 도와주는 태도.<br> 또는 그 사람의 감정이 <strong>이해</strong>는 안되더라도 그 사람이 그런 감정을 느꼈다는 것을 최소한 <strong>인지</strong>할 수 있는 태도.</p>
+<p>이런 태도들을 기본적으로 갖추고 있어야 <strong>좋은 프로그래머</strong>를 넘어서서 <strong>좋은 동료</strong>가 될 수 있는 것 아닐까? 물론 필자도 낯을 가리는 성격이라 따뜻한 성격은 아니긴 하다.<small>(어릴 때 부터 첫인상 안좋다는 소리 많이 들음)</small> 그러나 개인의 성격을 떠나 적어도 함께 협업하는 타인에 대한 존중과 배려는 갖춰야 한다고 생각한다. 필자는 개인적으로 기술적인 하드 스킬은 누구나 열심히 하면 그 속도에 차이가 있을지언정 늘긴 는다고 생각하는 편이고, 또 프로그래머라면 굳이 누가 말하지 않아도 자신의 기술 스펙에 대한 노력은 하고 있다고 생각한다.</p>
+<p>하지만 커뮤니케이션이나 타인에 대한 배려같은 소프트 스킬은 평소에 신경쓰지 않으면 자신도 모르게 소홀해지기 쉽기 때문에 계속 고민하고 신경쓰고 지속적인 피드백을 받으려는 태도가 중요하다고 생각한다. 사실 최근에도 다른 팀 분한테 말투가 너무 딱딱하고 무섭다는 피드백을 받아서 조금 의기소침해지기도 했지만 그래도 그 이후로 나름 말투에 대해 신경쓰면서 말하고 있는 중이다. 잘 되고 있는 지는 잘 모르겠지만…ㅎㅎ</p>
+<p>일단 지금까지 4년 동안 프로그래머로 회사에서 일을 하면서 <strong>좋은 프로그래머는 무엇인가?</strong>에 대해서 고민했던 과정과 나름 내려본 결론은 이렇다. 아직 필자는 일할 날도 살 날도 많이 남았기 때문에 지금 생각한 결론이 다시 달라질 수도 있겠지만 그래도 “타인을 배려하는 태도”가 중요하다는 사실은 필자가 프로그래머가 아니라 다른 일을 하더라도 적용되는 사실인 것 같다.</p>
+</body></html>
+        </div>
+        
+        
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/essay/">Essay</a><a class="tag -link" href="/tags/good-programmer/">Good Programmer</a><a class="tag -link" href="/tags/에세이/">에세이</a><a class="tag -link" href="/tags/좋은-프로그래머/">좋은 프로그래머</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2019/06/13/http2-with-aws/">
+                <i class="fas fa-chevron-left"></i> AWS와 함께 간단하게 HTTP/2 적용하기
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2019/06/03/client-render-optimizing/">
+                클라이언트 사이드 렌더링 최적화 <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#기술적으로-뛰어난-사람" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>기술적으로 뛰어난 사람?</span>
+        </a></li><li>
+        <a class="is-flex" href="#첫-직장-입사-후-비즈니스에-대해서-달라진-시각" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>첫 직장 입사 후 비즈니스에 대해서 달라진 시각</span>
+        </a></li><li>
+        <a class="is-flex" href="#공적인-업무에서-감정은-불필요하다" data-link-name="toc">
+        <span class="has-mr-6">3</span>
+        <span>공적인 업무에서 감정은 불필요하다?</span>
+        </a></li><li>
+        <a class="is-flex" href="#지금까지의-결론" data-link-name="toc">
+        <span class="has-mr-6">4</span>
+        <span>지금까지의 결론</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="좋은 프로그래머란 무엇일까?" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

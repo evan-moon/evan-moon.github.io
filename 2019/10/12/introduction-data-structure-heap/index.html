@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>최소 값과 최대 값을 빠르게 찾을 수 있게 도와주는 힙(Heap) - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="이번 포스팅에서는 대표적인 자료 구조 중 하나인 힙(Heap)에 대한 설명과 구현을 한번 해보려고 한다.">
+<meta name="keywords" content="Heap,힙,자료 구조">
+<meta property="og:type" content="article">
+<meta property="og:title" content="최소 값과 최대 값을 빠르게 찾을 수 있게 도와주는 힙(Heap)">
+<meta property="og:url" content="https://evan-moon.github.io/2019/10/12/introduction-data-structure-heap/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="이번 포스팅에서는 대표적인 자료 구조 중 하나인 힙(Heap)에 대한 설명과 구현을 한번 해보려고 한다.">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2019/10/12/introduction-data-structure-heap/thumbnail.png">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.407Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="최소 값과 최대 값을 빠르게 찾을 수 있게 도와주는 힙(Heap)">
+<meta name="twitter:description" content="이번 포스팅에서는 대표적인 자료 구조 중 하나인 힙(Heap)에 대한 설명과 구현을 한번 해보려고 한다.">
+<meta name="twitter:image" content="https://evan-moon.github.io/2019/10/12/introduction-data-structure-heap/thumbnail.png">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2019/10/12/introduction-data-structure-heap/">
+
+
+<link rel="alternative" href="/feed.xml" title="최소 값과 최대 값을 빠르게 찾을 수 있게 도와주는 힙(Heap)" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="최소 값과 최대 값을 빠르게 찾을 수 있게 도와주는 힙(Heap)" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2019/10/12/introduction-data-structure-heap/thumbnail.png" alt="최소 값과 최대 값을 빠르게 찾을 수 있게 도와주는 힙(Heap)">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-10-12T09:51:14.000Z">2019-10-12</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/programming/">Programming</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/programming/algorithm/">Algorithm</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                최소 값과 최대 값을 빠르게 찾을 수 있게 도와주는 힙(Heap)
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>이번 포스팅에서는 대표적인 자료 구조 중 하나인 <code>힙(Heap)</code>에 대한 설명과 구현을 한번 해보려고 한다.</p>
+<a id="more"></a>
+<p>이전의 포스팅에서 몇 번 언급한 적이 있지만 필자는 지금 백수다. 이제 프라하에서 한 달간의 힐링도 끝났으니 슬슬 면접을 보러 다녀야 하는데, 모두들 알다시피 면접에서는 기초 알고리즘이나 자료 구조에 대한 질문이 들어올 확률이 굉장히 높다. 하지만 필자는 최근 1년 정도 기초 공부를 게을리 했기 때문에 다시 공부를 해야하는 상황이다.</p>
+<p>그래서 일단은 자료 구조부터 다시 살펴볼 생각인데, 그 중 제일 기억이 잘 나지 않는 <code>힙(Heap)</code>부터 한번 부셔볼까 한다.</p>
+<h2 id="힙-Heap-이란"><a href="#힙-Heap-이란" class="headerlink" title="힙(Heap)이란?"></a>힙(Heap)이란?</h2><p>힙은 기본적으로 <code>완전 이진 트리(Complete Binary Tree)</code>를 기본으로 한 자료 구조이며, 부모 노드와 자식 노드 간의 대소관계가 성립하는 자료 구조이다. 그렇기 때문에 힙의 루트 노드는 힙 내의 데이터들 중 <code>가장 큰 값</code>이거나 <code>가장 작은 값</code>이라고 할 수 있다.</p>
+<center><br>  <img src="/2019/10/12/introduction-data-structure-heap/heap.png" width="500"><br>  <small>루트에 최대 값이 오게 되는 Max Heap의 모습</small><br>  <small>생긴 건 완전 이진 트리랑 똑같이 생겼다</small><br>  <br><br></center>
+
+<p>즉, 힙 내의 가장 큰 값이나 가장 작은 값에 접근하고 싶을 때 비교 연산없이 한번에 접근할 수 있다는 의미이며, 이 접근 연산의 시간 복잡도는 당연히 $O(1)$이다. 이런 힙의 성격 때문에 힙은 여러 개의 데이터 중에서 가장 크거나 작은 값을 빠르게 찾아야 하는 영역에서 유용하게 사용된다.</p>
+<p>사실 단순히 어떤 데이터 뭉치 안에서 최대 값이나 최소 값에 $O(1)$의 시간 복잡도로 접근하고 싶다면 그냥 <code>링크드 리스트(Linked List)</code>나 <code>배열(Array)</code>을 정렬해서 사용해도 무방하긴 하다. 한번 정렬만 해놓으면 그 다음부터는 그냥 헤드에서 값을 쏙쏙 뽑아다 쓰면 되기 때문이다.</p>
+<p>그러나 이렇게 정렬되어 있는 데이터 뭉치에 새로운 데이터를 <code>추가</code>할 때는 전체 데이터 뭉치를 싹 다 뒤져서 다시 최대, 최소 값이 무엇인지 찾아내고 재정렬하는 과정을 거쳐야한다.</p>
+<p>배열과 링크드 리스트과 같은 선형 자료 구조는 이 과정에 $O(n)$의 시간 복잡도가 소요되는 반면, 부모가 자식보다 크거나 작게 정렬된 이진 트리의 경우는 새로운 추가된 노드의 부모 노드들과만 비교해도 정렬 상태를 유지할 수 있기 때문에 $O(\log n)$의 시간 복잡도만 소요된다.</p>
+<p>즉, 정렬하고 싶은 데이터가 많을 수록 더 유리하다는 소리다.</p>
+<center><br>  <img src="/2019/10/12/introduction-data-structure-heap/compares.png" width="500"><br>  <small>전체 데이터를 비교할 필요없이 이 부분만 비교하면 다시 재정렬할 수 있다</small><br>  <br><br></center>
+
+<p>힙은 완전 이진 트리를 기초로 하기 때문에 구현하는 방법 또한 완전 이진 트리와 흡사하다. 그렇기 때문에 힙을 구현해보기에 앞서 완전 이진 트리의 특징을 먼저 이야기 해보려고 한다.</p>
+<h2 id="완전-이진-트리-Complete-Binary-Tree"><a href="#완전-이진-트리-Complete-Binary-Tree" class="headerlink" title="완전 이진 트리(Complete Binary Tree)"></a>완전 이진 트리(Complete Binary Tree)</h2><p>먼저, 힙의 기본이 되는 완전 이진 트리의 특징을 한번 살펴보자. <code>이진 트리(Binary Tree)</code>란 어떤 하나의 노드가 자식 노드를 최대 2개까지만 가질 수 있는 트리를 말한다.</p>
+<p>그 말인 즉슨, 한 레벨에 최대로 들어설 수 있는 노드의 개수가 정해져있다는 뜻이고, 노드들에게 고유한 인덱스를 부여할 수 있다는 것을 의미한다.</p>
+<center><br>  <img src="/2019/10/12/introduction-data-structure-heap/not_allow_new_node.png" width="500"><br>  <small>부모 노드는 반드시 2개 이하의 자식 노드를 가져야 한다.</small><br>  <br><br></center>
+
+<p><code>완전 이진 트리(Complete Binary Tree)</code>는 이진 트리의 노드를 생성할 때 트리의 왼쪽부터 차곡차곡 채워 나가는 트리를 의미한다. 이때 완전 이진 트리의 한 레벨이 꽉 차기 전에는 다음 레벨에 노드를 생성할 수 없다. 즉, 마지막 레벨을 제외한 모든 레벨에는 노드가 꽉 차 있어야 한다는 뜻이다.</p>
+<p>트리는 보통 <code>링크드 리스트(Linked List)</code>나 <code>배열(Array)</code>과 같은 선형 자료 구조를 사용하여 구현하는데, 이때 링크드 리스트와 배열의 특징에 따라 장단점이 갈리기 때문에 선택이 필요하다.<small>(링크드 리스트와 배열의 차이에 대한 내용은 이 포스팅의 주제가 아니므로 따로 설명하지는 않겠다.)</small></p>
+<p>일반적으로 트리는 링크드 리스트를 사용하여 구현하지만 완전 이진 트리의 경우에는 배열로 구현하는 것이 더 효율적이다.</p>
+<h3 id="배열이-더-효율적인-이유"><a href="#배열이-더-효율적인-이유" class="headerlink" title="배열이 더 효율적인 이유"></a>배열이 더 효율적인 이유</h3><p>사실 트리를 구현할 때 <code>원소에 한방에 접근이 가능하다</code>는 배열의 최대 장점을 뒤로 미뤄두고서라도 링크드 리스트를 사용하는 이유는, 배열을 사용하여 트리를 구현하면 메모리 고정 할당 방식이라는 배열의 특성 상 불편한 점이 너무 많기 때문이다.</p>
+<p>그러나 완전 이진 트리에서는 이 불편한 점들이 사라지기 때문에 배열의 장점을 오롯이 가져갈 수 있다.</p>
+<h4 id="원하는-노드로의-접근이-쉽다"><a href="#원하는-노드로의-접근이-쉽다" class="headerlink" title="원하는 노드로의 접근이 쉽다"></a>원하는 노드로의 접근이 쉽다</h4><p>이건 배열의 최대 장점인 <code>인덱스만 알면 해당 원소에 바로 접근이 가능</code>하다는 장점을 그대로 살린 것이다. 이진 트리는 각 레벨에 들어설 수 있는 노드의 최대 개수가 정해져 있기 때문에 간단한 수식만으로 특정 노드의 인덱스를 알아내어 $O(1)$의 시간 복잡도로 노드에 접근할 수 있다.</p>
+<p>먼저, 특정 노드를 기반으로 부모나 자식 노드에 접근하고 싶다면 다음과 같이 인덱스를 계산해볼 수 있다.</p>
+<blockquote><p>루트 노드가 0번 인덱스를 가지고, 현재 노드가 $i$번 인덱스를 가지고 있을 때</p>
+<p>[부모 노드] $(i-1) / 2$<br>[왼쪽 자식 노드] $2i+1$<br>[오른쪽 자식 노드] $2i+2$</p>
+</blockquote>
+<p>위와 같이 특정 노드의 인덱스를 기반으로 부모와 자식들의 인덱스를 알아내는 방법도 있지만, 배열로 만든 완전 이진 트리의 진짜 장점은 간단한 수식을 통해서 원하는 레벨, 원하는 순번의 노드로 바로 접근할 수도 있다는 것이다.</p>
+<p>완전 이진 트리의 성질을 이용하면 특정 레벨까지의 최대 노드 개수인 $c$를 간단히 계산할 수 있기 때문에 가능한 일이다.</p>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mtable><mtr><mtd><mrow><mi>c</mi><mo>=</mo><msup><mn>2</mn><mrow><mi>l</mi><mi>e</mi><mi>v</mi><mi>e</mi><mi>l</mi></mrow></msup><mo>−</mo><mn>1</mn></mrow></mtd></mtr></mtable></mrow><annotation encoding="application/x-tex">\begin{aligned}
+c = 2^{level} - 1
+\end{aligned}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.879554em;"></span><span class="strut bottom" style="height:1.259108em;vertical-align:-0.379554em;"></span><span class="base displaystyle textstyle uncramped"><span class="mord"><span class="mtable"><span class="col-align-r"><span class="vlist"><span style="top:0.01955399999999996em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="mord displaystyle textstyle uncramped"><span class="mord mathit">c</span><span class="mrel">=</span><span class="mord"><span class="mord mathrm">2</span><span class="vlist"><span style="top:-0.413em;margin-right:0.05em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle uncramped"><span class="mord scriptstyle uncramped"><span class="mord mathit" style="margin-right:0.01968em;">l</span><span class="mord mathit">e</span><span class="mord mathit" style="margin-right:0.03588em;">v</span><span class="mord mathit">e</span><span class="mord mathit" style="margin-right:0.01968em;">l</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mbin">−</span><span class="mord mathrm">1</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span></span></span></span>
+<p><br></p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getAllNodeCountByLevel</span> (<span class="hljs-params">level = <span class="hljs-number">1</span></span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">return</span> <span class="hljs-number">2</span>**level - <span class="hljs-number">1</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.log(getAllNodeCountByLevel(<span class="hljs-number">3</span>));</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-number">7</span> <span class="hljs-comment">// 3 레벨로 구성된 완전 이진 트리 내 노드의 최대 개수</span></span><br></pre></td></tr></tbody></table></figure>
+<p>이 식을 사용하면 $n$번째 레벨의 $m$번째 노드의 인덱스도 간단하게 알아낼 수 있다.</p>
+<p>예를 들어, 완전 이진 트리의 <code>n 레벨에 있는 m번째 노드</code>의 인덱스인 $i$를 구하고 싶다면, 내가 접근하고 싶은 레벨의 바로 위 레벨인 $n - 1$ 레벨까지의 모든 노드의 개수 $c$을 구하고, 거기에 해당 레벨 내에서 내가 $m$번째 노드에 접근하고 싶은지만 더해주면 된다.</p>
+<span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mtable><mtr><mtd><mrow><mi>i</mi><mo>=</mo><mi>c</mi><mo>+</mo><mi>m</mi><mo>−</mo><mn>1</mn></mrow></mtd></mtr></mtable></mrow><annotation encoding="application/x-tex">\begin{aligned}
+i = c + m - 1
+\end{aligned}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.8500000000000001em;"></span><span class="strut bottom" style="height:1.2000000000000002em;vertical-align:-0.35000000000000003em;"></span><span class="base displaystyle textstyle uncramped"><span class="mord"><span class="mtable"><span class="col-align-r"><span class="vlist"><span style="top:-0.010000000000000009em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="mord displaystyle textstyle uncramped"><span class="mord mathit">i</span><span class="mrel">=</span><span class="mord mathit">c</span><span class="mbin">+</span><span class="mord mathit">m</span><span class="mbin">−</span><span class="mord mathrm">1</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span></span></span></span>
+<p><br></p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getNodeIndex</span> (<span class="hljs-params">level = <span class="hljs-number">1</span>, count = <span class="hljs-number">1</span></span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">return</span> getAllNodeCountByLevel(level - <span class="hljs-number">1</span>) + count - <span class="hljs-number">1</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.log(getNodeIndex(<span class="hljs-number">3</span>, <span class="hljs-number">3</span>));</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-number">5</span> <span class="hljs-comment">// 3 레벨의 3 번째로 위치한 노드의 인덱스</span></span><br></pre></td></tr></tbody></table></figure>
+<p>마지막에 1을 빼주는 이유는 우리가 구하고 싶은 것이 노드의 순번이 아닌 인덱스이기 때문이다. 배열의 인덱스는 <code>0</code>부터 시작한다는 사실을 잊지 말자.</p>
+<p>이처럼 배열로 구현한 완전 이진 트리는 간단한 계산만으로 원하는 노드에 접근하기가 용이하지만, 링크드 리스트로 구현하게되면 원하는 노드에 바로 접근할 수 없고, 트리를 순회하여 접근해야한다.</p>
+<h4 id="배열의-원소를-뒤로-밀어줘야-할-일이-없다"><a href="#배열의-원소를-뒤로-밀어줘야-할-일이-없다" class="headerlink" title="배열의 원소를 뒤로 밀어줘야 할 일이 없다"></a>배열의 원소를 뒤로 밀어줘야 할 일이 없다</h4><p>배열은 메모리에 연속적인 공간을 할당하여 사용하기 때문에, 배열 중간에 원소를 끼워넣으려면 새로운 메모리 공간을 확보하기 위해 원소를 한 칸씩 뒤로 밀어줘야하는 슬픈 상황이 발생하지만, 링크드 리스트는 그냥 <code>prev</code> 값과 <code>next</code> 값만 변경함으로써 중간에 새로운 원소를 끼워넣기가 편하다.</p>
+<p>그러나 이진 트리의 경우, 자식 노드를 최대 2개까지만 가질 수 있다는 제약이 있기 때문에 높이가 $h$인 트리는 최대 노드 개수가 $2^{h} -1$개로 정해져있다. 즉, 이 크기 만큼만 배열을 메모리에 할당하고 나면 중간에 노드를 새로 삽입하기 위해 배열의 원소를 뒤로 밀어야하는 경우가 발생하지 않는다는 것이다.</p>
+<h4 id="트리가-기울어지지-않는다"><a href="#트리가-기울어지지-않는다" class="headerlink" title="트리가 기울어지지 않는다"></a>트리가 기울어지지 않는다</h4><p>일반적으로 배열로 구현한 트리가 기울어지게 되면 메모리 공간에 심한 낭비가 생기게 되는데, 그 이유는 그림으로 보면 이해하기가 한결 편하다.</p>
+<center><br>  <img src="/2019/10/12/introduction-data-structure-heap/balanced.jpg" width="500"><br></center>
+
+<p>위 그림은 이상적으로 균형이 잡힌 <code>밸런스드 이진 트리(Balanced Binary Tree)</code>의 모습이다. 만약 이 트리를 배열로 구현한다면 메모리에는 이렇게 값들이 담길 것이다.</p>
+<hr>
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Value</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>D</td>
+<td>E</td>
+<td>F</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p>배열 중간에 빈 공간이 없이 차곡차곡 메모리에 담겼다. 노드의 인덱스는 트리의 왼쪽부터 순차적으로 부여되기 때문에 자식 노드를 왼쪽부터 생성한다면 메모리에 빈 공간을 만들지 않을 수 있다.</p>
+<p>물론 자식 노드를 생성할 때 왼쪽을 건너 뛰고 오른쪽부터 생성하면 빈 공간이 생기긴 하지만, 더 큰 문제는 트리가 한 쪽으로 크게 기울어지게 되게 되는 편향 트리가 되는 경우이다.</p>
+<center><br>  <img src="/2019/10/12/introduction-data-structure-heap/unbalanced.jpg" width="500"><br></center>
+
+<hr>
+<table>
+<thead>
+<tr>
+<th>Location</th>
+<th>0</th>
+<th>1</th>
+<th>2</th>
+<th>3</th>
+<th>4</th>
+<th>5</th>
+<th>6</th>
+<th>7</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Value</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>D</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>H</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p>위 그림처럼 한 쪽으로 크게 기운 편향 트리는 중간 인덱스를 건너뛰고 다음 레벨에 노드를 생성한 경우이기 때문에 메모리에 빈 공간이 생길 수 밖에 없다. 그렇기 때문에 메모리 공간이 낭비된다고 하는 것이다. 물론 오른쪽으로 기울었다면 건너뛰어야 하는 인덱스도 더 크기 때문에 메모리 공간의 낭비가 더 심해진다.</p>
+<p>그러나 <code>완전 이진 트리</code>는 노드를 왼쪽부터 차곡차곡 채워나가고, 한 레벨의 노드가 다 채워지기 전까지는 다음 레벨에 노드를 채울 수 없다는 제약들이 걸려있기 때문에 애초에 트리가 기울어질 일 자체가 없으니 메모리에 빈 공간이 생길 일도 없다.</p>
+<p>이런 이유들로 인해 완전 이진 트리는 원소에 바로 접근이 가능한 배열의 장점을 살려서 구현하는 경우가 많고, 완전 이진 트리를 기반으로 하는 <code>힙</code> 또한 마찬가지 이유로 인해 주로 배열로 구현하게된다.</p>
+<h2 id="완전-이진-트리와-힙의-차이"><a href="#완전-이진-트리와-힙의-차이" class="headerlink" title="완전 이진 트리와 힙의 차이"></a>완전 이진 트리와 힙의 차이</h2><p><code>힙(Heap)</code>은 완전 이진 트리를 기초로 하기 때문에 기본적인 노드의 삽입 및 삭제 알고리즘은 일반적인 완전 이진 트리와 동일하다. 노드의 삽입은 반드시 배열의 끝에만 가능하며, 노드를 삭제하고 나면 빈 공간이 남지 않도록 남은 노드들을 다시 당겨서 빈 공간을 채워줘야한다.</p>
+<p>다만 힙은 부모와 자식 노드 간의 대소관계가 성립되어야 한다는 조건이 있기 때문에, 삽입 및 삭제 후 <code>노드를 다시 정렬해주는 기능</code>이 추가로 필요하다.</p>
+<p>또한 힙은 사실 트리 내의 최대 값이나 최소 값을 쉽게 찾고자 하는 자료 구조이기 때문에, 트리 중간에 위치한 노드에 바로 접근할 일도 거의 없다. 항상 <code>Array[0]</code>에 위치한 루트 노드를 뽑아다 쓰면 되기 때문이다. 루트 노드를 뽑아온다는 것은 곧 루트 노드의 삭제를 의미하기 때문에 마찬가지로 힙을 다시 정렬해줘야한다.</p>
+<p>힙은 <code>최대 힙(Max Heap)</code>과 <code>최소 힙(Min Heap)</code>으로 나누어지는데, 최대 힙은 항상 부모의 값이 자식보다 커야하고, 최소 힙은 반대로 부모의 값이 자식보다 작아야 한다. 즉, 최대 힙의 루트는 힙 내에서 <code>가장 큰 값</code>, 최소 힙의 루트는 힙 내에서 <code>가장 작은 값</code>을 의미한다는 것이다.</p>
+<center><br>  <img src="/2019/10/12/introduction-data-structure-heap/min-max-heap.png" width="500"><br>  <br><br></center>
+
+<p>즉, 힙을 구현한다는 것은 완전 이진 트리를 구현하고, 최대 힙과 최소 힙에 맞는 정렬 기능을 추가하면 된다는 것이다.</p>
+<h2 id="힙을-구현해보자"><a href="#힙을-구현해보자" class="headerlink" title="힙을 구현해보자"></a>힙을 구현해보자</h2><p>일단 최대 힙과 최소 힙의 차이는 사실 정렬할 때 조건 밖에 없으니, 필자는 <code>최대 힙</code>만 구현해보려고 한다. 위에서 이야기 했듯이 완전 이진 트리의 경우는 링크드 리스트를 이용하는 것보다 배열을 이용하는 것이 더 효율적이기 때문에 배열을 이용하여 구현할 것이다.</p>
+<p>일단 작고 귀여운 <code>MaxHeap</code> 클래스를 하나 만들어주자.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">MaxHeap</span> </span>{</span><br><span class="line">  <span class="hljs-keyword">constructor</span> () {</span><br><span class="line">    <span class="hljs-keyword">this</span>.nodes = [];</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>만약 링크드 리스트로 구현하고자 한다면 <code>Node</code> 클래스를 별도로 선언해서 사용하겠지만 필자가 사용할 자료 구조는 배열이기 때문에 단촐하기 그지 없다. 그럼 이제 힙에 값을 삽입하는 메소드부터 한번 만들어보도록 하자.</p>
+<h3 id="새로운-값의-삽입-버블-업"><a href="#새로운-값의-삽입-버블-업" class="headerlink" title="새로운 값의 삽입. 버블 업!"></a>새로운 값의 삽입. 버블 업!</h3><p>힙에 새로운 값을 삽입할 때는 완전 이진 트리의 규칙대로 무조건 트리의 왼쪽부터 채워나간다. 그 말인 즉슨, 그냥 <code>push</code> 메소드를 사용하여 배열의 꼬리로 값을 하나씩 쑤셔넣어주면 된다는 것이다. 잘 이해가 되지 않는다면 위의 <code>완전 이진 트리</code> 설명 부분을 다시 읽어보도록 하자.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">insert (value) {</span><br><span class="line">  <span class="hljs-keyword">this</span>.nodes.push(value);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>최대 힙은 항상 부모가 자식보다 큰 값을 가져야한다는 제약이 있으므로, 만약 우리가 힙에 삽입한 노드가 부모 노드보다 큰 값을 가지고 있다면 두 노드의 위치를 바꿔줘야한다.</p>
+<p>그리고 이 작업을 <code>현재 삽입한 노드가 루트까지 올라가거나</code>, <code>부모보다 작은 값을 가지게 되거나</code>, 두 조건 중 하나를 만족할 때까지 반복한다.</p>
+<p>이때 새로 추가한 값이 부모 노드와 스왑되면서 점점 트리의 위로 올라가는 모양새가 거품이 뽀글뽀글 올라오는 모양새랑 비슷하다고 해서 <code>버블 업(Bubble Up)</code>이라고 부른다.</p>
+<center><br>  <img src="/2019/10/12/introduction-data-structure-heap/bubbleup.png" width="500"><br>  <small>부모와 자리를 바꾸면서 트리의 위쪽으로 점점 올라간다</small><br>  <br><br></center>
+
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">insert (value) {</span><br><span class="line">  <span class="hljs-keyword">this</span>.nodes.push(value);</span><br><span class="line">  <span class="hljs-keyword">this</span>.bubbleUp();</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">bubbleUp (index = <span class="hljs-keyword">this</span>.nodes.length - <span class="hljs-number">1</span>) {</span><br><span class="line">  <span class="hljs-keyword">if</span> (index < <span class="hljs-number">1</span>) {</span><br><span class="line">    <span class="hljs-keyword">return</span>;</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  <span class="hljs-keyword">const</span> currentNode = <span class="hljs-keyword">this</span>.nodes[index];</span><br><span class="line">  <span class="hljs-keyword">const</span> parentIndex = <span class="hljs-built_in">Math</span>.floor((index - <span class="hljs-number">1</span>) / <span class="hljs-number">2</span>);</span><br><span class="line">  <span class="hljs-keyword">const</span> parentNode = <span class="hljs-keyword">this</span>.nodes[parentIndex];</span><br><span class="line"></span><br><span class="line">  <span class="hljs-keyword">if</span> (parentNode >= currentNode) {</span><br><span class="line">    <span class="hljs-keyword">return</span>;</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  <span class="hljs-keyword">this</span>.nodes[index] = parentNode;</span><br><span class="line">  <span class="hljs-keyword">this</span>.nodes[parentIndex] = currentNode;</span><br><span class="line">  index = parentIndex;</span><br><span class="line">  <span class="hljs-keyword">this</span>.bubbleUp(index);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p><code>bubbleUp</code> 메소드는 인자로 받은 인덱스의 노드의 값과 부모 노드의 값을 비교하여, 해당 노드가 부모 노드의 값보다 큰 값을 가지고 있다면 두 노드의 위치를 스왑하는 역할을 한다. 트리의 특성 상 이 작업은 분할 정복이 가능한 부분이므로 재귀 호출로 구현하였다.</p>
+<p>여기까지 작성하고 간단히 테스트를 해보면 힙 내의 가장 큰 값이 배열의 헤드, 즉 트리의 루트에 위치하게 된다는 것을 알 수 있다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> heap = <span class="hljs-keyword">new</span> MaxHeap();</span><br><span class="line">heap.insert(<span class="hljs-number">1</span>);</span><br><span class="line">heap.insert(<span class="hljs-number">3</span>);</span><br><span class="line">heap.insert(<span class="hljs-number">23</span>);</span><br><span class="line">heap.insert(<span class="hljs-number">2</span>);</span><br><span class="line">heap.insert(<span class="hljs-number">10</span>);</span><br><span class="line">heap.insert(<span class="hljs-number">32</span>);</span><br><span class="line">heap.insert(<span class="hljs-number">9</span>);</span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.log(heap.nodes);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[ <span class="hljs-number">32</span>, <span class="hljs-number">10</span>, <span class="hljs-number">23</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>, <span class="hljs-number">9</span> ]</span><br></pre></td></tr></tbody></table></figure>
+<center><br>  <img src="/2019/10/12/introduction-data-structure-heap/max-heap.gif" width="500"><br>  <small>부모보다 큰 값이 추가되면 부모와 자리를 바꾼다</small><br>  <br><br></center>
+
+<h3 id="루트에서-값을-빼오자-트릭클-다운"><a href="#루트에서-값을-빼오자-트릭클-다운" class="headerlink" title="루트에서 값을 빼오자. 트릭클 다운!"></a>루트에서 값을 빼오자. 트릭클 다운!</h3><p>값의 삽입과 버블 업을 구현해보았으면 이번에는 루트에서 값을 빼오는 메소드를 만들어보자. 즉, 삭제 연산이다. 이 경우 루트 노드를 뽑아버리면 루트 노드의 자리가 비게 되니 힙을 재정렬해서 다시 루트 노드를 채워줘야한다.</p>
+<p>이때 기존 루트 노드의 자식 노드들을 루트 노드로 올리는 것이 아니라 트리의 가장 마지막에 위치한 노드를 가져와서 루트 노드로 삽입하게 되는데, 이는 수정될 힙에서 빈 공간이 생기지 않게 함으로써 연산량을 줄이기 위해서이다.</p>
+<p>바로 루트의 바로 밑에 있는 자식들을 끌어올려서 루트로 사용해버리면 자연스럽게 그 노드가 있던 곳은 공백이 생기게 되고, 그럼 또 다음 레벨에서 어떤 노드를 끌여올려야 할지 비교 연산이 필요하게 되기 때문이다.</p>
+<p>그리고 힙은 반드시 완전 이진 트리의 형태를 유지해야하기 때문에 이 과정에서 트리가 한 쪽으로 기울게 되버리면 또 트리의 균형을 맞춰줘야하는 번거로움도 생길 수 있다.</p>
+<p>그래서 가장 마지막에 위치한 노드를 새로운 루트 노드로 사용하고 자식들과 값을 비교해나가면서 자리를 바꿔나가는데, 이때 새로운 루트 노드가 트리의 아래 쪽으로 점점 이동하는 모양새가 물방울이 떨어지는 모양새랑 비슷하다고 해서 <code>트릭클 다운(Trickle Down)</code>이라고 부른다.<small>(컴퓨터 용어 주제에 왠지 갬성적이다…)</small></p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line">extract () {</span><br><span class="line">  <span class="hljs-keyword">const</span> max = <span class="hljs-keyword">this</span>.nodes[<span class="hljs-number">0</span>];</span><br><span class="line">  <span class="hljs-keyword">this</span>.nodes[<span class="hljs-number">0</span>] = <span class="hljs-keyword">this</span>.nodes.pop();</span><br><span class="line">  <span class="hljs-keyword">this</span>.trickleDown();</span><br><span class="line"></span><br><span class="line">  <span class="hljs-keyword">return</span> max;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">trickleDown (index = <span class="hljs-number">0</span>) {</span><br><span class="line">  <span class="hljs-keyword">const</span> leftChildIndex = <span class="hljs-number">2</span> * index + <span class="hljs-number">1</span>;</span><br><span class="line">  <span class="hljs-keyword">const</span> rightChildIndex = <span class="hljs-number">2</span> * index + <span class="hljs-number">2</span>;</span><br><span class="line">  <span class="hljs-keyword">const</span> length = <span class="hljs-keyword">this</span>.nodes.length;</span><br><span class="line"></span><br><span class="line">  <span class="hljs-keyword">let</span> largest = index;</span><br><span class="line"></span><br><span class="line">  <span class="hljs-keyword">if</span> (leftChildIndex <= length && <span class="hljs-keyword">this</=></span>.nodes[leftChildIndex] > <span class="hljs-keyword">this</span>.nodes[largest]) {<br><span class="line">    largest = leftChildIndex;</span><br><span class="line">  }</span><br><span class="line">  <span class="hljs-keyword">if</span> (rightChildIndex <= length && <span class="hljs-keyword">this</=></span>.nodes[rightChildIndex] > <span class="hljs-keyword">this</span>.nodes[largest]) {<br><span class="line">    largest = rightChildIndex;</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  <span class="hljs-keyword">if</span> (largest !== index) {</span><br><span class="line">    [<span class="hljs-keyword">this</span>.nodes[largest], <span class="hljs-keyword">this</span>.nodes[index]] = [<span class="hljs-keyword">this</span>.nodes[index], <span class="hljs-keyword">this</span>.nodes[largest]];</span><br><span class="line">    <span class="hljs-keyword">this</span>.trickleDown(largest);</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>트릭클 다운 또한 버블 업과 마찬가지로 재귀 호출을 통한 분할 정복으로 해결할 수 있다.</p>
+<p><code>trickleDown</code> 메소드는 부모 노드와 왼쪽 자식 노드, 오른쪽 자식 노드의 값을 비교한 후 자식 노드가 부모 노드보다 큰 값을 가지고 있다면 부모 노드와 해당 자식 노드의 위치를 변경한다.</p>
+<p>쉽게 말하면 세 개의 노드 중 가장 큰 값을 가지고 있는 놈이 부모 자리를 먹는 것인데, 만약 이 힘싸움에서 밀린 것이 부모 노드라면 자신의 자식이 있던 곳으로 좌천되는 것이라고 보면 된다.</p>
+<center><br>  <img src="/2019/10/12/introduction-data-structure-heap/Arthas_King.jpg" width="400"><br>  <small>썩씌딩하는 꼬라지가 왠지 이 놈을 닮았다</small><br>  <br><br></center>
+
+<p>만약 이 과정에서 부모 노드와 자식 노드의 위치가 변경되었다면 변경된 부모 노드의 인덱스를 다시 <code>tickleDown</code> 메소드의 인자로 넘겨서 이 과정을 계속 반복한다.</p>
+<p>여기까지 작성했으면 버블 업과 마찬가지로 간단한 테스트를 한번 해보자. 힙에 들어가는 값은 이전에 버블 업에서 사용했던 값과 동일한 값들을 사용했다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> heap = <span class="hljs-keyword">new</span> MaxHeap();</span><br><span class="line">heap.insert(<span class="hljs-number">1</span>);</span><br><span class="line">heap.insert(<span class="hljs-number">3</span>);</span><br><span class="line">heap.insert(<span class="hljs-number">23</span>);</span><br><span class="line">heap.insert(<span class="hljs-number">2</span>);</span><br><span class="line">heap.insert(<span class="hljs-number">10</span>);</span><br><span class="line">heap.insert(<span class="hljs-number">32</span>);</span><br><span class="line">heap.insert(<span class="hljs-number">9</span>);</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">const</span> length = heap.nodes.length;</span><br><span class="line"><span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i < length; i++) {</span><br><span class="line">  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'MAX_VALUE = '</span>, heap.extract());</span><br><span class="line">  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'HEAP = '</span>, heap.nodes);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">MAX_VALUE = <span class="hljs-number">32</span></span><br><span class="line">HEAP = [ <span class="hljs-number">23</span>, <span class="hljs-number">10</span>, <span class="hljs-number">9</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span> ]</span><br><span class="line"></span><br><span class="line">MAX_VALUE = <span class="hljs-number">23</span></span><br><span class="line">HEAP = [ <span class="hljs-number">10</span>, <span class="hljs-number">3</span>, <span class="hljs-number">9</span>, <span class="hljs-number">1</span>, <span class="hljs-number">2</span> ]</span><br><span class="line"></span><br><span class="line">MAX_VALUE = <span class="hljs-number">10</span></span><br><span class="line">HEAP = [ <span class="hljs-number">9</span>, <span class="hljs-number">3</span>, <span class="hljs-number">2</span>, <span class="hljs-number">1</span> ]</span><br><span class="line">...</span><br></pre></td></tr></tbody></table></figure>
+<center><br>  <img src="/2019/10/12/introduction-data-structure-heap/min-heap.gif" width="500"><br>  <small>트리의 맨 끝에서 노드를 빼와서 루트 노드로 사용한다는 것에 주의하자</small><br>  <br><br></center>
+
+<h2 id="마치며"><a href="#마치며" class="headerlink" title="마치며"></a>마치며</h2><p>힙 자체는 단순히 데이터들이 느슨하게 정렬되어있는 완전 이진 트리이지만, 루트에는 항상 힙 내부에 있는 데이터들의 최대 값과 최소 값이 위치한다는 특징 때문에 다양하게 응용하여 사용할 수 있다.</p>
+<p>그 중 대표적인 것은 선형 자료 구조를 정렬할 때 사용하는 방법인데, 이 정렬 알고리즘을 <code>힙 정렬(Heap Sort)</code>라고 한다. 현재 V8의 <code>Array.prototype.sort</code> 메소드는 <code>퀵 정렬(Quick Sort)</code>을 사용하고 있지만, 초반에는 힙을 사용하는 정렬 알고리즘인 힙 정렬을 잠깐 사용하기도 했었다.</p>
+<p>어쨌든 그 동안 잊고 있었던 기초적인 자료 구조를 한번 다시 보니 왠지 기분이 좋다.</p>
+<p>힙은 굉장히 다양한 곳에서 사용되고 있는 자료 구조이니 만큼, 알고 있어서 나쁠 게 없기도 하고 면접 때도 꽤 자주 물어봤던 것 같다. 이제 필자는 회사의 비즈니스 로직과 전혀 관련 없는 백수 개발랭이 신분이 되었으니, 그 동안 소홀했던 기초 이론 부분을 이 기회에 조금 더 자세히 공부해봐야겠다.</p>
+<p>이상으로 최소 값과 최대 값을 빠르게 찾을 수 있게 도와주는 힙(Heap) 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/heap/">Heap</a><a class="tag -link" href="/tags/자료-구조/">자료 구조</a><a class="tag -link" href="/tags/힙/">힙</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2019/10/23/js-prototype/">
+                <i class="fas fa-chevron-left"></i> [JS 프로토타입] 자바스크립트의 프로토타입 훑어보기
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2019/10/08/what-is-http3/">
+                HTTP/3는 왜 UDP를 선택한 것일까? <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#힙-Heap-이란" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>힙(Heap)이란?</span>
+        </a></li><li>
+        <a class="is-flex" href="#완전-이진-트리-Complete-Binary-Tree" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>완전 이진 트리(Complete Binary Tree)</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#배열이-더-효율적인-이유" data-link-name="toc">
+        <span class="has-mr-6">2.1</span>
+        <span>배열이 더 효율적인 이유</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#원하는-노드로의-접근이-쉽다" data-link-name="toc">
+        <span class="has-mr-6">2.1.1</span>
+        <span>원하는 노드로의 접근이 쉽다</span>
+        </a></li><li>
+        <a class="is-flex" href="#배열의-원소를-뒤로-밀어줘야-할-일이-없다" data-link-name="toc">
+        <span class="has-mr-6">2.1.2</span>
+        <span>배열의 원소를 뒤로 밀어줘야 할 일이 없다</span>
+        </a></li><li>
+        <a class="is-flex" href="#트리가-기울어지지-않는다" data-link-name="toc">
+        <span class="has-mr-6">2.1.3</span>
+        <span>트리가 기울어지지 않는다</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#완전-이진-트리와-힙의-차이" data-link-name="toc">
+        <span class="has-mr-6">3</span>
+        <span>완전 이진 트리와 힙의 차이</span>
+        </a></li><li>
+        <a class="is-flex" href="#힙을-구현해보자" data-link-name="toc">
+        <span class="has-mr-6">4</span>
+        <span>힙을 구현해보자</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#새로운-값의-삽입-버블-업" data-link-name="toc">
+        <span class="has-mr-6">4.1</span>
+        <span>새로운 값의 삽입. 버블 업!</span>
+        </a></li><li>
+        <a class="is-flex" href="#루트에서-값을-빼오자-트릭클-다운" data-link-name="toc">
+        <span class="has-mr-6">4.2</span>
+        <span>루트에서 값을 빼오자. 트릭클 다운!</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#마치며" data-link-name="toc">
+        <span class="has-mr-6">5</span>
+        <span>마치며</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="최소 값과 최대 값을 빠르게 찾을 수 있게 도와주는 힙(Heap)" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>수학과 함께 복잡한 문제를 단순하게 만들자! - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="최근 많은 IT 기업들이 개발자를 채용할 때 코딩 테스트를 시행하고 있다. 회사마다 어떤 스타일의 문제를 출제하는지 차이는 있지만, 대부분 간단한 알고리즘 풀이 또는 Codility나 프로그래머스와 같은 사이트처럼 실무에서 겪을 만한 상황을 살짝 섞어놓는 느낌의 문제를 선호하는 것 같다.">
+<meta name="keywords" content="알고리즘,수학,프로그래밍,코딩테스트">
+<meta property="og:type" content="article">
+<meta property="og:title" content="수학과 함께 복잡한 문제를 단순하게 만들자!">
+<meta property="og:url" content="https://evan-moon.github.io/2019/10/30/make-simple-with-math/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="최근 많은 IT 기업들이 개발자를 채용할 때 코딩 테스트를 시행하고 있다. 회사마다 어떤 스타일의 문제를 출제하는지 차이는 있지만, 대부분 간단한 알고리즘 풀이 또는 Codility나 프로그래머스와 같은 사이트처럼 실무에서 겪을 만한 상황을 살짝 섞어놓는 느낌의 문제를 선호하는 것 같다.">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2019/10/30/make-simple-with-math/thumbnail.png">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.426Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="수학과 함께 복잡한 문제를 단순하게 만들자!">
+<meta name="twitter:description" content="최근 많은 IT 기업들이 개발자를 채용할 때 코딩 테스트를 시행하고 있다. 회사마다 어떤 스타일의 문제를 출제하는지 차이는 있지만, 대부분 간단한 알고리즘 풀이 또는 Codility나 프로그래머스와 같은 사이트처럼 실무에서 겪을 만한 상황을 살짝 섞어놓는 느낌의 문제를 선호하는 것 같다.">
+<meta name="twitter:image" content="https://evan-moon.github.io/2019/10/30/make-simple-with-math/thumbnail.png">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2019/10/30/make-simple-with-math/">
+
+
+<link rel="alternative" href="/feed.xml" title="수학과 함께 복잡한 문제를 단순하게 만들자!" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="수학과 함께 복잡한 문제를 단순하게 만들자!" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2019/10/30/make-simple-with-math/thumbnail.png" alt="수학과 함께 복잡한 문제를 단순하게 만들자!">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-10-30T13:38:26.000Z">2019-10-30</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/programming/">Programming</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/programming/algorithm/">Algorithm</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                수학과 함께 복잡한 문제를 단순하게 만들자!
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>최근 많은 IT 기업들이 개발자를 채용할 때 코딩 테스트를 시행하고 있다. 회사마다 어떤 스타일의 문제를 출제하는지 차이는 있지만, 대부분 간단한 알고리즘 풀이 또는 <code>Codility</code>나 <code>프로그래머스</code>와 같은 사이트처럼 실무에서 겪을 만한 상황을 살짝 섞어놓는 느낌의 문제를 선호하는 것 같다.</p>
+<a id="more"></a>
+<p>이런 문제들의 특성 상 CS 기초와 문제 분석 능력, 직감 등을 다양하게 사용하여 해결해야 하기 때문에 단기간 연습한다고 실력이 확 느는 것은 아닌 것 같다.</p>
+<p>이런 문제들은 우리에게 단순히 <code>너 이 알고리즘 알아?</code>라고 물어보는 것이 아니라 <code>어떤 방법을 사용해서 풀어볼래?</code>라고 물어본다.</p>
+<p>사실 자료구조나 알고리즘 자체는 보면 공부하고 몇 번 구현해보면 어느 정도 숙달될 수 있지만, 이렇게 문제를 분석하고 단순화해서 적합한 방법을 선택할 수 있는 능력은 단순히 공부로 만들어 낼 수 있는 종류의 것은 아닌 것 같다.</p>
+<p>필자는 최근 취업 준비를 하면서 이런 문제를 종종 풀어보고 있는데, 확실히 CS 기초도 부족하긴 하지만, 문제를 분석하고 좋은 방법을 선택할 수 있는 능력이 많이 부족함을 느꼈다.</p>
+<p>그래서 자료구조나 알고리즘을 처음부터 다시 공부하면서, 동시에 문제 해결 능력을 기르기 위한 방법이 어떤 것이 있을지 고민해보기 시작했다.</p>
+<h2 id="수학적인-사고-방식으로-문제를-단순화하자"><a href="#수학적인-사고-방식으로-문제를-단순화하자" class="headerlink" title="수학적인 사고 방식으로 문제를 단순화하자"></a>수학적인 사고 방식으로 문제를 단순화하자</h2><p>필자는 최근 면접에 거하게 털리고 나서 CS 기초나 자바스크립트 기초를 처음부터 다시 공부하기 시작했는데, 막상 이렇게 공부한 지식을 가지고 코딩 테스트 문제를 한번 풀어보려고 했더니, 생각처럼 잘 되지 않았다.</p>
+<p>대부분 알고 있겠지만, 많은 코딩 테스트 문제은행 서비스에서는 문제를 해결하고 나면 다른 사람들은 이 문제를 어떤 방식으로 해결했는지도 함께 보여준다. 필자같은 경우는 사실 이게 궁금해서 문제를 푸는 것도 있는 것 같다.</p>
+<p>그러던 와중에 대부분의 사람들이 완전탐색으로 풀었던 문제를 어떤 굇수 분이 단순한 산수 연산 몇 번으로 풀어내는 것을 본 적이 있었다.</p>
+<center><br>  <img src="/2019/10/30/make-simple-with-math/genius.jpg" width="350"><br>  <small>역시 세상은 넓고 굇수는 많다</small><br>  <br><br></center>
+
+<p>당연히 필자도 해당 문제를 완전탐색으로 풀었고 그 방법 밖에 없을 것이라고 생각했지만, 그 굇수분은 문제의 패턴을 찾아내어 문제를 단순화 시킨 것이다.</p>
+<p>물론 조금 난해한 감이 있어서 실무에서 사용하기에는 조금 이견이 갈릴 수 있는 코드이긴 했지만, 대부분의 사람들이 완전탐색으로 풀었던 복잡한 문제를 단순한 식 몇개로 풀어냈다는 사실이 충격이었다.</p>
+<p>이때 필자가 느낀 점은, <code>수학적인 사고</code>에 대한 필요성이었다. 물론 알고리즘 역시 이런 수학적인 사고를 바탕으로 효율적인 해결 방식을 일반화한 것이긴 하지만, 필자가 원했던 것은 좀 더 근본적인 문제 해결 능력이었다.</p>
+<p>물론 수학적인 사고라고 해서 문제를 읽고 막 복잡한 식을 세우는 것이 아니다. 자연어로 이루어진 문제를 분석하고, 해결 가능한 수준으로 나누고, 패턴을 찾아내는 과정 또한 수학적인 사고에서 비롯된다. 애초에 수학 자체가 복잡한 문제를 단순화하고 패턴을 찾아내어 일반화하는 학문이다.</p>
+<p>그리고 <a href="/2019/07/17/programmer-with-math/" title="프로그래머는 수학을 잘해야할까?">프로그래머는 수학을 잘해야할까?</a> 포스팅에서 한번 이야기한 적 있지만, 필자가 이야기하고싶은 수학은 어려운 이론이나 공식을 말하는 것이 아니다.</p>
+<p>개인적인 생각이기는 하지만, 필자는 <code>수의 성질</code>을 이해하는 것이 제일 중요하다고 생각했다. 예를 들면 홀수에 1을 더하면 짝수가 된다던가, 1부터 100까지의 합을 구할 때 <code>101 * 100 / 2</code>를 하면 된다던가와 같은 것들이 그렇다.</p>
+<p>그런 이유로 최근 <a href="http://www.yes24.com/Product/goods/61791203" target="_blank" rel="external nofollow noopener noreferrer">프로그래머, 수학으로 생각하라</a>라는 책을 읽게 되었는데, 이 책의 초입부부터 재미있는 문제 해결 방법이 몇개 나와서 그 문제들과 해결 방법에 대해서 공유를 해볼까 한다.</p>
+<h2 id="오늘로부터-100억일-후는-무슨-요일일까"><a href="#오늘로부터-100억일-후는-무슨-요일일까" class="headerlink" title="오늘로부터 100억일 후는 무슨 요일일까?"></a>오늘로부터 100억일 후는 무슨 요일일까?</h2><p>$n$일 후의 요일을 구하는 문제는 수학적인 사고를 필요로 하는 대표적인 문제 중 하나이다.</p>
+<p>게다가 굳이 코딩 테스트까지 가지 않고 일상 속에서 비즈니스 로직만 만지고 있더라도 꽤나 자주 접할 수 있는 문제이다. 그래서 워밍업으로 상대적으로 익숙한 요일 구하기 문제를 먼저 살펴보려고 한다.</p>
+<blockquote><p>필자가 이 글을 작성하고 있는 <code>2019년 10월 29일</code>은 <code>화요일</code>이다. 그럼 오늘로부터 100억일 후는 과연 무슨 요일일까?</p>
+</blockquote>
+<p>음, 단순하게 생각해보면… 오늘은 화요일이니까 1일 후는 수요일, 2일 후는 목요일과 같은 순차적인 방법으로 접근할 수도 있겠다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-built_in">console</span>.time(<span class="hljs-string">'calc'</span>);</span><br><span class="line"><span class="hljs-keyword">const</span> week = [<span class="hljs-string">'일'</span>, <span class="hljs-string">'월'</span>, <span class="hljs-string">'화'</span>, <span class="hljs-string">'수'</span>, <span class="hljs-string">'목'</span>, <span class="hljs-string">'금'</span>, <span class="hljs-string">'토'</span>];</span><br><span class="line"><span class="hljs-keyword">let</span> today = <span class="hljs-number">2</span>;</span><br><span class="line"><span class="hljs-keyword">let</span> shift = <span class="hljs-number">0</span>;</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i <= <span class="hljs-built_in">Math</=></span>.pow(<span class="hljs-number">10</span>, <span class="hljs-number">10</span>); i++) {<br><span class="line">  shift = i % week.length;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">today += shift;</span><br><span class="line"><span class="hljs-keyword">if</span> (today > week.length - <span class="hljs-number">1</span>) {</span><br><span class="line">  today -= week.length;</span><br><span class="line">}</span><br><span class="line"><span class="hljs-built_in">console</span>.log(week[today]);</span><br><span class="line"><span class="hljs-built_in">console</span>.timeEnd(<span class="hljs-string">'calc'</span>);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight plain hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">토</span><br><span class="line">calc: 60948.138ms</span><br></pre></td></tr></tbody></table></figure>
+<p>아무리 요즘 컴퓨터가 연산 능력도 좋고 무보수로 일해주는 SCV라고 하지만 100억회를 반복하는 루프를 계산하게 하는 것은 너무나도 가혹한 처사이다. 이 알고리즘은 시간 복잡도가 $O(n)$이기에, 루프만 돌았을 뿐인데도 수행 시간이 1분이 넘는다.</p>
+<p>이렇게 무식하게 풀어낼 수는 없으니, 다른 방법을 찾아야한다. 다행히 우리는 요일이 <code>7</code>일 마다 반복된다는 것을 알고 있다. 오늘이 화요일이라면 7일 후도 당연히 화요일이고, 14일 후도 화요일이다.</p>
+<p>즉, 요일이 반복된다는 <code>주기성</code>이 존재한다는 것이다. <code>오늘부터 7의 배수만큼 지난 날은 무조건 화요일</code>이라는 패턴을 찾았다면 그 다음부터는 간단해진다.</p>
+<p>어떤 수를 1씩 증가시켜가면서 계속 7로 나누면 <code>0~6</code>이 순차적으로 나타나는 주기성이 있으므로, 배수를 구할 때와 마찬가지로 <code>100억</code>을 <code>7</code>로 나누고 그 나머지를 확인하면 되기 때문이다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-built_in">console</span>.time(<span class="hljs-string">'calc'</span>);</span><br><span class="line"><span class="hljs-keyword">const</span> week = [<span class="hljs-string">'일'</span>, <span class="hljs-string">'월'</span>, <span class="hljs-string">'화'</span>, <span class="hljs-string">'수'</span>, <span class="hljs-string">'목'</span>, <span class="hljs-string">'금'</span>, <span class="hljs-string">'토'</span>];</span><br><span class="line"><span class="hljs-keyword">let</span> today = <span class="hljs-number">2</span>;</span><br><span class="line"><span class="hljs-keyword">let</span> shift = <span class="hljs-built_in">Math</span>.pow(<span class="hljs-number">10</span>, <span class="hljs-number">10</span>) % week.length;</span><br><span class="line"></span><br><span class="line">today += shift;</span><br><span class="line"><span class="hljs-keyword">if</span> (today > week.length - <span class="hljs-number">1</span>) {</span><br><span class="line">  today -= week.length;</span><br><span class="line">}</span><br><span class="line"><span class="hljs-built_in">console</span>.log(week[today]);</span><br><span class="line"><span class="hljs-built_in">console</span>.timeEnd(<span class="hljs-string">'calc'</span>);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight plain hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">토</span><br><span class="line">calc: 0.156ms</span><br></pre></td></tr></tbody></table></figure>
+<p>수행 시간이 <code>60000ms</code>에서 <code>0.156ms</code>로 줄었다. 이렇게 문제에서 주기성을 찾아내고, 나머지의 주기성과 연관지을 수만 있다면, 완전탐색을 하지 않고도 나머지를 사용하여 문제를 가볍게 풀 수 있다.</p>
+<h3 id="10-100000000-일-후의-요일도-구해보자"><a href="#10-100000000-일-후의-요일도-구해보자" class="headerlink" title="$10^{100000000}$일 후의 요일도 구해보자"></a>$10^{100000000}$일 후의 요일도 구해보자</h3><p>자, 그럼 여기서 한번 더 나아가보자. 이런 방법으로 우리가 $10^{100000000}$일, 즉 <code>10의 1억승</code>일 이후의 요일도 구할 수 있을까? 10의 1억승을 뭐라고 부르는지는 모르겠지만, $10^{68}$이 무량대수라고 부르는 엄청 큰 숫자이니 쉽게 가늠이 안되는 수인 것은 분명하다.</p>
+<p>당연히 $10^{100000000}$은 자바스크립트의 <code>Number.MAX_SAFE_INTEGER</code> 값을 아득히 넘어서는 숫자이기 때문에 위와 같은 방식으로는 계산이 불가능 하다. 여기서부터는 컴퓨터한테 계산을 맡기는 것보다는 문제를 단순화하고 주기성을 찾아내는 일이 더 중요해진다.</p>
+<p>오늘은 <code>10월 29일 화요일</code>이니 오늘부터 $n$일 후의 요일을 쭉쭉 살펴보도록 하자. 방금 예제로 만들었던 로직을 활용하여 $10^{30}$일 이후까지 살펴보니, 대략 다음과 같은 패턴이 있다는 것을 알 수 있었다. 모든 결과를 적으면 너무 표가 길어지니, $10^{12}$일 이후의 결과만 기재하도록 하겠다.</p>
+<table>
+<thead>
+<tr>
+<th>일자</th>
+<th>요일</th>
+<th>인덱스</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$10^0$일 후</td>
+<td>수</td>
+<td>3</td>
+</tr>
+<tr>
+<td>$10^1$일 후</td>
+<td>금</td>
+<td>5</td>
+</tr>
+<tr>
+<td>$10^2$일 후</td>
+<td>목</td>
+<td>4</td>
+</tr>
+<tr>
+<td>$10^3$일 후</td>
+<td>월</td>
+<td>1</td>
+</tr>
+<tr>
+<td>$10^4$일 후</td>
+<td>토</td>
+<td>6</td>
+</tr>
+<tr>
+<td>$10^5$일 후</td>
+<td>일</td>
+<td>0</td>
+</tr>
+<tr>
+<td>$10^6$일 후</td>
+<td>수</td>
+<td>3</td>
+</tr>
+<tr>
+<td>$10^7$일 후</td>
+<td>금</td>
+<td>5</td>
+</tr>
+<tr>
+<td>$10^8$일 후</td>
+<td>목</td>
+<td>4</td>
+</tr>
+<tr>
+<td>$10^9$일 후</td>
+<td>월</td>
+<td>1</td>
+</tr>
+<tr>
+<td>$10^{10}$일 후</td>
+<td>토</td>
+<td>6</td>
+</tr>
+<tr>
+<td>$10^{11}$일 후</td>
+<td>일</td>
+<td>0</td>
+</tr>
+<tr>
+<td>$10^{12}$일 후</td>
+<td>수</td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p>필자는 이 과정에서 두 가지 정보를 얻을 수 있었다. 요일이 <code>수, 금, 목, 월, 토, 일</code>의 순서로 계속 반복되고 있다는 것과 오늘 요일인 <code>화요일</code>이 등장하지 않는다는 것이다.</p>
+<p>즉, 10의 지수가 6 증가할 때마다 같은 요일이 돌아온다. 바꿔말하면 0의 개수가 6개씩 늘어날 때마다 같은 요일이 돌아온다는 말과 같다.</p>
+<p>그렇다면 결국 10의 지수를 6으로 나눈 나머지 값을 사용하여 방금 전과 동일한 방법으로 요일을 구할 수 있다는 말이다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> week = [<span class="hljs-string">'수'</span>, <span class="hljs-string">'금'</span>, <span class="hljs-string">'목'</span>, <span class="hljs-string">'월'</span>, <span class="hljs-string">'토'</span>, <span class="hljs-string">'일'</span>];</span><br><span class="line"><span class="hljs-keyword">const</span> exp = <span class="hljs-built_in">Math</span>.pow(<span class="hljs-number">10</span>, <span class="hljs-number">8</span>);</span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.log(week[exp % week.length]);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight plain hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">토</span><br></pre></td></tr></tbody></table></figure>
+<p>비록 $10^{100000000}$이라는 어마무시한 수를 컴퓨터가 담아낼 수 없기 때문에 직접 계산할 수는 없지만, 지수의 증가로 인한 요일의 주기를 파악함으로써 상상도 안가는 먼 미래의 요일을 구할 수 있게 되었다.<small>(사실 이걸 구하는 게 뭔 의미가 있겠냐만…)</small></p>
+<p>만약 위에서 요일을 구했던 정직한 방법으로 이 문제를 풀려고 했다면 불가능했겠지만, 문제를 분석하고 주기성을 찾아냄으로써 어찌어찌 풀 수는 있었다.</p>
+<h2 id="욕실-바닥에-타일-깔기"><a href="#욕실-바닥에-타일-깔기" class="headerlink" title="욕실 바닥에 타일 깔기"></a>욕실 바닥에 타일 깔기</h2><p>사실 방금 풀어보았던 요일 맞추기 문제처럼 눈에 띄게 일정한 주기를 가지고 반복되는 숫자를 찾아내는 문제는 익숙해지는데 그렇게 오랜 시간이 걸리지는 않는다.</p>
+<p>그러나 우리가 일상에서 겪는 대부분의 문제는 저렇게 패턴을 대놓고 보여주지 않는 경우가 많다.</p>
+<p>이때 필요한 것이 문제를 분석하고 패턴을 찾아내는 일이다. 사실 주기성이라는 수의 성질을 이용할 수 있다는 것의 진짜 의의는 바로 <code>패턴</code>을 만들고 찾아낼 수 있다는 것에 있다. 이번에는 그 패턴을 이용하여 유효성을 검사하는 문제이다.</p>
+<center><br>  <img src="/2019/10/30/make-simple-with-math/tile.png" width="500"><br>  <br><br></center>
+
+<blockquote><p>에반은 타일 시공 업체에 취직해서 첫 욕실 바닥 시공을 하게 되었다.<br>그러나 에반은 실수로 가로 1cm, 세로 2cm의 직사각형 타일들만 챙겨나오게 되었다…</p>
+<p>다행히 모든 욕실 바닥은 표준화가 되어있어서 가로 1cm, 세로 1cm의 정사각형 칸으로 이루어져있지만, 욕실 바닥 모양과 칸의 수는 모두 제각각이다.</p>
+<p>에반은 자신의 직사각형 타일로 욕실 바닥을 빠짐없이 메꿔야하지만, 욕실 바닥의 모양에 따라 작업이 불가능한 곳도 있다.<br>게다가 에반은 힘이 없어서 타일을 반으로 쪼개서 사용할 수도 없다.</p>
+<p>에반은 어떻게 작업의 가능 여부를 알 수 있을까?</p>
+</blockquote>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> floor = [</span><br><span class="line">  [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>],</span><br><span class="line">  [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>],</span><br><span class="line">  [<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>],</span><br><span class="line">  [<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>],</span><br><span class="line">  [<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>],</span><br><span class="line">  [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>],</span><br><span class="line">  [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>],</span><br><span class="line">];</span><br></pre></td></tr></tbody></table></figure>
+<p>이 문제의 경우, 타일로 욕실 바닥을 채울 수 있는 경우의 수를 하나씩 검사해볼 수도 있겠지만, 그렇게 풀어내기에는 워낙 경우의 수가 많기도 하고 로직도 복잡해질 것이 뻔하다.</p>
+<p>그렇다면 욕실 바닥에 있는 칸의 개수를 세어보면 어떨까? 만약 칸의 개수가 홀수라면 에반이 가진 타일로는 절대 바닥을 채울 수가 없을 것이다.</p>
+<p>하지만 이 문제에 나와있는 바닥의 총 칸 수는 슬프게도 <code>34</code>칸이다. 게다가 홀수, 짝수 여부만으로는 해당 타일로 전부 바닥을 채울 수 있을지는 장담할 수 없다. 조금 더 확실한 검증 방법이 없을까?</p>
+<p>이 문제는 주기성과 전혀 관련이 없을 것 같지만, 사실 굉장히 간단한 패턴이 숨어있다. 바로 에반이 가지고 있는 타일이 두개의 칸으로 이루어져 있다는 것이다.</p>
+<p>조금 더 생각을 쉽게 하기 위해 타일과 바닥에 색을 칠해보도록 하자.</p>
+<center><br>  <img src="/2019/10/30/make-simple-with-math/tile-fill.png" width="500"><br>  <br><br></center>
+
+<p>이렇게 색을 칠하고나니 에반이 가지고 있는 타일은 <code>검은색 1칸</code>과 <code>흰색 1칸</code>으로 이루어진 두 칸짜리 타일이 되었다. 즉, 만약 에반이 가지고 있는 타일로 욕실의 바닥을 빈틈없이 메꿀 수 있다면, 욕실 바닥의 검은색 칸의 수와 흰색 칸의 수가 같아야 한다는 것이다.</p>
+<p>그러나 우리에게 주어진 욕실 바닥의 검은색 칸의 수는 <code>16</code>칸, 흰색 칸의 수는 <code>18</code>칸이다. 즉, 이 욕실 바닥은 에반이 가진 타일로는 채울 수 없는 바닥이라는 뜻이 된다.</p>
+<p>이 문제는 단순히 두 칸으로 이루어진 에반의 타일에 <code>검은색</code>과 <code>흰색</code>이라는 주기성을 부여하여 풀어나가는 문제이다. 에반의 타일이 가지고 있는 색의 주기와 욕실 바닥의 주기가 동일하지 않다면 그 욕실 바닥은 <code>채울 수 없는 바닥</code>이 되는 것이다.</p>
+<p>그럼 검은색 칸을 <code>-1</code>, 흰색 칸을 <code>1</code>으로 정의하고, 욕실 바닥의 해당 칸을 만날 때마다 <code>-1</code>과 <code>1</code>을 번갈아가며 더한 후 마지막에 값이 <code>0</code>이 되면 검은색 칸과 흰색 칸의 수가 동일하다고 생각할 수 있겠다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> floor = [</span><br><span class="line">  [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>],</span><br><span class="line">  [<span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>],</span><br><span class="line">  [<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>],</span><br><span class="line">  [<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>],</span><br><span class="line">  [<span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>],</span><br><span class="line">  [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>],</span><br><span class="line">  [<span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">1</span>, <span class="hljs-number">0</span>],</span><br><span class="line">];</span><br><span class="line"><span class="hljs-keyword">const</span> tile = [<span class="hljs-number">-1</span>, <span class="hljs-number">1</span>];</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">let</span> count = <span class="hljs-number">0</span>;</span><br><span class="line"><span class="hljs-keyword">let</span> tileIndex = <span class="hljs-number">0</span>;</span><br><span class="line"></span><br><span class="line">floor.forEach(<span class="hljs-function">(<span class="hljs-params">row, index</span>) =></span> {</span><br><span class="line">  tileIndex = <span class="hljs-built_in">Number</span>(index % <span class="hljs-number">2</span> === <span class="hljs-number">0</span>);</span><br><span class="line">  row.forEach(<span class="hljs-function"><span class="hljs-params">col</span> =></span> {</span><br><span class="line">    <span class="hljs-keyword">if</span> (col === <span class="hljs-number">1</span>) {</span><br><span class="line">      count += tile[tileIndex];</span><br><span class="line">    }</span><br><span class="line">    tileIndex = tileIndex === <span class="hljs-number">0</span> ? <span class="hljs-number">1</span> : <span class="hljs-number">0</span>;</span><br><span class="line">  });</span><br><span class="line">});</span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.log(<span class="hljs-string">`검은 타일과 흰 타일의 개수 차이는 <span class="hljs-subst">${<span class="hljs-built_in">Math</span>.abs(count)}</span> 입니다.`</span>);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight plain hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">검은 타일과 흰 타일의 개수 차이는 2 입니다.</span><br></pre></td></tr></tbody></table></figure>
+<p>각 <code>row</code>를 순회할 때 <code>tileIndex</code>를 다시 교정해주는 이유는, 이 행렬의 컬럼의 개수가 짝수이기 때문이다. 타일의 주기 또한 짝수이기에 다음 줄에서는 이전 줄의 가장 마지막에 있던 타일의 색이 다시 한번 나오게 된다.<small>(컬럼을 홀수로 만들면 이 과정이 필요없는데, 문제 잘못 만들었다…)</small></p>
+<p>문제만 보면 전혀 주기성과 관련이 없어보이는 문제였지만, 이렇게 문제 내에서 반복되는 패턴을 찾아내고 주기성을 부여함으로써 조금 더 간단한 방법으로 문제를 해결할 수 있다.</p>
+<h2 id="한-붓-그리기-쾨니히스베르크의-다리-증명하기"><a href="#한-붓-그리기-쾨니히스베르크의-다리-증명하기" class="headerlink" title="한 붓 그리기, 쾨니히스베르크의 다리 증명하기"></a>한 붓 그리기, 쾨니히스베르크의 다리 증명하기</h2><p>쾨니히스베르크의 다리는 현대 위상 수학의 시작을 이끌었던 굉장히 유명한 문제로, 프로이센의 쾨니히스베르크<small>(현재 러시아 칼리닌그라드)</small>라는 도시에 있는 다리를 사용한 문제이다.</p>
+<center><br>  <img src="/2019/10/30/make-simple-with-math/Konigsberg_bridges.png" width="500"><br>  <br><br></center>
+
+<blockquote><p>쾨니히스베르크의 한 가운데에는 프레골라 강이 흐르고 있고, 여기에는 가운데의 섬들과 연결되어있는 7개의 다리가 있다.</p>
+<p>임의의 지점에서 출발하여 이 다리들을 한 번씩만 건너서 모든 다리를 건널 수 있을까?</p>
+</blockquote>
+<p>즉, 한 붓 그리기 문제인 것이다. 이 문제를 그대로 보면 생각하기가 어려우니, 조금 더 그림을 단순하게 그리고 각 지역에 식별자를 부여한 후, 문제의 조건들을 정리해보도록 하자.</p>
+<center><br>  <img src="/2019/10/30/make-simple-with-math/bridges.png" width="500"><br>  <br><br></center>
+
+<blockquote><ul>
+<li>임의의 지점에서 출발할 수 있다.</li>
+<li>모든 다리를 건너야 한다.</li>
+<li>한번 건넌 다리는 다시 건널 수 없다.</li>
+<li>각 구역은 몇 번을 들리든 상관없다.</li>
+<li>출발한 구역으로 다시 돌아와도 되고 안 돌아와도 상관없다.</li>
+</ul>
+</blockquote>
+<p>사실 몇 번 펜으로 쭉쭉 그어보면 대충 불가능하다는 감이 온다. 하지만 <code>절대로 건널 수 없다</code>라는 결론을 내리기 위해서는 왜 불가능하다는 것인지 증명하는 과정이 필요하다. 혹시 방법이 있는데 단순히 못 찾을 것일수도 있으니 말이다.</p>
+<p>우선 이 문제를 조금 더 쉽게 생각해보기 위해 복잡한 지도 모양의 그림이 아닌, 단순화된 그래프로 다시 그려보도록 하겠다.</p>
+<center><br>  <img src="/2019/10/30/make-simple-with-math/graph.png" width="150"><br>  <br><br></center>
+
+<p>이때 그래프 내에서 A, B, C, D 구역의 역할을 하는 점을 <code>정점(Vertex)</code>이라고 하고, a~g 다리의 역할을 하는 선을 <code>간선(edge)</code>라고 하며, 각 정점에 붙어있는 간선의 개수를 <code>차수(Degree)</code>라고 한다.</p>
+<p>쾨니히스베르크의 문제에서 다리를 건넌다는 것은 어떤 한 정점에서 다른 정점으로 넘어가는 것을 의미하며, 한번 건넌 다리는 다시 건널 수 없다는 것은 다른 정점으로 넘어갈 때 사용한 간선을 삭제해야한다는 것을 의미한다.</p>
+<p>다리를 건너 이동할 수 있는 케이스를 한번 쭉 살펴보면 대략 <code>처음 출발할 때</code>, <code>마지막 도착할 때</code>, <code>통과할 때</code>의 3가지 케이스로 분류해볼 수 있는데, 이 3가지 케이스에서 간선이 삭제되는 개수에는 패턴이 숨어있다.</p>
+<p><strong>처음 출발할 때</strong></p>
+<center><br>  <img src="/2019/10/30/make-simple-with-math/start.png" width="500"><br>  <br><br></center>
+
+<p>어느 정점에서 출발하던 다른 정점으로 이동하는 경우는 출구 역할을 하는 간선만 삭제될 것이다. 즉, 출발 정점의 차수가 <code>1</code> 줄어든다.</p>
+<p><strong>마지막 도착할 때</strong></p>
+<center><br>  <img src="/2019/10/30/make-simple-with-math/end.png" width="500"><br>  <br><br></center>
+
+<p>출발할 때와는 반대로, 도착하는 정점은 입구의 역할을 했던 간선만 삭제하면 되므로, 해당 정점의 차수는 <code>1</code> 줄어든다.</p>
+<p><strong>통과할 때</strong></p>
+<center><br>  <img src="/2019/10/30/make-simple-with-math/cross.png" width="500"><br>  <br><br></center>
+
+<p>통과할 때는 <code>입구</code>의 역할을 하는 간선과 <code>출구</code>의 역할을 하는 간선을 삭제해야하므로, 해당 정점의 차수가 <code>2</code>씩 줄어든다.</p>
+<p>즉, 어떤 그래프에서 한 붓 그리기가 성공했다는 것은 정점을 순회하다가 더 이상 건널 수 있는 간선이 없어졌을 때, 반드시 <code>모든 정점의 차수가 0이어야 한다는 것</code>이다. 만약 차수가 0이 아닌 정점이 존재한다면 그 정점에는 아직 건너지 않았던 간선이 연결되어 있다는 말이 되므로 한 붓 그리기는 실패한 것이 된다.</p>
+<p>이때 우리는 각 정점의 차수가 <code>1</code>이나 <code>2</code> 씩 줄어들고 있다는 점에서 이 문제를 풀 수 있는 힌트를 얻을 수 있다.</p>
+<h3 id="차수의-홀짝-여부에-집중하자"><a href="#차수의-홀짝-여부에-집중하자" class="headerlink" title="차수의 홀짝 여부에 집중하자"></a>차수의 홀짝 여부에 집중하자</h3><p>차수가 1씩 줄어드는 경우는 한번 수행될 때마다 차수의 홀짝 여부가 변경되고, 2씩 줄어드는 경우는 차수의 홀짝 여부가 절대 변하지 않는다.</p>
+<p>정점 차수의 홀짝 여부를 이야기하고 있는 이유는 바로 <code>0이 짝수</code>이기 때문이다.</p>
+<p>즉, 정점에서 출발, 도착, 통과 시 변하는 차수의 홀짝 패턴을 파악하면 모든 경우의 수를 그려보지 않더라도 간단하게 이 그래프가 한 붓 그리기가 가능한 그래프인지 아닌지 알 수 있다.</p>
+<h3 id="출발지와-도착지가-같은-경우"><a href="#출발지와-도착지가-같은-경우" class="headerlink" title="출발지와 도착지가 같은 경우"></a>출발지와 도착지가 같은 경우</h3><p>우선 위에서 살펴본 바와 같이 중간에 통과하는 정점의 차수는 무조건 2씩 줄어들기 때문에 몇 번을 통과하든 차수의 홀짝 여부가 절대 변하지 않는다.</p>
+<p>즉, 어떤 방식으로 건너든 통과 정점의 차수가 0이 되려면, 해당 정점의 차수는 처음부터 <code>짝수</code>여야한다는 것이다.</p>
+<p>만약 통과 정점의 차수가 홀수라면 반드시 마지막에는 차수가 1이 되고, 이 간선을 타고 해당 정점에 도착하게되면 더 이상 남아있는 간선이 없기 때문에 다른 정점으로 건너갈 수 없게 된다.</p>
+<center><br>  <img src="/2019/10/30/make-simple-with-math/cant-get-out.jpg" width="350"><br>  <small>차수가 홀수인 통과 정점에 들어서면 맘대로 나갈 수 없다</small><br>  <br><br></center>
+
+<p>또한 출발지와 목적지가 같은 경우에는 맨 처음 출발할 때 출발 정점의 차수를 <code>1</code> 줄이고 도착할 때 다시 <code>1</code>을 줄여야하기 때문에 해당 정점의 차수가 총 <code>2</code>만큼 줄어들게 된다.</p>
+<p>이 경우에도 출발 정점의 차수는 홀짝 여부가 변경될 수 없기 때문에 반드시 처음부터 짝수인 차수를 가지고 있어야 한다는 말이 된다. 즉, 출발지와 도착지가 같은 경우 한 붓 그리기가 성공하려면 <code>모든 정점의 차수가 짝수</code>여야 한다는 결론이 나온다.</p>
+<h3 id="출발지와-도착지가-다른-경우"><a href="#출발지와-도착지가-다른-경우" class="headerlink" title="출발지와 도착지가 다른 경우"></a>출발지와 도착지가 다른 경우</h3><p>출발지와 도착지가 다른 경우에도 통과 정점의 차수는 처음부터 짝수여야 한다는 점은 달라지지 않지만, 이번에는 출발지와 도착지가 다르기 때문에 출발 정점과 도착 정점의 차수는 반드시 <code>홀수</code>여야 한다는 점이 다르다.</p>
+<p>중간에 통과하는 정점은 반드시 차수가 <code>2</code> 씩 줄어들기 때문에 홀짝이 변하지 않지만, 출발과 도착 시에는 차수가 <code>1</code>만 줄어들기 때문에 홀짝 여부가 변하기 때문이다.</p>
+<p>즉, 출발지와 도착지가 다른 경우는 <code>출발지와 도착지는 홀수 차수, 그 외 정점은 짝수</code>여야한다.</p>
+<h3 id="쾨니히스베르크의-다리는-왜-한-붓-그리기가-불가능할까"><a href="#쾨니히스베르크의-다리는-왜-한-붓-그리기가-불가능할까" class="headerlink" title="쾨니히스베르크의 다리는 왜 한 붓 그리기가 불가능할까?"></a>쾨니히스베르크의 다리는 왜 한 붓 그리기가 불가능할까?</h3><p>이 두 가지 조건을 정리해보자면 그래프의 정점을 순회하며 한 붓 그리기가 가능한 경우는 <code>모든 정점이 짝수 차수를 가지고 있거나 홀수 차수가 2개인 경우</code>라고 정리해볼 수 있다. 다시 쾨니히스베르크의 다리를 도식화한 그래프를 살펴보고 이 조건에 맞아떨어지는지 확인해보자.</p>
+<center><br>  <img src="/2019/10/30/make-simple-with-math/graph.png" width="150"><br>  <br><br></center>
+
+<p>이 그래프의 정점들의 차수를 정리해보면 <code>A=3, B=5, C=3, D=3</code>으로 모든 정점의 차수가 홀수이므로, 위에서 찾아낸 어떤 조건과도 맞지 않는다.</p>
+<p>즉, 쾨니히스베르크의 다리는 한 붓 그리기가 불가능한 구조라는 것이 증명된 것이다.</p>
+<p>그래프 이론에서 이렇게 한 붓 그리기, 즉, 그래프의 모든 경로를 단 한 번씩만 통과하는 경로를 <code>오일러 경로(Eulerian Trail)</code>라고 부르는데, 그 이유는 갓 레온하르트 오일러 형님이 이미 1735년에 이 문제를 증명하고 자기 논문에 써먹었기 때문이다.</p>
+<p>해당 논문은 <a href="http://eulerarchive.maa.org//docs/originals/E053.pdf" target="_blank" rel="external nofollow noopener noreferrer">Solutio Problematis ad Geometriam Situs Pertinentis</a>에서 확인할 수 있지만… 제목에서도 느껴지듯이 이게 영어가 아니다. 이 시대의 가방끈 기신 분들이 작성한 논문이 다들 그러하듯 <code>라틴어</code>로 작성되어있기 때문에 읽어보는 건 사실 힘들다. 그래도 혹시 필자의 상상을 뛰어넘어 라틴어가 가능하신 굇수분들이 있을 수 있으니 일단 첨부하겠다.</p>
+<p>어쨌든 오일러 형님의 문제 풀이에서 주목해야하는 아이디어는 각 정점의 차수를 조사할 때 차수 자체가 아닌 <code>수의 홀짝</code>에 주목했다는 점이다. 정점에서 출발할 때, 도착할 때, 통과할 때 정점이 가진 차수의 상태가 홀짝으로 변화하는 그 패턴을 파악하지 못했다면 이 문제를 해결하기는 힘들었을 것이다.</p>
+<h2 id="마치며"><a href="#마치며" class="headerlink" title="마치며"></a>마치며</h2><p>이번 포스팅에서 살펴본 3개의 문제는 어려운 수학 공식을 사용하는 문제가 아니다.</p>
+<p>7일마다 반복되는 패턴에서 착안하여 $10^{100000000}$일 후의 요일도 뭔가 패턴이 있을 것이라는 추론, 두 칸짜리 타일을 보고 검은색과 흰색이 반복되는 패턴을 떠올릴 수 있는 것, 그래프 순회의 모든 경우의 수를 따져보지 않고 각 정점의 차수가 홀짝으로 변화하는 패턴을 생각해낼 수 있는 것 등은 복잡한 수학 공식을 모르더라도 수의 성질만 알고 있다면 누구든지 접근할 수 있는 문제 해결 방식이다.</p>
+<p>이렇게 수의 근본적인 성질을 파악하고 이용하면 복잡한 문제를 단순하게 풀 수 있다. 슬픈 점은 이게 단순히 공부로 얻어질 수 있는 능력이 아니라는 것이다. 이런 능력을 키우기 위해서는, 그냥 이렇게 생각하는 연습을 많이 해야하는 것 같다.</p>
+<p>코딩 테스트를 많이 풀어보는 것도 물론 좋지만, 일상 속에서 겪는 다양한 문제들 속에서 이렇게 패턴을 찾아내고 분석해보는 것도 나름 도움이 되지 않을까? 예를 들면 친구가 <code>11월 10일</code>에 약속을 잡자고 했는데, 그때가 무슨 요일인지 핸드폰으로 확인하는 것이 아니라 한번 직접 계산해본다던가 하는 식으로 말이다.</p>
+<p>이상으로 수학과 함께 복잡한 문제를 단순하게 만들자! 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/07/17/programmer-with-math/" title="프로그래머는 수학을 잘해야할까?" rel="bookmark">프로그래머는 수학을 잘해야할까?</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/08/11/average-filter/" title="실시간 데이터의 평균을 효율적으로 구하기" rel="bookmark">실시간 데이터의 평균을 효율적으로 구하기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2018/10/13/sort-algorithm/" title="정렬 알고리즘 정리 (Bubble, Selection, Insertion, Merge, Quick)" rel="bookmark">정렬 알고리즘 정리 (Bubble, Selection, Insertion, Merge, Quick)</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/07/14/what-is-random/" title="컴퓨터가 만드는 랜덤은 정말로 랜덤할까?" rel="bookmark">컴퓨터가 만드는 랜덤은 정말로 랜덤할까?</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/수학/">수학</a><a class="tag -link" href="/tags/알고리즘/">알고리즘</a><a class="tag -link" href="/tags/코딩테스트/">코딩테스트</a><a class="tag -link" href="/tags/프로그래밍/">프로그래밍</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2019/11/10/header-of-tcp/">
+                <i class="fas fa-chevron-left"></i> TCP의 헤더에는 어떤 정보들이 담겨있는걸까?
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2019/10/27/inheritance-with-prototype/">
+                [JS 프로토타입] 프로토타입을 사용하여 상속하기 <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#수학적인-사고-방식으로-문제를-단순화하자" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>수학적인 사고 방식으로 문제를 단순화하자</span>
+        </a></li><li>
+        <a class="is-flex" href="#오늘로부터-100억일-후는-무슨-요일일까" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>오늘로부터 100억일 후는 무슨 요일일까?</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#10-100000000-일-후의-요일도-구해보자" data-link-name="toc">
+        <span class="has-mr-6">2.1</span>
+        <span>$10^{100000000}$일 후의 요일도 구해보자</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#욕실-바닥에-타일-깔기" data-link-name="toc">
+        <span class="has-mr-6">3</span>
+        <span>욕실 바닥에 타일 깔기</span>
+        </a></li><li>
+        <a class="is-flex" href="#한-붓-그리기-쾨니히스베르크의-다리-증명하기" data-link-name="toc">
+        <span class="has-mr-6">4</span>
+        <span>한 붓 그리기, 쾨니히스베르크의 다리 증명하기</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#차수의-홀짝-여부에-집중하자" data-link-name="toc">
+        <span class="has-mr-6">4.1</span>
+        <span>차수의 홀짝 여부에 집중하자</span>
+        </a></li><li>
+        <a class="is-flex" href="#출발지와-도착지가-같은-경우" data-link-name="toc">
+        <span class="has-mr-6">4.2</span>
+        <span>출발지와 도착지가 같은 경우</span>
+        </a></li><li>
+        <a class="is-flex" href="#출발지와-도착지가-다른-경우" data-link-name="toc">
+        <span class="has-mr-6">4.3</span>
+        <span>출발지와 도착지가 다른 경우</span>
+        </a></li><li>
+        <a class="is-flex" href="#쾨니히스베르크의-다리는-왜-한-붓-그리기가-불가능할까" data-link-name="toc">
+        <span class="has-mr-6">4.4</span>
+        <span>쾨니히스베르크의 다리는 왜 한 붓 그리기가 불가능할까?</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#마치며" data-link-name="toc">
+        <span class="has-mr-6">5</span>
+        <span>마치며</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="수학과 함께 복잡한 문제를 단순하게 만들자!" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

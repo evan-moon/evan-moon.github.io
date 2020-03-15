@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>데이터 기반 의사결정, 과연 완벽한 걸까? - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="이번 포스팅에서는 데이터 기반 의사결정에 대해서 이야기해볼까한다. 데이터 기반 의사결정은 2013년 쯤 빅데이터 열풍이 불면서 뜨기 시작했다. 이미 많은 기업들이 사용하고 있는 의사결정 방법이며 또한 여러가지 선례도 많기 때문에 나름 신뢰성을 가지는 의사결정 방법이다.">
+<meta name="keywords" content="Data Driven,데이터 기반 의사결정">
+<meta property="og:type" content="article">
+<meta property="og:title" content="데이터 기반 의사결정, 과연 완벽한 걸까?">
+<meta property="og:url" content="https://evan-moon.github.io/2019/07/04/danger-of-data-driven/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="이번 포스팅에서는 데이터 기반 의사결정에 대해서 이야기해볼까한다. 데이터 기반 의사결정은 2013년 쯤 빅데이터 열풍이 불면서 뜨기 시작했다. 이미 많은 기업들이 사용하고 있는 의사결정 방법이며 또한 여러가지 선례도 많기 때문에 나름 신뢰성을 가지는 의사결정 방법이다.">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2019/07/04/danger-of-data-driven/thumbnail.jpg">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.137Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="데이터 기반 의사결정, 과연 완벽한 걸까?">
+<meta name="twitter:description" content="이번 포스팅에서는 데이터 기반 의사결정에 대해서 이야기해볼까한다. 데이터 기반 의사결정은 2013년 쯤 빅데이터 열풍이 불면서 뜨기 시작했다. 이미 많은 기업들이 사용하고 있는 의사결정 방법이며 또한 여러가지 선례도 많기 때문에 나름 신뢰성을 가지는 의사결정 방법이다.">
+<meta name="twitter:image" content="https://evan-moon.github.io/2019/07/04/danger-of-data-driven/thumbnail.jpg">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2019/07/04/danger-of-data-driven/">
+
+
+<link rel="alternative" href="/feed.xml" title="데이터 기반 의사결정, 과연 완벽한 걸까?" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="데이터 기반 의사결정, 과연 완벽한 걸까?" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2019/07/04/danger-of-data-driven/thumbnail.jpg" alt="데이터 기반 의사결정, 과연 완벽한 걸까?">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-07-04T07:40:13.000Z">2019-07-04</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/soft-skills/">Soft Skills</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/soft-skills/data/">Data</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                데이터 기반 의사결정, 과연 완벽한 걸까?
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>이번 포스팅에서는 <code>데이터 기반 의사결정</code>에 대해서 이야기해볼까한다. 데이터 기반 의사결정은 2013년 쯤 빅데이터 열풍이 불면서 뜨기 시작했다. 이미 많은 기업들이 사용하고 있는 의사결정 방법이며 또한 여러가지 선례도 많기 때문에 나름 신뢰성을 가지는 의사결정 방법이다.<br><a id="more"></a></p>
+<blockquote>
+<p>단, 데이터의 본질을 제대로 이해하고 사용했을 때만 말이다</p>
+</blockquote>
+<p>데이터 기반 의사결정은 세상이 떠드는 것 만큼 신뢰를 가질 수 있는 의사결정 방법일까? 아니, 그 전에 데이터의 본질이라는 게 뭘까?</p>
+<h2 id="데이터의-본질이-뭐길래"><a href="#데이터의-본질이-뭐길래" class="headerlink" title="데이터의 본질이 뭐길래?"></a>데이터의 본질이 뭐길래?</h2><p>우리는 일반적으로 데이터와 <code>정보(Information)</code>를 동일시 한다. 그러나 사실 데이터 그 자체는 정보가 될 수 없다.<br><code>데이터</code>란, 단순히 현실 세계를 관측해서 얻은 값이다. 그냥 값 그 이상 그 이하도 아니라는 것이다.<br>반면에 <code>정보</code>란, 이 데이터들을 어떤 방식으로든 처리해서 의미를 가지는 단위로 만든 것이다. 이때 데이터를 처리해서 정보로 만드는 과정을 <code>데이터 마이닝(Data mining)</code>이라고 하는 것이다.</p>
+<p>이렇게 얘기하면 뭔가 전공책에나 나올 것 같은 느낌이니까 쉽게 풀어보자.<br>예를 들어서 내일 평균 기온이 <code>섭씨 28도</code>라고 한다. 이때 <code>내일 평균 기온: 섭씨 28도</code>는 데이터가 된다. 이 값은 기상청 슈퍼컴퓨터를 써서 측정했든 알파고를 썼든 뭘 썼든 간에 아직까지는 그냥 관측한 값일 뿐이다.</p>
+<p>이제 이 데이터를 내일 집에만 있을 예정인 사람한테 건네주면 의미가 있을까?<br>뭐 집에 에어컨이 없다면 큰 의미가 있겠지만, 2019년 대한민국에서는 에어컨은 몰라도 선풍기 정도는 집에 하나씩 다 있기 때문에 별 의미는 없다고 본다. 이러면 이 데이터는 별 의미없는 값이 되어버리는 것이다.</p>
+<p>내일 나가지도 않을건데 밖이 얼마나 덥든 별 상관 없지 않은가? 집에서 에어컨 틀어놓고 수박이나 먹으면 된다.</p>
+<center><br>  <img src="/2019/07/04/danger-of-data-driven/outside-of-blanket.jpg" width="500"><br>  <small>밖이 섭씨 28도든 말든 이불 밖으로 안나가면 그만이다.</small><br>  <br><br></center>
+
+<p>하지만 이 데이터를 내일 <code>서울시 강서구</code>에서 <code>경기도 판교</code>까지 출근해야 하는 사람한테 주면 어떻게 될까? <code>내일 평균 기온: 섭씨 28도</code>라는 데이터는 이 사람의 생사를 가를 수도 있는 굉장히 의미있는 <code>정보</code>가 된다.<small>(필자는 더위에 약하기 때문에 조금 오버했다)</small><br>여기다가 <code>내일 긴팔 입고 나가면 객사할 수도 있으니 조심하세요!^^</code>라고 자연어로 표현된 귀여운 정보도 함께 보여주면 좋겠다.</p>
+<p>즉, 데이터는 그 자체로는 별로 의미가 없지만 <code>어떤 상황에서 사용되느냐</code>, <code>어떤 이유로 사용되느냐</code>에 따라 그 정보성의 가치는 천차만별이 되는 것이다. 이게 바로 데이터의 본질이다.</p>
+<h2 id="데이터는-어떻게-수집할까"><a href="#데이터는-어떻게-수집할까" class="headerlink" title="데이터는 어떻게 수집할까?"></a>데이터는 어떻게 수집할까?</h2><p>그렇다면 데이터 기반 의사결정은 어떤 식으로 하는 걸까?<br>별 거 없다. 그냥 데이터를 주구장창 모은다. 방대하게 비축된 데이터는 그것만으로도 회사의 자산이라고 할만큼 가치있다. 데이터가 있으면 어떻게 가공하든 그건 자유지만 데이터가 없으면 가공도 못하기 때문이다.</p>
+<h3 id="나도-모르게-스토킹-당하고-있다"><a href="#나도-모르게-스토킹-당하고-있다" class="headerlink" title="나도 모르게 스토킹 당하고 있다"></a>나도 모르게 스토킹 당하고 있다</h3><p>우리와 거의 물아일체인 스마트폰을 지배하는 <code>애플</code>과 <code>구글</code> 역시 알게모르게 데이터를 다 모은다. 아이폰 유저라면 <code>연락처</code> 앱 내에서 가장 상단에 위치한 자기 프로필을 눌러보자.<br>쭉 내려보면 <code>주소(Siri가 특별한 위치에서 찾음)</code>이라는 제목으로 보통 여러분의 집이나 직장이 저장되어 있을 것이다.</p>
+<center><br>  <img src="/2019/07/04/danger-of-data-driven/siri.png" width="300"><br>  <small>필자 역시 시리한테 스토킹당하고 있는 운명이다.</small><br>  <br><br></center>
+
+<p>필자도 결국 애플의 노예 중 한명이기 때문에, 시리에게 추적당하고 있다. 필자의 집은 실제로 <code>서울시 강서구 양천로 어딘가</code>이고 밑에 나온 주소는 필자의 직장 사무실 소재지이다. 이런 정보는 국가보안법 위반도 아니니 그냥 까발리기로 한다.</p>
+<p>어쨌든 이 정보를 실제 애플 서버에 저장하는 지 어떤지는 잘 모르겠지만 어쨌든 이런 식으로 기업들은 여러분의 데이터를 지금 이 순간도 실시간으로 모으고 있다. 물론 애플이나 구글같은 대기업이 아니라 스타트업 규모의 회사라도 사용자의 행동 정보를 모두 추적하고 있다. 기업들은 <code>Google Analytics</code>, <code>Amplitude</code>, <code>Mixpanel</code>, <code>Hotjar</code> 등의 솔루션을 사용하여 여러분의 행동 정보를 쌓고 최대한 의사결정에 이용한다.</p>
+<p>이쯤 되면 이런 생각이 들 것이다.</p>
+<center><br>  <img src="/2019/07/04/danger-of-data-driven/watching-you.jpg"><br>  <small>난 언제나 널 지켜보고 있어…</small><br>  <br><br></center>
+
+<p>그렇다. 여러분은 여러분도 모르게 기업들한테 질 좋은 데이터들을 뿜뿜 제공해주고 있다. 조지 오웰의 <code>1984</code>에 등장하는 빅브라더가 생각난다.</p>
+<p>물론 대한민국 정부가 이걸 그냥 가만 보고 있을 양반들은 아니라서 어찌어찌 힘쓰고 있긴 하다. 2016년에 행정자치부 및 관계부처가 합동 발표한 <code>개인정보 비식별 조치 가이드라인</code>에 따르면 행동 데이터를 포함한 개인정보 데이터는 개인을 식별할 수 없는 형태로 비식별조치하고 필요한 데이터만 남겨놓는 형태로 사용해야 한다고 권고하고 있긴 하다.</p>
+<blockquote><ol>
+<li><strong>(사전 검토)</strong> 개인정보에 해당하는지 여부를 검토 후, 개인정보가 아닌 것이 명백한 경우<br>법적 규제 없이 자유롭게 활용</li>
+<li><strong>(비식별 조치)</strong> 정보집합물(데이터 셋)에서 개인을 식별할 수 있는 요소를 전부 또는 일부<br>삭제하거나 대체하는 등의 방법을 활용, 개인을 알아볼 수 없도록 하는 조치</li>
+<li><strong>(적정성 평가)</strong> 다른 정보와 쉽게 결합하여 개인을 식별할 수 있는지를 「비식별 조치<br>적정성 평가단」을 통해 평가</li>
+<li><strong>(사후관리)</strong> 비식별 정보 안전조치, 재식별 가능성 모니터링 등 비식별 정보 활용 과정에서<br>재식별 방지를 위해 필요한 조치 수행</li>
+</ol>
+<footer><strong>개인정보 비식별 조치 가이드라인</strong><cite>행정자치부</cite></footer></blockquote>
+<p>근데 또 이 권고 사항이 겁나 까다롭기도 하고 말 그대로 <code>권고</code>라서 아마 대부분의 기업에서는 그냥 무시하고 하던대로 하고 있을 거라고 생각한다. 그래도 정상적인 회사라면 회원가입할때 띄워주는 <code>개인정보 처리방침</code>같은 문서에 여러분의 개인정보를 어떤 이유로, 어떤 방식으로 사용할 것인지 적어놨기 때문에 귀찮더라도 한번 읽어보길 추천한다.</p>
+<h2 id="이제-데이터-기반-의사결정이다"><a href="#이제-데이터-기반-의사결정이다" class="headerlink" title="이제 데이터 기반 의사결정이다!"></a>이제 데이터 기반 의사결정이다!</h2><p><code>데이터 기반 의사결정</code>이란 결국 이렇게 수집한 데이터를 분석해서 뭔가 그럴싸한 결론을 도출해내는 것이다.<br>아무래도 그냥 밑도 끝도 없이 결정하는 것보다는 뭔가 관측한 값을 기반으로 의사결정을 하기 때문에 상대적으로 리스크가 적은 결정을 할 확률이 높다. 특히 이런 <code>데이터 드리븐</code> 방식은 마케팅에서 굉장히 잘 써먹는데, 바로 여러분이 관심을 가질만한 상품을 추천하는 <code>맞춤 광고</code> 시스템이다.</p>
+<p>맞춤 광고 시스템은 여러분이 웹 상에서 이것저것 하고 다닐 동안 그런 행동 데이터를 수집해서 여러분이 어떤 것에 관심이 있는 지 분석한 후 거기에 맞는 광고를 보여주는 것이다. 이런 맞춤 광고 시스템도 일종의 데이터 기반 의사결정이라고 할 수 있다. 확실히 관심을 가질 확률이 높은 상품을 찔러보는 것이기 때문에 그냥 아무 상품이나 찔러보는 것보다 전환률이 확실히 높다.</p>
+<p>그럼 먼저 데이터 기반 의사결정에는 어떤 장점이 있는지 한번 살펴보자.</p>
+<h2 id="데이터-기반-의사결정의-장점"><a href="#데이터-기반-의사결정의-장점" class="headerlink" title="데이터 기반 의사결정의 장점"></a>데이터 기반 의사결정의 장점</h2><p>당연히 데이터 기반 의사결정의 장점은 많다. 하지만 하나하나 다 나열하면 끝이 없으므로 필자가 생각하는 대표적인 장점 몇가지만 적어보겠다.</p>
+<h3 id="불확실성을-최소화-할-수-있다"><a href="#불확실성을-최소화-할-수-있다" class="headerlink" title="불확실성을 최소화 할 수 있다"></a>불확실성을 최소화 할 수 있다</h3><p>먼저 제일 단순하고 대표적인 장점으로 의사결정의 후폭풍으로 몰려오는 <code>리스크가 적다</code>는 것이다. 위에서 말했듯이 그래도 관측을 통한 데이터를 가지고 분석해서 의사결정 하는 것이기 때문에 그냥 밑도 끝도 없이 직관만 믿고 결정하는 것 보다는 당연히 리스크가 적다.</p>
+<h3 id="타인을-설득하기-쉽다"><a href="#타인을-설득하기-쉽다" class="headerlink" title="타인을 설득하기 쉽다"></a>타인을 설득하기 쉽다</h3><p>두번째로는 <code>타인을 설득하기 쉽다</code>는 것이 있다. 필자 생각에는 이건 조금 심리적인 이유도 있는 것 같다. 아무래도 그냥 말로만 얘기하는 것보다 그럴싸한 그래프와 표를 그려놓고 숫자를 기반으로 얘기하는 것이 더 신뢰가 가지 않겠는가? 이건 아무래도 논리와 숫자에 익숙한 개발자같은 직군보다는 직관을 잘 활용해야 하는 디자이너같은 직군들에게 더 해당이 되는 이유인 것 같다.</p>
+<blockquote>
+<p>a. UX상 이 버튼은 여기에 위치하는 것이 더 유저들이 발견하기 쉬울 거에요!<br>b. 유저 테스트를 해본 결과 <strong>78%</strong>의 유저들이 페이지 상단 <strong>20%</strong> 내 공간에서만 행동하다가 이탈했습니다. 그러므로…</p>
+</blockquote>
+<p>이 두개의 차이인 것 같다. 같은 디자이너끼리야 척하면 척이겠지만 다른 직군, 특히 <code>PO</code>나 <code>CEO</code>, <code>개발자</code>처럼 디자이너가 아닌 사람들을 상대할 때는 확실히 후자가 더 설득하기 쉽다. 물론 저 숫자를 무조건 신뢰하는 것은 위험하다. 그러나 데이터 수집 방법이나 실험 환경이 신뢰가 갈만한 환경이었다면 충분히 들이대볼만한 방법이다.</p>
+<h3 id="기대와-성과가-명확하다"><a href="#기대와-성과가-명확하다" class="headerlink" title="기대와 성과가 명확하다"></a>기대와 성과가 명확하다</h3><p>데이터를 기반으로 기능을 기획하면 <code>우리가 이 기능을 만들면 유저의 이 행동이 증가할거야</code>라는 식의 기대를 가지고 기획을 하게 된다. 배포한 후에 실제로 해당 행동이 몇 퍼센트나 증가했는지 데이터를 분석해보면 바로 나오기 때문에 성과도 명확하게 가져갈 수 있다.</p>
+<center><br>  <img src="/2019/07/04/danger-of-data-driven/abtest.png" width="400"><br>  <small>A/B 테스트를 통해서 배포한 기능으로 인해 실제로 원하는 결과를 얻었는지 테스트하기도 한다</small><br>  <br><br></center>
+
+<h3 id="복잡한-문제를-단순화-시킬-수-있다"><a href="#복잡한-문제를-단순화-시킬-수-있다" class="headerlink" title="복잡한 문제를 단순화 시킬 수 있다."></a>복잡한 문제를 단순화 시킬 수 있다.</h3><p>위에서 설명한 <code>맞춤 광고</code>같은 경우는 사실 굉장히 복잡한 문제이다. 애초에 사람의 관심사라는 추상적인 개념을 수치해석적으로 표현한다는 것은 쉬운 일은 아니다.<br>그러나 쉬운 일이 아니라는 게 못한다는 말은 아니다.</p>
+<p>예를 들어 필자는 요즘 <code>CSV 전자담배</code>에 관심을 가지고 실제로 구매를 해서 잘 사용하고 있다. 그 과정에서 필자는 블로그와 유튜브를 돌아다니면서 전자담배에 대한 리뷰를 살펴봤고 전자담배에 끼울 수 있는 액상통과 액상을 웹 상에서 구매할 수 있는지 알고 싶어서 전자담배용품 판매 사이트도 들락날락거렸다.</p>
+<p>분명히 필자의 웹 히스토리에는 <code>전자담배</code>라는 키워드가 다수 검출될 것이다. 이 키워드를 수집한 후 필자에게 <code>전자담배</code> 키워드를 가진 광고를 노출시켜주는 것은 그렇게 어려운 기술은 아니다.<br>이렇게 <code>이 사람의 관심사를 알고 싶다</code>라는 복잡한 문제를 단순한 키워드 매칭으로 해결할 수 있는 것도 데이터 기반 의사결정의 장점 중 하나이다.</p>
+<h2 id="데이터-기반-의사결정의-단점"><a href="#데이터-기반-의사결정의-단점" class="headerlink" title="데이터 기반 의사결정의 단점"></a>데이터 기반 의사결정의 단점</h2><p>자, 여기까지만 보면 데이터 기반 의사결정은 <code>리스크도 적고 성과도 명확히 측정할 수 있고 복잡한 문제도 쉽게 풀 수 있는</code> 빈틈없는 의사결정 방법인 것 같다!</p>
+<center><br>  <img src="/2019/07/04/danger-of-data-driven/nope.jpg" width="300"><br>  <small>응. 아니야</small><br>  <br><br></center>
+
+<p>물론 데이터 기반 의사결정은 장점이 많은 의사결정 방법이지만 위에서 이야기한 데이터의 본질을 제대로 알고 사용하지 않는다면 현실과 전혀 동떨어진 이상한 의사결정을 하게 될 수도 있다.<br>필자가 생각하기에 주로 놓치게 되는 포인트들은 이렇다.</p>
+<h3 id="데이터는-그냥-값이다"><a href="#데이터는-그냥-값이다" class="headerlink" title="데이터는 그냥 값이다."></a>데이터는 그냥 값이다.</h3><p>위에서도 한번 얘기했듯이 데이터는 그냥 단순한 값에 불과하다. 즉, 데이터를 분석해서 정보성을 가지도록 만들어야 하는데 이 과정에서 <code>사람의 주관</code>이 들어갈 수 밖에 없다는 것이다.<br>보통 조직에서 데이터를 분석하는 역할을 맡은 <code>데이터 분석가(Data Analyst)</code>의 <code>직관(Insight)</code>이 크게 작용한다. 사실 이 직관이 얼마나 정확하냐가 이 사람들의 능력이기도 하다.</p>
+<p>중요한 것은 데이터를 기반으로 나온 결과는 결국 <code>사람의 주관적인 평가</code>가 들어간 정보라는 것이다. 데이터 기반 의사결정을 너무 신뢰하다보면 이렇게 생각하기 쉽다.</p>
+<blockquote>
+<p>우리가 직접 관측한 값을 기반으로 나온 결과니까 결과도 정확할거야!</p>
+</blockquote>
+<p>땡. 데이터가 정확하다고 해서 결과도 정확하리라는 법은 없다. 항상 비판적인 시각으로 결과를 바라봐야 한다.<br>이 비판적인 시각이란 바로 <code>왜</code> 이 결과가 이렇게 나왔는지 따지는 습관을 의미한다.</p>
+<h3 id="데이터를-맹신하면-잘못된-결정을-내릴-수-있다"><a href="#데이터를-맹신하면-잘못된-결정을-내릴-수-있다" class="headerlink" title="데이터를 맹신하면 잘못된 결정을 내릴 수 있다."></a>데이터를 맹신하면 잘못된 결정을 내릴 수 있다.</h3><p>데이터는 여러분에게 단지 일어난 <code>현상</code> 그 자체를 설명할 뿐, 절대 여러분에게 이 현상이 발생한 이유에 대해서는 설명해주지 않는다. 그래서 <code>왜 이런 데이터가 나왔을까</code>라는 질문은 보통 전문가의 직관에게 맡기거나 좀 더 공을 들여서 <code>정성적 데이터</code>를 수집하는 방식으로 알아내기도 한다.<br>그렇다면 <code>이유</code>를 생각하지 않고 <code>현상</code>만 보고 의사결정을 하는 것이 왜 위험할까?</p>
+<h4 id="인과관계와-상관관계"><a href="#인과관계와-상관관계" class="headerlink" title="인과관계와 상관관계"></a>인과관계와 상관관계</h4><p>인과관계와 상관관계는 통계학에서 기초 중의 기초이다. 이것도 파고들면 한도 끝도 없으므로 간단한 정의 정도만 설명하고 넘어가겠다.</p>
+<p>먼저 <code>상관관계</code>는 어떤 통계적인 변인이 증가할 때 다른 변인도 증가하거나 감소하는 것을 의미한다. 변인 $x$가 감소할 때 변인 $y$도 함께 감소하거나 증가한다는 것이다. 이 두개의 변인이 완전 제멋대로 움직이면서 따로 놀고 있다면 이 두개의 변인은 상관관계가 없는 것이다.<br>이때 두 변인이 얼마나 상관이 있냐를 나타내는 수를 <code>상관계수</code>라고 한다. 상관계수가 <code>0</code>에 가까울 수록 두 변인은 별로 상관관계가 없는 것이고, <code>-1</code>에 가까울 수록 음(-)의 상관관계, <code>1</code>에 가까울 수록 양(+)의 상관관계가 크다고 할 수 있다.</p>
+<p>그 다음 <code>인과관계</code>는 먼저 선행된 한 변인이 후행되는 다른 변인의 <code>원인</code>이라고 판명되는 관계이다. 예를 들면 이런 느낌이다.<br><code>비가 많이 올 수록 한강의 수위가 올라간다</code> 이 예시에서도 사실 다른 숨은 변수들이 있을 수는 있지만 대체적으로 <code>비가 많이 올 수록 한강의 수위가 올라간다</code>라는 관계에서 <code>비가 많이 온다</code>라는 변인은 <code>한강의 수위가 올라간다</code>라는 변인에 다른 변수보다 큰 영향을 끼치는 것이 거의 확실하므로 이런 경우 그냥 인과관계라고 친다.</p>
+<p>사실 인과관계와 상관관계의 구분은 생각보다 명확하게 딱 떨어지는 그런 건 아니다. 대충 느낌으로 보면 이렇다.<br><code>비가 많이 올 수록 한강의 수위가 올라간다</code>는 인과관계 이지만 <code>여름이 가까워질수록 한강의 수위가 올라간다</code>는 상관관계이다. 여름에 한강의 수위가 올라간 이유는 대한민국의 전체 강수량 중 <code>70%</code>정도가 여름에 집중되어있기 때문이지 단순히 여름이라서 그런건 아니기 때문이다.</p>
+<p>비즈니스에서 대부분의 변인 관계는 대부분 상관관계이기 때문에 항상 <code>숨겨진 다른 변수</code>가 없는 지 생각해야하고 <code>이 결과가 진짜 믿을 만한 결과</code> 인지 끊임없이 의심하는 태도를 가져야한다.</p>
+<h4 id="잘못된-결정의-예시"><a href="#잘못된-결정의-예시" class="headerlink" title="잘못된 결정의 예시"></a>잘못된 결정의 예시</h4><p>데이터를 맹신하면 어떻게 되는지에 대한 이해를 돕기 위해 데이터의 위험성을 설명할 때의 대표적인 예시인 두 가지 사례를 이야기해보겠다.</p>
+<blockquote><p>한 연구자가 아이스크림 판매량의 연중 증감 추이를 확인하고 있었다.<br>그리고 연중 익사 사망자의 증감 추이를 함께 놓고 두 데이터 간의 상관분석을 해 보았다.</p>
+<p>결과는 놀라웠다.</p>
+<p>무서울 정도로 명백한 상관관계가 나타나고 있었다. 아이스크림 판매량이 증가하는 동안, 익사 사망자 수도 함께 증가하고 있었으며, 아이스크림 판매량이 감소하는 동안 익사 사망자 수도 감소하고 있었던 것이었다.<br>연구자는 몸서리를 치면서 다음과 같은 결론을 내렸다.</p>
+<p><strong>익사 사망자의 증감은 아이스크림이 그 원인이다.</strong></p>
+</blockquote>
+<p>이 예시에서 연구자는 <code>아이스크림이 많이 팔릴 수록 물에 빠져죽는 사람도 많다</code>라고 얘기하고 있다. 터무니없는 소리 같지만 실제로 <code>아이스크림 판매량 증감</code>과 <code>익사자 수 증감</code>은 어느 정도 일치한다.</p>
+<p>왜 그럴까?</p>
+<p>여기서 숨겨진 변수는 바로 <code>기온</code>이다. 여름이 되서 더워지면 <code>아이스크림 판매량이 증가</code>하고, 피서철이라서 바닷가나 계곡에 놀러가는 사람들이 많이지기 때문에 사고로 인한 <code>익사자 수도 증가</code>하는 것이다.<br>만약 여기서 숨겨진 변수인 <code>기온</code>을 파악하지 못했다면 이런 의사결정을 내릴 수도 있겠다.</p>
+<blockquote>
+<p>익사자 수를 줄이기 위해서 아이스크림 판매를 금지한다.</p>
+</blockquote>
+<p>자, 이제 두번째 예시를 한번 보자. 이 예시는 <code>TED 2017</code>에서 발표한 수학자이자 데이터 과학자인 <code>Cathy O'Neil</code>님께서 <a href="https://www.ted.com/talks/cathy_o_neil_the_era_of_blind_faith_in_big_data_must_end?language=ko" target="_blank" rel="external nofollow noopener noreferrer">발표한 내용</a>에서 가져온 것이다. 필자는 개인적으로 이 강연, 엄청 재밌게 들었다.</p>
+<center><br>  <img src="/2019/07/04/danger-of-data-driven/oNeil.jpg" width="500"><br>  <small>TED에서 발표 중인 스웩넘치는 캐시 누나</small><br>  <br><br></center>
+
+<blockquote><p>1996년에 설립된 폭스 뉴스사는 고용 절차를 효율적으로 진행하기 위해 머신러닝 알고리즘을 도입하기로 했습니다.</p>
+<p>학습에 필요한 데이터셋은 지난 21년간 폭스 뉴스에 지원한 지원자들의 데이터를 사용하면 되겠네요.<br>그리고 회사에서 성공적인 역할을 할 수 있는 사람을 가려내기 위해서 <strong>성공</strong>에 대한 정의도 해야겠군요.<br>음, 폭스 뉴스에서 4년 정도 근무하면서 적어도 한 번쯤 승진한 사람 정도면 성공했다고 할 수 있겠네요.</p>
+<p>자, 이제 이 알고리즘을 현재의 지원자들에게 적용하면 어떻게 될까요?</p>
+<p><strong>여성 지원자는 절대 합격하지 못할 겁니다.</strong></p>
+</blockquote>
+<p>필자는 개인적으로 이 예시를 듣고 굉장히 충격받았다. 처음 저 이야기를 시작할 때 <code>지난 21년간 폭스 뉴스에 지원한 지원자들의 데이터</code>와 <code>폭스 뉴스에서 4년 정도 근무하면서 적어도 한 번쯤 승진한 사람</code>이라는 정의를 들었을 땐 꽤 공평하고 객관적인 지표라고 생각했기 때문이다.</p>
+<p>하지만 우리 사회에서 성별에 전혀 관계없이 능력만 보고 직원을 고용하게 된 것은 생각보다 그렇게 오래 되지 않았기 때문에 위에서 정의한 규칙대로라면 <code>폭스 뉴스에서 성공한 사람</code>의 절대적인 양 또한 <code>남성</code>이 더 많을 수 밖에 없는 것이다.<br>게다가 폭스 뉴스는 보수적인 언론사이기 때문에 더더욱 그런 편향이 나타날 것이다.</p>
+<p>이 예시에서는 숨겨진 변수로 <code>사회적 분위기</code>가 있던 것이다.</p>
+<p>이렇게 아무리 객관적이라고 생각했던 지표라고 할지라도 <code>왜 이런 결과가 나왔지?</code>를 고민하지 않고 의사결정한다면 현실과 전혀 동떨어진 의사결정을 할 수도 있게 된다.</p>
+<h3 id="정성적인-데이터를-무시하지-말자"><a href="#정성적인-데이터를-무시하지-말자" class="headerlink" title="정성적인 데이터를 무시하지 말자"></a>정성적인 데이터를 무시하지 말자</h3><p>대부분의 조직에서 데이터 기반 의사결정을 할 때, 정성적인 데이터보다는 정량적인 데이터에 집중한다.<br>그 이유는 정량적인 데이터가 수집, 비교, 가공 등 정보를 뽑아내는 데이터 마이닝 작업하기가 더 쉽기 때문이다. 반면에 정성적인 데이터를 제대로 수집하려면 <code>유저 테스트</code>, <code>설문 조사</code> 등 조금 더 공을 들이는 방법을 사용해야 한다.<br>또한 수집한 데이터도 숫자가 아닌 자연어인 경우가 많기 때문에 이를 분석하는 것 역시 쉬운 작업이 아니다.</p>
+<p>이런 이유로 정성적인 데이터가 자주 우선순위에서 밀리는 모습을 많이 봐왔는데, 딱히 좋은 태도는 아니다.<br>왜냐면 정량적인 데이터는 <code>현상</code>을 설명해주지만 정성적인 데이터는 <code>이유</code>를 설명해주기 때문이다.</p>
+<p>예를 들면 둘의 차이는 이런 거다.</p>
+<blockquote>
+<p>사용자들이 우리의 검색 시스템을 사용한 후 결제를 하는 전환률이 30% 상승했다. (정량적인 데이터)<br>설문 조사 결과 사람들은 검색을 해서 자신들에게 더 맞는 상품을 스스로 찾았기 때문이라고 대답했다. (정성적인 데이터)</p>
+</blockquote>
+<p>물론 위의 정성적인 데이터로 든 예시도 정량적인 수치로 변경할 수는 있다. 설문지에 자유롭게 대답할 수 있는 빈 칸이 아니라, 오지선다형으로 답변을 고르도록 하면 정량화할 수 있다.<br>그러나 그렇게 하면 결국 답변에 없는 이유는 수집할 수 없기 때문에 결국 <code>기타(아무거나 적으세요)</code>라는 칸을 하나씩은 만든다.<br>그렇다면 <code>기타</code>에 적힌 내용들은 정성적인 데이터가 되는 것이다.</p>
+<p>그냥 단순히 생각해도 이 <code>기타</code>란에는 사람들이 직접 하나하나 적은 자연어가 들어갈 것이기 때문에 이걸 또 분류하고 분석하는 작업은 아마 <code>인공지능</code>아니면 <code>인간지능</code> 둘 중에 하나를 갈아넣어야 할 수 있을 것이다.<br>그렇기 때문에 보통 기업들은 좀 더 취급하기 쉬운 정량적인 데이터에 좀 더 집중하고 정성적인 데이터는 보조적인 용도로 많이 활용한다.</p>
+<p>하지만 고객들이 진짜 무엇을 원하는지, 그들의 목소리를 들어보고자 하는 기업이라면 리소스가 많이 투입되더라도 지속적으로 고객들에게 설문조사나 유저 테스트를 통해 정성적인 데이터를 많이 수집하려고 노력한다.<br>필자의 직장은 리소스가 부족해서 자주 하지는 못하지만 그래도 큰 기능을 배포할 때는 UI/UX 디자이너들이 선별한 페르소나에 맞는 사용자들을 회사로 초청해서 유저 테스트를 진행하고 있다.</p>
+<h2 id="마치며"><a href="#마치며" class="headerlink" title="마치며"></a>마치며</h2><p>필자는 데이터 기반 의사결정은 양날의 검이라고 생각한다. 잘 사용하면 위에서 설명한 장점대로 <code>적은 리스크에 성과 측정도 명확하고 복잡한 문제도 추상화</code>할 수 있는 좋은 도구이지만 잘못 사용하면 뭐가 잘못되고 있는지도 모른채 계속 숫자만 믿고 잘못된 결정을 하게 될 위험도 크기 때문이다.</p>
+<p>또한 기대와 성과가 명확하다는 장점은 반대로 단점이 될 수도 있다. 위에서 계속 말했듯이 결국 데이터 자체는 그냥 값이기 때문에 뽑아낸 결과에는 최종적으로 <code>사람의 주관</code>이 들어갈 수 밖에 없다. 그 말인 즉슨, 뽑고 싶은 결과를 미리 정해놓고 거기에 데이터를 어떻게든 끼워맞춰도 그럴싸한 결과를 만들어 낼 수 있다는 말이다.</p>
+<p>이런 점들은 진짜 고객을 위한 서비스를 만드는 방향이 아닌 회사에서 중요하다고 생각하는 지표만 높히는 방향으로 의사결정을 하거나, 실제로 고객들은 불편함을 느껴서 전환률이 떨어지더라도 자신이 원하는 결과가 나올때까지 변인을 조작하여 결국은 원하는 결과를 뽑아내는 등의 윗 사람들에게 인정받기 위한 정치적인 목적으로 사용되기 쉽다.</p>
+<blockquote>
+<p>이런 행위들은 데이터 기반 의사결정이 아닌, 데이터 기반 의사결정의 탈을 쓴 숫자놀이에 불과하다.</p>
+</blockquote>
+<p>그렇기 때문에 항상 데이터를 기반으로 의사결정을 할때는 자신이 객관적이고 공정한 결론을 내렸는지, 혹은 이 데이터가 정말 오염되지 않았고 유의미한 결과를 가져다 줄 수 있는 데이터인지, 원하는 대로 결과가 나왔다면 <code>왜</code> 이런 결과가 나오게 되었는지 자기 자신에게 끊임없이 되물으며 비판적인 사고를 유지해야한다.</p>
+<p>이상으로 데이터 기반 의사결정, 과연 완벽한 걸까? 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/data-driven/">Data Driven</a><a class="tag -link" href="/tags/데이터-기반-의사결정/">데이터 기반 의사결정</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2019/07/06/pwa-with-notification/">
+                <i class="fas fa-chevron-left"></i> PWA 하루 만에 도입하기(삽질기)
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2019/07/02/what-is-agile/">
+                애자일이 도대체 뭐길래? <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#데이터의-본질이-뭐길래" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>데이터의 본질이 뭐길래?</span>
+        </a></li><li>
+        <a class="is-flex" href="#데이터는-어떻게-수집할까" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>데이터는 어떻게 수집할까?</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#나도-모르게-스토킹-당하고-있다" data-link-name="toc">
+        <span class="has-mr-6">2.1</span>
+        <span>나도 모르게 스토킹 당하고 있다</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#이제-데이터-기반-의사결정이다" data-link-name="toc">
+        <span class="has-mr-6">3</span>
+        <span>이제 데이터 기반 의사결정이다!</span>
+        </a></li><li>
+        <a class="is-flex" href="#데이터-기반-의사결정의-장점" data-link-name="toc">
+        <span class="has-mr-6">4</span>
+        <span>데이터 기반 의사결정의 장점</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#불확실성을-최소화-할-수-있다" data-link-name="toc">
+        <span class="has-mr-6">4.1</span>
+        <span>불확실성을 최소화 할 수 있다</span>
+        </a></li><li>
+        <a class="is-flex" href="#타인을-설득하기-쉽다" data-link-name="toc">
+        <span class="has-mr-6">4.2</span>
+        <span>타인을 설득하기 쉽다</span>
+        </a></li><li>
+        <a class="is-flex" href="#기대와-성과가-명확하다" data-link-name="toc">
+        <span class="has-mr-6">4.3</span>
+        <span>기대와 성과가 명확하다</span>
+        </a></li><li>
+        <a class="is-flex" href="#복잡한-문제를-단순화-시킬-수-있다" data-link-name="toc">
+        <span class="has-mr-6">4.4</span>
+        <span>복잡한 문제를 단순화 시킬 수 있다.</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#데이터-기반-의사결정의-단점" data-link-name="toc">
+        <span class="has-mr-6">5</span>
+        <span>데이터 기반 의사결정의 단점</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#데이터는-그냥-값이다" data-link-name="toc">
+        <span class="has-mr-6">5.1</span>
+        <span>데이터는 그냥 값이다.</span>
+        </a></li><li>
+        <a class="is-flex" href="#데이터를-맹신하면-잘못된-결정을-내릴-수-있다" data-link-name="toc">
+        <span class="has-mr-6">5.2</span>
+        <span>데이터를 맹신하면 잘못된 결정을 내릴 수 있다.</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#인과관계와-상관관계" data-link-name="toc">
+        <span class="has-mr-6">5.2.1</span>
+        <span>인과관계와 상관관계</span>
+        </a></li><li>
+        <a class="is-flex" href="#잘못된-결정의-예시" data-link-name="toc">
+        <span class="has-mr-6">5.2.2</span>
+        <span>잘못된 결정의 예시</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#정성적인-데이터를-무시하지-말자" data-link-name="toc">
+        <span class="has-mr-6">5.3</span>
+        <span>정성적인 데이터를 무시하지 말자</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#마치며" data-link-name="toc">
+        <span class="has-mr-6">6</span>
+        <span>마치며</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="데이터 기반 의사결정, 과연 완벽한 걸까?" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

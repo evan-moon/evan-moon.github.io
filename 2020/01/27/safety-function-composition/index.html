@@ -1,0 +1,917 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>어떻게 하면 안전하게 함수를 합성할 수 있을까? - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="함수형 프로그래밍에서 코드를 작성한다는 것은 프로그램에서 수행해야하는 여러가지 행위들을 함수로 표현하고, 또 그 함수들을 요리조리 잘 합성해가며 거대한 프로그램을 만들어나가는 패러다임이다. 결국 함수형 프로그래밍에서 함수를 합성하는 행위라는 것은 이 패러다임의 근간이 되는 개념이기 때문에 굉장히 큰 의미를 가질 수 밖에 없는데, 문제는 이렇게 함수를 합성하">
+<meta name="keywords" content="함수형 프로그래밍,Functional Programming,펑터,모나드,Functor,Monad,합성 함수,Composition,카테고리 이론,범주론">
+<meta property="og:type" content="article">
+<meta property="og:title" content="어떻게 하면 안전하게 함수를 합성할 수 있을까?">
+<meta property="og:url" content="https://evan-moon.github.io/2020/01/27/safety-function-composition/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="함수형 프로그래밍에서 코드를 작성한다는 것은 프로그램에서 수행해야하는 여러가지 행위들을 함수로 표현하고, 또 그 함수들을 요리조리 잘 합성해가며 거대한 프로그램을 만들어나가는 패러다임이다. 결국 함수형 프로그래밍에서 함수를 합성하는 행위라는 것은 이 패러다임의 근간이 되는 개념이기 때문에 굉장히 큰 의미를 가질 수 밖에 없는데, 문제는 이렇게 함수를 합성하">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2020/01/27/safety-function-composition/thumbnail1.png">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.575Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="어떻게 하면 안전하게 함수를 합성할 수 있을까?">
+<meta name="twitter:description" content="함수형 프로그래밍에서 코드를 작성한다는 것은 프로그램에서 수행해야하는 여러가지 행위들을 함수로 표현하고, 또 그 함수들을 요리조리 잘 합성해가며 거대한 프로그램을 만들어나가는 패러다임이다. 결국 함수형 프로그래밍에서 함수를 합성하는 행위라는 것은 이 패러다임의 근간이 되는 개념이기 때문에 굉장히 큰 의미를 가질 수 밖에 없는데, 문제는 이렇게 함수를 합성하">
+<meta name="twitter:image" content="https://evan-moon.github.io/2020/01/27/safety-function-composition/thumbnail1.png">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2020/01/27/safety-function-composition/">
+
+
+<link rel="alternative" href="/feed.xml" title="어떻게 하면 안전하게 함수를 합성할 수 있을까?" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="어떻게 하면 안전하게 함수를 합성할 수 있을까?" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2020/01/27/safety-function-composition/thumbnail1.png" alt="어떻게 하면 안전하게 함수를 합성할 수 있을까?">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2020-01-27T08:07:29.000Z">2020-01-27</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/programming/">Programming</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/programming/design/">Design</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                어떻게 하면 안전하게 함수를 합성할 수 있을까?
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>함수형 프로그래밍에서 코드를 작성한다는 것은 프로그램에서 수행해야하는 여러가지 행위들을 함수로 표현하고, 또 그 함수들을 요리조리 잘 합성해가며 거대한 프로그램을 만들어나가는 패러다임이다.</p>
+<p>결국 함수형 프로그래밍에서 함수를 합성하는 행위라는 것은 이 패러다임의 근간이 되는 개념이기 때문에 굉장히 큰 의미를 가질 수 밖에 없는데, 문제는 이렇게 함수를 합성하는 과정에서 크고 작은 현실적인 문제들이 빵빵 터진다는 것이다.</p>
+<a id="more"></a>
+<p>이런 문제가 빵빵 터지는 가장 큰 이유는 간단하다. 아무리 우리가 순수 함수를 사용한다고 해도 수학의 함수와 완벽하게 똑같을 수는 없기 때문이다. 애초에 프로그래밍과 수학은 비슷하지만 엄연히 다른 학문이다.</p>
+<p>그래서 전 세계의 똑똑이들은 이런 문제들을 해결하기 위해 <code>펑터(Functor)</code>나 <code>모나드(Monad)</code>와 같은 수학의 개념들을 끌고 와서 사용하기 시작했는데, 문제는 이 개념들이 직관적으로 이해하기에는 너무나도 추상적이고 난해한 녀석들이라는 것이다.</p>
+<center><br>  <img src="/2020/01/27/safety-function-composition/functor-example.png" width="500"><br>  <small>보기만 해도 눈물이 절로 나오는 펑터 설명 다이어그램…</small><br>  <br><br></center>
+
+<p>필자가 펑터나 모나드에 대한 공부를 하면서 구글링을 하면서 찾아본 많은 자료들은 대략 두 가지 정도로 나누어졌는데, 바로 “겁나 어려운 수학적인 설명”과 “코드로 된 예시”였다.</p>
+<p>문제는 이 수학적인 설명과 코드로 된 예시 사이를 이어주는 자료가 별로 없었다는 것이다. 즉, 펑터나 모나드가 정확히 프로그래밍의 어떤 문제를 해결하기 위해 도입된 것인지 쉽게 풀어서 설명해놓은 자료가 별로 없었다. <small>(남들은 다 이해하는데 필자가 멍청해서 이해를 못한 것일수도 있다)</small></p>
+<p>하지만 그렇다고해서 제대로 된 이유도 모르고 펑터나 모나드를 사용하고 싶지는 않았기에 직접 조사해보고 조져보기로 했다.</p>
+<p>그래서 이번 포스팅에서는 함수형 프로그래밍에서 별 생각없이 함수를 조합하면 어떤 문제들이 발생하는지, 그리고 그 문제들을 어떤 방식으로 해결할 수 있는 지에 대한 이야기를 해보려고 한다.</p>
+<h2 id="모든-것은-함수의-합성으로-이루어진다"><a href="#모든-것은-함수의-합성으로-이루어진다" class="headerlink" title="모든 것은 함수의 합성으로 이루어진다"></a>모든 것은 함수의 합성으로 이루어진다</h2><p>다시 한번 이야기하지만 함수형 프로그래밍은 프로그램에서 수행해야하는 어떠한 행위들을 함수로 표현하고, 또 그 함수들을 이렇게 저렇게 잘 합성하여 거대한 프로그램을 만들어나가는 패러다임이다.</p>
+<p>즉, 이러한 함수형 프로그래밍의 정의에서 가장 중요한 키워드는 역시 “함수의 합성”이라고 말할 수 있다. 함수형 프로그래밍에서 그토록 사이드 이펙트를 경계하는 이유도 결국 함수를 안전하게 합성하기 위해서는 함수의 입력과 출력을 예측할 수 있어야하기 때문이다.</p>
+<p>함수형 프로그래밍의 세계에서는 프로그램 내부에서 발생하는 모든 행위들을 함수로 표현하고 있기 때문에 변수에 값을 할당하거나 간단한 사칙연산 조차도 함수로 표현된다.</p>
+<figure class="highlight typescript hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// 명령형 프로그래밍</span></span><br><span class="line"><span class="hljs-keyword">const</span> foo: <span class="hljs-built_in">number</span> = <span class="hljs-number">1</span>;</span><br><span class="line">foo + <span class="hljs-number">2</span>;</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// 함수형 프로그래밍</span></span><br><span class="line"><span class="hljs-keyword">const</span> foo = ((): <span class="hljs-function"><span class="hljs-params">number</span> =></span> <span class="hljs-number">1</span>)();</span><br><span class="line"><span class="hljs-keyword">const</span> add2 = (x: <span class="hljs-built_in">number</span>): <span class="hljs-function"><span class="hljs-params">number</span> =></span> x + <span class="hljs-number">2</span>;</span><br><span class="line"></span><br><span class="line">add2(foo);</span><br></pre></td></tr></tbody></table></figure>
+<p>이 프로그램은 <code>number</code> 타입의 변수를 선언하고, 그 값에 2를 더하는 초 간단한 프로그램이다.</p>
+<p>명령형 프로그래밍으로 작성된 코드에서는 단순히 <code>foo = 1</code>과 같이 표현할 수 있었던 변수의 할당은 <code>1</code>을 반환하는 함수로, <code>foo + 2</code>로 표현하던 연산은 <code>add2(foo)</code>와 같은 함수로 표현되었다.</p>
+<p>우리가 이 코드에서 주목해야할 부분은 바로 가장 마지막 줄의 <code>add2(foo)</code>이다.</p>
+<p><code>add2(foo)</code>라는 것은 <code>foo</code> 변수에 할당되었던 익명 함수의 출력 값인 <code>1</code>을 <code>add2</code> 함수의 입력 값으로 사용하겠다는 의미이며, 이러한 행위가 바로 함수의 합성이다.</p>
+<figure class="highlight typescript hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// 조금 더 간단하게 표현한 모습은 이렇다</span></span><br><span class="line"><span class="hljs-keyword">const</span> add2 = <span class="hljs-function"><span class="hljs-params">x</span> =></span> x + <span class="hljs-number">2</span>;</span><br><span class="line">add2( <span class="hljs-function">(<span class="hljs-params">(<span class="hljs-params"></span>) => 1</span>)<span class="hljs-params">()</span> );</span></span><br></pre></td></tr></tbody></table></figure>
+<p>변수에 값을 할당하고 더하는 간단한 연산 조차도 함수로 표현해야하는 함수형 프로그래밍의 세계에서 거대한 프로그램을 견고하게 만든다는 것은 여러가지 복잡한 함수들을 어떻게 잘 합성해서 사용할 수 있는지에 따라 좌지우지될 수 있다는 뜻이다.</p>
+<p>이렇게 보면 굉장히 간단한 개념이지만, 사실 아무 함수끼리나 막 합성할 수 있는 것은 아니다. 함수의 합성에는 아주 중요한 규칙이 한 가지 정해져있는데, 바로 합성하려하는 함수들의 “정의역과 치역이 서로 일치해야한다는 것”이다.</p>
+<h3 id="정의역과-치역이-일치해야-함수를-합성할-수-있다"><a href="#정의역과-치역이-일치해야-함수를-합성할-수-있다" class="headerlink" title="정의역과 치역이 일치해야 함수를 합성할 수 있다"></a>정의역과 치역이 일치해야 함수를 합성할 수 있다</h3><p>이전에 작성했던 <a href="/2019/12/29/about-pure-functions/" title="수학에서 기원한 프로그래밍 패러다임, 순수 함수">수학에서 기원한 프로그래밍 패러다임, 순수 함수</a> 포스팅에서 한 차례 이야기한 적이 있지만, 함수형 프로그래밍에서는 함수의 사이드 이펙트를 최대한 없애버리기 위해 <code>순수 함수</code>를 사용한다.</p>
+<p>대표적인 순수 함수의 특징은 대략 이 두 가지이다.</p>
+<blockquote>
+<ol>
+<li>함수 외부의 상태를 변경하거나 참조하지 않는다!</li>
+<li>동일한 입력을 넣었으면 항상 동일한 출력을 반환해야 한다!</li>
+</ol>
+</blockquote>
+<p>이런 순수 함수를 사용하면 개발자가 함수의 행동을 예측하기 쉬워지기 때문에 디버깅이 편리하다는 장점도 있지만, 사실 애초에 저 규칙들이 지켜지지 않는다면 함수를 합성할 수 없기 때문에 모든 행위를 함수로 표현하고 조합해서 프로그래밍을 만드는 짓을 할 수 조차 없다.</p>
+<p>왜 저 규칙들을 준수해야 함수의 합성이 가능하다는 것일까? 일단 순수 함수는 수학의 함수를 프로그래밍으로 구현한 개념이니, 한번 수학의 함수가 어떤 느낌으로 작동하는 녀석인지부터 살펴보도록 하자.</p>
+<p>일단 수학의 함수는 함수의 입력으로 사용할 수 있는 값들의 집합인 정의역과, 함수의 출력으로 사용할 수 있는 값들의 집합인 치역을 가지고 있다.</p>
+<p>그리고 정의역에 있는 원소 하나와 치역에 있는 원소 하나는 무조건 <code>1:1</code>로 매칭되어야한다. 즉, 동일한 입력을 함수에 넣었으면 항상 동일한 출력을 반환해야 한다는 말이다. 만약 이 규칙이 깨져버리면 그건 더 이상 함수라고 부를 수 없는 변태같은 무언가가 되어버린다.</p>
+<center><br>  <img src="/2020/01/27/safety-function-composition/functions.png" width="500"><br>  <br><br></center>
+
+<p>쉽게 말해 함수의 입력으로 사용할 수 있도록 정해져 있는 값들 중에 하나를 뽑아서 함수에 던지면, 반드시 출력으로 사용할 수 있도록 정해져 있는 값들 중에 하나가 튀어나온다는 것이다.</p>
+<p>그렇다면 이 개념을 그대로 프로그래밍으로 구현한 순수 함수에게도 정의역과 치역이라고 부를 수 있을만한 무언가가 있다는 말인데, 프로그래밍의 세계에서 살고 있는 순수 함수의 정의역과 치역은 무엇이 될 수 있을까?</p>
+<center><br>.<br>.<br>.<br><br><br></center>
+
+<blockquote>
+<p>바로 <strong>타입(Type)</strong>이다.</p>
+</blockquote>
+<p>사실 프로그래밍에서 사용하는 타입이라는 녀석도 잘 생각해보면 일종의 집합이라고 볼 수 있다. <code>number</code>라는 집합은 <code>{-1, 0, 0,1, 1, 2, NaN, Infinity...}</code>과 같이 모든 숫자 값을 원소로 가지고 있는 집합이고, <code>boolean</code>이라는 집합은 <code>{true, false}</code>를 원소로 가지는 집합, <code>string</code>이라는 집합은 프로그래밍으로 만들어 낼 수 있는 모든 문자열들을 가지고 있는 집합이라는 이야기이다.</p>
+<p>위에서 예시로 들었던 <code>add2</code> 함수를 다시 한번 가져와서 살펴보면, 이 함수는 <code>number</code> 타입을 가진 값을 받아서 다시 <code>number</code> 타입의 값을 반환하고 있다는 것을 알 수 있다.</p>
+<figure class="highlight typescript hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> add2 = (x: <span class="hljs-built_in">number</span>): <span class="hljs-function"><span class="hljs-params">number</span> =></span> x + <span class="hljs-number">2</span>;</span><br></pre></td></tr></tbody></table></figure>
+<p>이때 <code>add2</code> 함수는 <code>number</code> 집합을 정의역과 치역으로 가지고 있다고 볼 수 있는 것이다. 여기에 더 나아가서 다른 형태의 함수들의 정의역과 치역도 모두 동일한 규칙으로 정의해볼 수 있다.</p>
+<figure class="highlight typescript hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">type</span> f = (): <span class="hljs-function"><span class="hljs-params">number</span> =></span> <span class="hljs-built_in">string</span>; <span class="hljs-comment">// 정의역: number, 치역: string</span></span><br><span class="line"><span class="hljs-keyword">type</span> g = (): <span class="hljs-built_in">Array</span><<span class="hljs-built_in">string</span>> => <span class="hljs-built_in">boolean</span>; <span class="hljs-comment">// 정의역: Array<string>, 치역: boolean</string></span></span><br><span class="line"><span class="hljs-keyword">type</span> h = (): <span class="hljs-function"><span class="hljs-params">string</span> =></span> <span class="hljs-built_in">boolean</span>; <span class="hljs-comment">// 정의역: string, 치역: boolean</span></span><br></pre></td></tr></tbody></table></figure>
+<p>이제 슬슬 수학의 함수와 프로그래밍의 순수 함수 간의 공통점이 조금 더 보이기 시작한다.</p>
+<p>그럼 이제 원래 본론이었던 함수의 합성에 대해 한번 이야기해보자. 사실 수학의 세계에서 함수를 합성하는 상황은 굉장히 흔한 일이며, 심지어 함수의 합성을 나타내는 전용 기호도 준비되어있다.</p>
+<p>$f$ 함수와 $g$ 함수를 합성한 합성함수 $h$는 이런 간단한 수식으로 나타낼 수 있다.</p>
+<p><br><br><span class="katex-display"><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mtable><mtr><mtd><mrow><mi>h</mi><mo>=</mo><mi>g</mi><mo>∘</mo><mi>f</mi></mrow></mtd></mtr></mtable></mrow><annotation encoding="application/x-tex">\begin{aligned}
+h = g\circ f
+\end{aligned}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.8500000000000001em;"></span><span class="strut bottom" style="height:1.2000000000000002em;vertical-align:-0.35000000000000003em;"></span><span class="base displaystyle textstyle uncramped"><span class="mord"><span class="mtable"><span class="col-align-r"><span class="vlist"><span style="top:-0.010000000000000009em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="mord displaystyle textstyle uncramped"><span class="mord mathit">h</span><span class="mrel">=</span><span class="mord mathit" style="margin-right:0.03588em;">g</span><span class="mbin">∘</span><span class="mord mathit" style="margin-right:0.10764em;">f</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span></span></span></span><br><br></p>
+<p>갑자기 수식이 나와서 머리가 아프다면 그냥 $f$ 함수는 밥먹기, $g$ 함수는 그릇 치우기, 합성함수 $h$는 밥먹고 그릇 치우기 정도로 이해해도 아무 문제가 없다. 원래 함수란 그렇게 추상적인 느낌이다.</p>
+<p>이 식에서 함수의 실행 순서는 오른쪽에서 왼쪽이다. 즉, 합성된 함수인 $h$ 함수를 $h(x)$와 같이 사용한다는 것은 사실 $g(f(x))$와 같이 함수를 합성해서 사용하는 것과 동일하다는 것이다.</p>
+<p>하지만 이런 식으로 함수를 겹쳐가면서 합성을 표현한다면 많은 함수를 합성하는 공식을 보았을 때 괄호만 보일 게 뻔하므로 저 동그란 연산자를 사용하여 합성된 함수들을 펼쳐서 읽을 수 있도록 해주는 것이다. <small>(콜백과 async/await의 차이를 생각해보자)</small></p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// 함수 합성 연산자가 없다면 대충 이런 느낌이 되어 버리지 않을까...?</span></span><br><span class="line">foo(b(a(h(f(g(x))))));</span><br></pre></td></tr></tbody></table></figure>
+<p>이때 함수를 합성하기 위해서는 첫 번째 함수인 $f$의 치역과 그 다음 함수인 $g$의 정의역이 동일해야 한다는 중요한 원칙이 있다.</p>
+<p>방금 위에서 순수 함수의 정의역과 치역은 타입이라고 했으니, 첫 번째 함수의 출력 값의 타입과 그 다음 함수의 입력 값의 타입이 동일해야한다고 말할 수도 있을 것 같다.</p>
+<figure class="highlight typescript hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// 합성이 가능하다!</span></span><br><span class="line">f: <span class="hljs-function"><span class="hljs-params">number</span> =></span> <span class="hljs-built_in">number</span></span><br><span class="line">g:           <span class="hljs-function"><span class="hljs-params">number</span> =></span> <span class="hljs-built_in">number</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// 이건 합성이 불가능...</span></span><br><span class="line">f: <span class="hljs-function"><span class="hljs-params">number</span> =></span> <span class="hljs-built_in">string</span></span><br><span class="line">g:           <span class="hljs-function"><span class="hljs-params">number</span> =></span> <span class="hljs-built_in">number</span></span><br></pre></td></tr></tbody></table></figure>
+<p>정의역과 치역 어쩌고하면 조금 복잡해보일지 몰라도 타입으로 바꿔보니 굉장히 당연하기 짝이 없는 이야기가 되어버렸다. 그렇다면 순수 함수를 사용하면서 이 규칙만 잘 적용해주면 아무 문제가 없을까?</p>
+<p>음, 대부분의 경우에는 가능하겠지만 슬프게도 모든 케이스를 커버할 수는 없다. 프로그래밍의 세계에는 <code>함수의 실패</code>라던가 <code>불확실성</code>과 같이 수학의 세계에는 없는 케이스들이 존재하기 때문이다.</p>
+<p>수학의 함수를 프로그래밍적으로 구현한 순수 함수라 할 지라도 프로그래밍의 세계에 존재하는 이상 이런 케이스들을 모두 피해갈 수는 없다.</p>
+<p>결국 아무리 순수 함수를 사용한다고 해도 이런 문제점들이 여전히 존재하기 때문에 전세계의 똑똑이들이 “도대체 어떻게 하면 안전하게 함수를 합성할 수 있을까?”라는 고민을 하게 된 것이고, 그 고민을 통해 도입된 것이 바로 펑터나 모나드와 같은 수학의 개념들인 것이다.</p>
+<h3 id="순수-함수에도-사이드-이펙트는-존재한다"><a href="#순수-함수에도-사이드-이펙트는-존재한다" class="headerlink" title="순수 함수에도 사이드 이펙트는 존재한다"></a>순수 함수에도 사이드 이펙트는 존재한다</h3><p><code>사이드 이펙트(Side-Effect)</code>라는 단어는 한국어로 직역하면 <code>부수 효과</code>이다.</p>
+<p>즉, 함수에게 기대하고있는 행위 외에 발생하는 모든 부수 효과들을 우리는 사이트 이펙트라고 하는 것이다. 함수가 외부 상태에 영향을 받는 것은 대표적인 사이드 이펙트 중 하나에 불과하다.</p>
+<p>사실 순수 함수를 수학의 함수와 비교해보면 “같은 값을 입력받으면 늘 같은 출력을 반환한다”라는 규칙이 보장되는 것 외에는 허술하기 짝이 없는 함수이다. 예를 들어 문자열을 입력받은 후 그 문자열의 가장 첫번째 글자를 반환하는 함수가 있다고 생각해보자.</p>
+<figure class="highlight typescript hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getFirstLetter</span> (<span class="hljs-params">s: <span class="hljs-built_in">string</span></span>): <span class="hljs-title">string</span> </span>{</span><br><span class="line">  <span class="hljs-keyword">return</span> s[<span class="hljs-number">0</span>];</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>일단 이 함수도 순수 함수는 맞다. 함수의 출력 값은 인자에만 영향을 받고 있고, 늘 같은 입력 값에는 같은 출력을 반환하고, 외부 상태에 전혀 영향도 받고 있지 않기 때문이다.</p>
+<p><code>getFirstLetter</code> 함수는 주어진 문자열의 첫 글자를 반환하는 순수 함수이지만, 만약 빈 문자열이 인자로 주어질 경우 <code>string</code>형이 아닌 <code>undefined</code>를 반환할 것이다.</p>
+<p>우리가 과연 이 함수를 사용할 때 “반드시 <code>string</code> 타입이 반환될꺼야”라고 장담할 수 있을까?</p>
+<p>만약 이렇게 <code>getFirstLetter</code> 함수가 반드시 <code>string</code> 타입을 반환할 것이라고 장담하고 함수를 합성했다면 아마 이런 타입 에러를 만날 수 있을 것이다.</p>
+<figure class="highlight typescript hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getStringLength</span> (<span class="hljs-params">s: <span class="hljs-built_in">string</span></span>): <span class="hljs-title">number</span> </span>{</span><br><span class="line">  <span class="hljs-keyword">return</span> s.length;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">getStringLength(getFirstLetter(<span class="hljs-string">''</span>));</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Uncaught <span class="hljs-built_in">TypeError</span>: Cannot read property <span class="hljs-string">'length'</span> <span class="hljs-keyword">of</span> <span class="hljs-literal">undefined</span></span><br></pre></td></tr></tbody></table></figure>
+<p>사실 이 에러 조차 사이드 이펙트라고 할 수 있다. 어찌되었든 우리의 순수 함수에게 기대했던 효과가 아니라 부수적으로 발생하고 있는 효과이기 때문이다.</p>
+<p>이렇게 여러 개의 함수가 합성되어 있는 상황에서 단 하나의 함수라도 에러가 발생하면 합성 함수로 구성된 연산 전체가 망해버리기 때문에 우리는 이 사이드 이펙트를 반드시 관리해줘야 한다.</p>
+<p>사실 <code>getFirstLetter</code> 함수의 치역은 <code>string</code>이 아니라, <code>string</code> 집합과 <code>undefined</code> 집합이 합쳐져 있는 <code>string|undefined</code> 집합이다. 그러니 우리는 이 두 함수의 정의역과 치역을 다시 설정해주고 예외 처리를 추가함으로써 이 문제를 해결할 수 있다.</p>
+<figure class="highlight typescript hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getFirstLetter</span> (<span class="hljs-params">s: <span class="hljs-built_in">string</span></span>): <span class="hljs-title">string</span>|<span class="hljs-title">undefined</span> </span>{</span><br><span class="line">  <span class="hljs-keyword">return</span> s[<span class="hljs-number">0</span>];</span><br><span class="line">}</span><br><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">getStringLength</span> (<span class="hljs-params">s: <span class="hljs-built_in">string</span>|<span class="hljs-literal">undefined</span></span>): <span class="hljs-title">number</span> </span>{</span><br><span class="line">  <span class="hljs-keyword">if</span> (!s) {</span><br><span class="line">    <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;</span><br><span class="line">  }</span><br><span class="line">  <span class="hljs-keyword">return</span> s.length;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>하지만 이렇게 어떤 함수가 여러 개의 집합이 합쳐진 치역을 가지기 시작하면 이 함수와 합성하기 위한 모든 함수의 정의역도 여러 개의 집합이 합쳐진 치역을 가져야하기 때문에, 결국 <code>type|undefined</code>처럼 암 걸리는 타입이 모든 함수에 적용되어야 할 것이다.</p>
+<p>게다가 이런 상황이 발생할 때마다 함수 내부에서 매번 조건 검사를 통해 값의 유무를 검사하는 것은 너무나도 귀찮은 일이고, 여기저기서 동일한 코드가 계속 커플링되기 때문에 이 방법이 근본적인 해결책은 아닌 것 같다.</p>
+<p>이렇게 함수에서 어떤 타입이 반환될지 장담할 수 없다는 불확실성 또한 결국 정의역과 치역을 일치시켜야하는 함수의 합성 과정에서 명확한 타입의 사용을 저해하는 요소가 되기 때문에 반드시 믿고 걸러야하는 사이드 이펙트라고 할 수 있다.</p>
+<h2 id="그럼-사이드-이펙트를-어떻게-관리해야할까"><a href="#그럼-사이드-이펙트를-어떻게-관리해야할까" class="headerlink" title="그럼 사이드 이펙트를 어떻게 관리해야할까?"></a>그럼 사이드 이펙트를 어떻게 관리해야할까?</h2><p>이런 상황이 발생하는 이유는 그냥 “컴퓨터는 수학이 아니니까”라고 말할 수 밖에 없다. 어쨌든 프로그램에서 돌아가는 모든 함수는 저런 문제들을 가지고 있다. 심지어 순수 함수라고 할지라도 말이다.</p>
+<p>즉, 근본적으로 이 문제는 함수들 간의 합성 과정에서 어쩔 수 없이 발생하는 사이드 이펙트를 어떻게 하면 잘 관리해가면서 합성할 수 있을지에 대한 고민이다.</p>
+<p>함수를 합성할 때 중간에 껴있는 함수에서 에러가 발생하더라도 합성된 함수의 연산을 안전하게 끝낼 수 있을 지, 불확실한 함수의 출력을 어떻게 하면 명확하게 만들어서 다음 함수로 전달할 수 있을 지 말이다.</p>
+<p>그렇다면 함수를 다른 함수로 한번 감싸서 안전하게 예외처리를 진행하거나, 혹은 중간에 이상한 값이 나오면 그대로 다음 함수를 지나치게 만들면 되지 않을까?</p>
+<figure class="highlight typescript hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">type</span> StringFunction = <span class="hljs-function">(<span class="hljs-params">s: <span class="hljs-built_in">string</span></span>) =></span> <span class="hljs-built_in">number</span>;</span><br><span class="line"></span><br><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">safety</span> (<span class="hljs-params">x: <span class="hljs-built_in">string</span>|<span class="hljs-literal">undefined</span>, fn: StringFunction</span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">return</span> x ? fn(x) : x;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">safety(getFirstLetter(<span class="hljs-string">'Hi'</span>), getStringLength);</span><br><span class="line">safety(getFirstLetter(<span class="hljs-string">''</span>), getStringLength);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-number">1</span></span><br><span class="line"><span class="hljs-literal">undefined</span></span><br></pre></td></tr></tbody></table></figure>
+<p>하지만 이런 방식은 수많은 타입의 입출력을 가진 함수들에게 모두 적용하기에는 약간 무리가 있어보이니 제네릭 타입을 사용하여 조금 더 유연하게 만들어 보자.</p>
+<figure class="highlight typescript hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">safety</span> <<span class="hljs-title">T</span>, <span class="hljs-title">U</span>>(<span class="hljs-params">x: T|<span class="hljs-literal">undefined</span>, fn: (x: T) => U</span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">return</span> x ? fn(x) : x;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">safety<<span class="hljs-built_in">string</span>, <span class="hljs-built_in">number</span>>(getFirstLetter(<span class="hljs-string">'Hi'</span>), getStringLength);</span><br><span class="line">safety<<span class="hljs-built_in">string</span>, <span class="hljs-built_in">number</span>>(getFirstLetter(<span class="hljs-string">''</span>), getStringLength);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-number">1</span></span><br><span class="line"><span class="hljs-literal">undefined</span></span><br></pre></td></tr></tbody></table></figure>
+<p>오호 조금 그럴싸해졌다. 결국 <code>safety</code> 함수는 <code>T</code>또는 <code>undefined</code>의 값을 인자로 받은 후 이 인자가 <code>undefined</code>이라면 그대로 <code>undefined</code>을 반환하고, 만약 아니라면 <code>T</code> 타입을 인자로 받아서 <code>U</code> 타입을 반환하는 함수에게 인자를 넘겨주고 그 함수의 실행 결과를 반환한다.</p>
+<figure class="highlight typescript hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">값이 있다: T -> fn<u></u></span><br><span class="line">값이 없다: T -> <span class="hljs-literal">undefined</span></span><br></pre></td></tr></tbody></table></figure>
+<p>결국 우리는 <code>getFirstLetter</code> 함수의 치역과 <code>getStringLength</code> 함수의 정의역을 바로 연결해버리는 것이 아닌, <code>x ? fn(x) : x</code>라는 로직을 통해 함수의 사이드 이펙트를 한번 감싸준 다음 함수를 안전하게 합성한 것이다.</p>
+<p>그렇다면 이 개념을 조금 더 확장해서 함수가 출력한 값을 사용할 때 일종의 안전장치 역할을 하는 함수가 늘 값을 감싸고 있다면 어떨까? 이런 느낌으로 함수의 정상적인 결과와 사이드 이펙트를 감싸줄 수 있는 무언가를 만들 수 있으면 이 문제를 해결할 수 있지 않을까?</p>
+<center><br>  <img src="/2020/01/27/safety-function-composition/set.png" width="300"><br>  <br><br></center>
+
+<p>만약 저 추상적인 무언가가 함수의 사이드 이펙트를 관리해주면서 다른 함수와의 합성을 진행할수만 있다면, 함수를 합성하는 과정에서 일일히 저런 예외 처리를 해주지 않아도 되고, 함수들의 입출력에 대한 타입 안정성도 가져가며 마음 놓고 합성을 쭉쭉 해나갈수 있을 것 같다.</p>
+<figure class="highlight typescript hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// 이런 느낌으로 말이다!</span></span><br><span class="line">f: Something<<span class="hljs-built_in">number</span>> -> Something<<span class="hljs-built_in">number</span>></span><br><span class="line">g:                      Something<<span class="hljs-built_in">number</span>> -> Something<<span class="hljs-built_in">number</span>></span><br></pre></td></tr></tbody></table></figure>
+<p>함수는 제대로 된 치역에 해당하는 값을 반환할 수도 있고 사이드 이펙트를 일으킬 수 있는 <code>null</code>이나  <code>undefined</code> 같은 값을 반환할 수도 있지만, 뭐가 되었든 저 <code>Something</code>이라는 녀석이 알아서 예외를 핸들링할 수 있도록 만들기만 한다면 우리는 그런 자잘한 건 신경쓰지 않고 함수를 쭉쭉 합성할 수 있기 때문이다.</p>
+<p>그리고 이런 느낌이라면 <code>null</code>이나 <code>undefined</code>를 관리하는 것 외에도, 다양한 로직을 값에다가 감싸서 사용하면 되니까 나름 확장성도 좋은 개념인 것 같다. 뭐 대충 이런 느낌으로 말이다.</p>
+<figure class="highlight typescript hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Maybe<t> = 값이 있을 수도 있고 없을 수도 있다</t></span><br><span class="line"><span class="hljs-built_in">Promise</span><t> = 지금은 값이 없는데 나중에 값이 생기면 값을 준다</t></span><br><span class="line">List<t> = 같은 속성의 값을 여러 개 가지고 있을 수도 있다</t></span><br></pre></td></tr></tbody></table></figure>
+<p>그리고 이렇게 값을 감싸고 있는 무언가를 효율적으로 사용하려면 내부에 있는 값을 자유롭게 변경할 수 있어야 하므로 <code>Maybe<t> -> Maybe<u></u></t></code>와 같은 동작을 수행할 수 있는 무언가도 필요할 것 같다.</p>
+<p>이런 고민 끝에 프로그래머들은 이런 비슷한 역할을 수행하는 수학의 한 개념을 차용하게 되는데, 그 개념이 바로 <code>펑터(Functor)</code>이다.</p>
+<h2 id="펑터란-무엇일까"><a href="#펑터란-무엇일까" class="headerlink" title="펑터란 무엇일까?"></a>펑터란 무엇일까?</h2><p>펑터는 보통 값을 품고 있는 어떠한 박스의 형태로 설명되고는 한다. 방금 위에서 설명한 것과 같이 함수의 정상적인 결과와 사이드 이펙트를 감싸서 처리할 수 있는 무언가를 설명하기에는 박스가 적절한 예시이기 때문이다.</p>
+<center><br>  <img src="/2020/01/27/safety-function-composition/fmap_just.png"><br>  <small>[출처] <a href="http://adit.io/posts/2013-04-17-functors,_applicatives,_and_monads_in_pictures.html" target="_blank" rel="external nofollow noopener noreferrer">Functors, Applicatives, And Monads In Pictures</a></small><br>  <br><br></center>
+
+<p>저 박스는 결국 안전하게 값을 사용할 수 있도록 도와주는 로직을 가지고 있거나, 혹은 여러 개의 값을 처리할 수 있는 로직을 가지고 있거나, 아직은 값이 결정되지 않았지만 나중에 값이 결정되고 나면 값을 사용할 수 있는 로직을 가지고 있는 등, 값을 사용할 때 도움을 주는 여러가지 로직을 담고 있는 마법의 박스라고 할 수 있다.</p>
+<p>이때 이 박스는 역할이 고정된 것이 아니라 <code>Maybe</code>, <code>Promise</code> 등 다양한 기능을 가질 수도 있기 때문에 <code>문맥(Context)</code>이라는 이름으로 불리기도 한다.</p>
+<p>우리가 방금 만들었던 <code>safety</code> 함수도 값을 감싸고 있는 일종의 박스라고 생각해볼 수 있다.</p>
+<figure class="highlight typescript hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">safety</span> <<span class="hljs-title">T</span>, <span class="hljs-title">U</span>>(<span class="hljs-params">x: T|<span class="hljs-literal">undefined</span>, fn: (x: T) => U</span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">return</span> x ? fn(x) : x;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<center><br>  <img src="/2020/01/27/safety-function-composition/box.png" width="200"><br>  <small><code>x</code> 값이 있으면 <code>fn(x)</code>를 실행하고, 없으면 그대로 <code>x</code>를 반환하는 박스</small><br>  <br><br></center>
+
+<p>즉, <code>x</code>라는 값을 바로 사용하는 것이 아니라 <code>safety</code> 함수에 <code>x</code>라는 값을 넣어서 사용하고 있으므로 <code>safety</code> 함수를 일종의 박스라고 생각하자는 것이 저 설명의 취지이다.</p>
+<p>사실 펑터의 개념적인 내용은 이게 전부라고 할 수 있고, 이후 펑터를 구현하는 방법만 익혀도 펑터를 사용함에 있어서는 아무런 지장이 없다. 그러나 이번 포스팅의 목적은 펑터가 무엇인지 조금 더 깊숙하게 조져보는 것이므로 필자는 조금 더 근본적인 펑터의 개념에 대해서 이야기해볼까한다.</p>
+<h3 id="카테고리-Category"><a href="#카테고리-Category" class="headerlink" title="카테고리(Category)"></a>카테고리(Category)</h3><p><code>펑터(Functor)</code>는 수학의 <code>카테고리 이론(Category Theory)</code>에 등장하는 개념이며, 동일한 구조를 가지고 있는 카테고리들의 관계를 정의할 수 있는 구조체라고 정의된다.</p>
+<p>그렇기 때문에 펑터가 본질적으로 무엇인지, 왜 <code>Something<type></type></code>이라는 것을 통해 함수를 안전하게 합성하기위해 펑터가 필요하다는 것인지 알기 위해서는 카테고리라는 개념에 대해 알고 있어야 한다.</p>
+<p>사실 수학에서 이야기하는 카테고리라는 개념은 우리가 일상 생활 속에서 사용하는 카테고리의 의미와 크게 다르지 않다. 뭐 비슷한 것들을 묶어놓은 그런 개념이랄까…?</p>
+<p>이렇게 마음을 가볍게 먹은 후 카테고리 이론을 위키피디아에 검색해보면 아래와 같은 검색 결과를 만날 수 있게 된다.</p>
+<blockquote><p>범주 $\mathcal {C}$는 다음과 같은 데이터로 구성된다.</p>
+<ul>
+<li>대상(對象, 영어: object)들의 모임 $ob(C)$. 이 모임의 원소를 $C$의 “대상”이라고 한다.</li>
+<li>임의의 두 대상 $a,b \in ob(C)$에 대하여, $a$를 정의역으로, $b$를 공역으로 하는 사상(寫像, 영어: morphism)들의 모임 $f\colon a\to b$로 쓰고, $f$를 $a$에서 $b$로 가는 사상’이라고 한다. $C$의 사상의 모임을 $\hom(C)$로 나타낸다.</li>
+<li>임의의 세 대상 $a,b,c\in ob(C)$에 대하여, 이항 연산 $\hom(a,b)\times \hom(b,c)\to \hom(a,c)$. 이를 사상의 합성(合成, 영어: composition)이라고 한다. $f\colon a\to b$와 $g\colon b\to c$의 합성은 $g\circ f$ 또는 $gf$ 등으로 나타낸다.<br>…</li>
+</ul>
+<footer><strong>위키피디아</strong><cite><a href="https://ko.wikipedia.org/wiki/%EB%B2%94%EC%A3%BC_(%EC%88%98%ED%95%99)" target="_blank" rel="external nofollow noopener noreferrer">범주(수학)</a></cite></footer></blockquote>
+<center><br>  <img src="/2020/01/27/safety-function-composition/what.jpeg" width="500"><br>  <small>읭…?</small><br>  <br><br></center>
+
+<p>사실 카테고리 이론의 개괄적인 내용은 누구나 다 간단하게 이해할 수 있는 수준의 내용이다. 단지 추상적인 학문인 수학의 특성 상 일상적인 언어로 풀어서 설명하면 너무 길어지고 복잡해지니 간단하게 축약할 수 있는 단어와 기호들로 표현한 것 뿐이다. <small>(사실 이게 수포자가 생기는 원인 중 하나)</small></p>
+<p>일단 위에서 이야기 했듯이 수학에서 이야기하는 카테고리는 쇼핑몰 사이트에 있는 그 카테고리가 맞다. 다만 수학의 카테고리는 조금 더 추상적인 개념이기 때문에 물건으로 구성되는 카테고리일수도 있고 자연수로 구성된 카테고리일수도 있으며, 때로는 함수로 구성된 카테고리가 될 수도 있다는 차이점이 있다.</p>
+<p>위의 수학적 정의에서 카테고리는 <code>대상(Object)</code>과 <code>사상(Morphism)</code>이라는 것으로 구성된다고 이야기하고 있다.</p>
+<p>대상이라는 것은 그냥 카테고리 안에 있는 하나의 객체이다. 만약 패션 쇼핑몰의 상품 카테고리라면 대상은 셔츠, 맨투맨, 아우터, 코트가 될 것이고, 자연수로 이루어진 카테고리라면 1, 2, 3과 같은 수가 될 것이다. 여기까지는 우리가 일상적으로 사용하는 카테고리라는 단어와 비슷한 느낌이기 때문에 이해가 그리 어렵지 않다.</p>
+<p>그러나 수학에서의 카테고리는 대상 외에도 <code>사상</code>이라는 한 가지 데이터를 더 가지고 있다.</p>
+<p>위의 수학적 정의를 다시 보면 사상은 임의의 두 대상 $a,b \in ob(C)$에 대하여, $a$를 정의역으로, $b$를 공역으로 하는 무언가라고 한다. 사실 $a,b \in ob(C)$라는 말은 $a$와 $b$라는 대상이 카테고리 $C$안에 있다는 것을 의미하는 것이니 그냥 넘어가도록 하고, 우리가 집중해야할 단어는 <code>정의역</code>과 <code>공역</code>이다.</p>
+<p>정의역과 공역이라는 단어를 듣고 가장 먼저 생각나는 단어가 무엇일까? 바로 <code>함수</code>이다. $a$를 정의역으로, $b$를 공역으로 한다는 이야기는, $a$라는 대상에 어떤 사상(함수)를 적용하면 $b$가 된다는 것을 이야기하고 있는 것이다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> 대상A = <span class="hljs-number">1</span>;</span><br><span class="line"><span class="hljs-keyword">const</span> 사상add1 = <span class="hljs-function"><span class="hljs-params">x</span> =></span> x + <span class="hljs-number">1</span>;</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// 대상 A에게 add1이라는 사상을 적용하면...</span></span><br><span class="line">사상add1(대상A);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-number">2</span> <span class="hljs-comment">// 대상 B가 된다</span></span><br></pre></td></tr></tbody></table></figure>
+<p>즉, 사상이라는 것은 대상과 대상 간의 관계를 나타낼 수 있는 일종의 함수라고 생각하면 된다. 그래서 수학적 표현으로는 $f: a \to b$라고 표현할 수 있는 것이고 프로그래밍적으로는 그냥 람다 함수로 <code>(a) => b</code>이라고 표현할 수 있는 것이다. <small>(대상의 종류에 따라 사상이 함수가 아닌 경우도 있지만, 거기까진 생각하지 말자)</small></p>
+<p>여기까지 이해했다면 보다 쉬운 설명을 위해 간단한 카테고리를 하나 가져와서 가지고 놀아보도록 하겠다.</p>
+<center><br>  <img src="/2020/01/27/safety-function-composition/category.png" width="300"><br>  <br><br></center>
+
+<p>대충 이런 구조를 가진 카테고리 $\mathcal {C}$가 있다고 생각해보자. 이 카테고리에서 대상은 자전거, 자동차, 비행기이고 사상은 객체들 사이에 있는 <code>빠름</code>이라는 화살표이다.</p>
+<p>즉, 이 카테고리에서 자전거에 <code>빠름</code>이라는 사상을 적용하면 자동차가 되고, 자동차에 다시 <code>빠름</code>라는 사상을 적용하면 비행기가 된다는 뜻이다. 사상으로 객체들 간의 관계를 표현할 수 있다는 말은 이런 의미이다. 자전거가 빨라지면 자동차가 되고, 자동차가 빨라지면 비행기가 되는 것이니 말이다.</p>
+<p>그리고 사상을 적용한다는 것은 함수를 적용한다는 말과 같으므로 간단한 코드로 이 카테고리의 구조를 표현해볼 수도 있겠다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> 카테고리 = [<span class="hljs-string">'자전거'</span>, <span class="hljs-string">'자동차'</span>, <span class="hljs-string">'비행기'</span>];</span><br><span class="line"></span><br><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> 빠름 (<span class="hljs-params">카테고리, 대상</span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">const</span> index = 카테고리.findIndex(<span class="hljs-function"><span class="hljs-params">v</span> =></span> v === 대상);</span><br><span class="line">  <span class="hljs-keyword">return</span> 카테고리[index + <span class="hljs-number">1</span>];</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">빠름(카테고리, <span class="hljs-string">'자전거'</span>);</span><br><span class="line">빠름(카테고리, <span class="hljs-string">'자동차'</span>);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-string">'자동차'</span></span><br><span class="line"><span class="hljs-string">'비행기'</span></span><br></pre></td></tr></tbody></table></figure>
+<p>그리고 자전거에서 비행기로 바로 그어진 빠름 $\circ$ 빠름 사상은 빠름 사상 두 개를 합성한 것을 의미하니까, 코드로는 함수 두 개를 합성한 형태인 <code>빠름(빠름(자전거)) === '비행기'</code>로 표현할 수 있다.</p>
+<p>결국 사상의 합성이라는 것을 프로그래밍으로 표현하면 그냥 함수를 합성하는 것 그 이상도 이하도 아니다. 이 간단한 걸 수학적인 정의로 이야기하면 이렇게 복잡해보이는 이야기가 되는 것이다.</p>
+<blockquote>
+<p>임의의 세 대상 $a,b,c\in ob(C)$에 대하여, 이항 연산 $\hom(a,b)\times \hom(b,c)\to \hom(a,c)$. 이를 사상의 합성(合成, 영어: composition)이라고 한다. $f\colon a\to b$와 $g\colon b\to c$의 합성은 $g\circ f$ 또는 $gf$ 등으로 나타낸다.</p>
+</blockquote>
+<p>이 정의에서 이야기하는 임의의 세 대상은 각각 위 카테고리의 자전거, 자동차, 비행기라고 생각하면 된다. 그리고 $hom(a,b)$라는 말에서 나오는 $hom$이라는 녀석은 여러 개의 사상을 가지고 있는, 사상의 집합을 의미한다.</p>
+<p>이 정의에서 사상이 하나가 아닌 여러 개라고 이야기하는 이유는 간단하다. 위의 카테고리만 보더라도 자전거와 자동차 간의 관계가 단지 <code>빠름</code>이라는 것만 있지는 않을 것이니 말이다.</p>
+<blockquote><ol>
+<li>자전거 -<strong>빠름</strong>-> 자동차</li>
+<li>자전거 -<strong>비쌈</strong>-> 자동차</li>
+<li>자전거 -<strong>크기가 큼</strong>-> 자동차</li>
+<li>자전거 -<strong>엔진이 달림</strong>-> 자동차</li>
+</ol>
+</blockquote>
+<p>뭐 이런 식으로 어떤 대상과 대상 사이에는 여러 개의 사상이 존재할 수 있기 때문에, 이 사상들의 집합을 퉁쳐서 $hom$라고 표현한 것이다.</p>
+<p>뭐 이딴 것까지 하나하나 다 신경쓰고 있냐고 할 수도 있지만, 수학은 분명히 정답이 존재해야하고, 절대 예외를 허용하지 않는 논리적인 학문이기 때문에 이렇게 모든 케이스를 전부 고려한 정의를 만들어줘야한다.</p>
+<p>그리고 $f\colon a\to b$ 라는 표현은 $hom$에 있는 여러 개의 사상 중에서, $a$ 대상과 $b$ 대상에 단 하나의 사상만 적용한 경우를 말한다. 저 사상들 중 무슨 사상을 적용할지는 모르겠는데, 어쨌든 적용할 때는 한번에 하나만 적용해야하기 때문이다. <small>(여러 개를 동시에 적용할거야!는 양자 컴퓨터가 아니면 불가능하다)</small></p>
+<p>그리고 마지막으로 우리가 자전거에다 빠름 사상을 두 번 적용한 것과 같이 사상을 합성한 것을 $f: a\to b$ 사상과 $g: b\to c$ 사상이 합성된 $g\circ f$, 사상의 합성이라고 표현하는 것이다.</p>
+<p>즉, 자전거라는 대상에 사상 $f$를 적용하고, 다시 사상 $g$를 적용하면 비행기라는 대상이 된다는 것을 이야기 하는 것이며, 이것도 그냥 코드로 표현하면 그냥 <code>g(f(자전거)) === '비행기'</code>라고 할 수 있겠다.</p>
+<p>이렇듯이 카테고리 이론은 굉장히 추상적인 이론이라 프로그램 안에서 벌어지는 일을 전부 저런 카테고리 모델로 표현해낼 수 있으며, 마찬가지로 우리가 함수형 프로그래밍을 하면서 어떤 값에 함수를 적용하고 합성하는 과정 또한 일종의 카테고리 모형으로 표현할 수 있는 것이다.</p>
+<center><br>  <img src="/2020/01/27/safety-function-composition/category-example.png" width="300"><br>  <small>프로그램 내에서 벌어지는 모든 일은 이렇게 카테고리로 표현할 수 있다</small><br>  <br><br></center>
+
+<p>필자는 개인적으로 여기까지가 펑터를 조금 더 쉽게 이해하기위한 카테고리 이론의 전부라고 생각한다. 프로그램에서 발생하는 일들을 일종의 카테고리로 정의할 수 있다는 사실까지 받아들이고 나면 펑터를 이해하는 것이 간단해지기 때문이다.</p>
+<h3 id="펑터-Functor"><a href="#펑터-Functor" class="headerlink" title="펑터(Functor)"></a>펑터(Functor)</h3><p>자, 이제 방금 만들었던 간단한 카테고리를 이제 조금 추상적인 모델로 바꿔보도록 하자. 비행기, 자동차, 자전거와 같은 이름은 변수 <code>x, y, z</code>로 변경하고 사상 <code>빠름</code> 역시 변수인 <code>f</code>와 <code>g</code>로 변경하겠다.</p>
+<center><br>  <img src="/2020/01/27/safety-function-composition/absolute-category.png" width="300"><br>  <br><br></center>
+
+<p>아까 우리가 만든 카테고리를 이렇게 추상적인 구조로 변경하고나니, 이런 구조를 가진 카테고리는 왠지 카테고리 $C$ 말고도 더 있을 것 같다는 생각이 든다.</p>
+<p>그도 그럴것이 저런 구조의 대상과 사상을 가지는 카테고리는 굉장히 흔하고, 솔직히 어디다가 가져다 붙혀도 왠만한 정의에는 껴맞출 수 있는 보편적인 카테고리이기 때문이다.</p>
+<p>그렇다면 대상에 사상을 적용하여 다른 대상으로 만들 수 있듯이, 카테고리에도 사상을 적용하여 다른 카테고리로 만들 수 있지 않을까?</p>
+<p>이때 등장하는 것이 바로 <code>펑터(Functor)</code>이다. 즉, 펑터는 카테고리를 다른 카테고리로 변경할 수 있는 사상(함수)인 것이다.</p>
+<center><br>  <img src="/2020/01/27/safety-function-composition/functor-category.png"><br>  <br><br></center>
+
+<p>카테고리 $C$가 아무리 복잡하게 구성되어있다고 해도 우리는 $F(C)$와 같이 카테고리에 펑터를 덮어 씌우기만 하면 간단하게 펑터를 사용할 수 있다. 그러면 펑터가 적용된 카테고리 내부에 있는 모든 대상과 사상들 또한 $F$라는 함수로 감싸져 있는 형태로 변경된다.</p>
+<p>여기서 가장 중요한 것은 펑터로 감싸도 카테고리 자체의 구조는 절대 변하지 않는다는 점이다. 위 그림에서도 대상과 사상들에게 $F$라는 함수가 적용되었을 뿐 화살표 자체의 모양은 변하지 않은 것을 볼 수 있다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> 대상x = <span class="hljs-number">1</span>;</span><br><span class="line"><span class="hljs-keyword">const</span> 대상y = <span class="hljs-number">2</span>;</span><br><span class="line"><span class="hljs-keyword">const</span> 사상f = <span class="hljs-function"><span class="hljs-params">x</span> =></span> x + <span class="hljs-number">1</span>;</span><br><span class="line"></span><br><span class="line">사상f(대상x) === 대상y; <span class="hljs-comment">// true</span></span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> 대상x = 펑터(<span class="hljs-number">1</span>);</span><br><span class="line"><span class="hljs-keyword">const</span> 대상y = 펑터(<span class="hljs-number">2</span>);</span><br><span class="line"><span class="hljs-keyword">const</span> 사상f = 펑터(<span class="hljs-function"><span class="hljs-params">x</span> =></span> x + <span class="hljs-number">1</span>);</span><br><span class="line"></span><br><span class="line">사상f(대상x) === 대상y; <span class="hljs-comment">// true</span></span><br></pre></td></tr></tbody></table></figure>
+<p>즉, 펑터를 사용하더라도 카테고리가 가지고 있는 규칙 자체는 절대 변경되지 않는다. 쉽게 말해 안전하게 대상이나 사상을 감싸기만 할 뿐, 그 외에 아무런 사이드 이펙트를 일으키지 않는다는 것이다.</p>
+<p>아까 전에 프로그래밍에서 발생하는 모든 일도 일종의 카테고리로 표현할 수 있다고 했던 것을 기억하는가?</p>
+<p>아무리 복잡한 카테고리라고 해도, 단순히 펑터로 감싸기만 하면 기존 카테고리의 구조를 전혀 건드리지 않으면서 다른 카테고리로 변경할 수 있기 때문에 우리가 찾고있던 “값을 감싸서 안전하게 값을 사용하고 싶다”라는 니즈에 부합하는 개념인 것이다.</p>
+<h2 id="펑터를-직접-만들어보자"><a href="#펑터를-직접-만들어보자" class="headerlink" title="펑터를 직접 만들어보자!"></a>펑터를 직접 만들어보자!</h2><p>펑터라는 것은 그렇게 거창한 개념이 아니다. 간단하게 말해서 카테고리를 다른 카테고리로 바꿔주는 행위를 할 수 있으면 펑터인 것이다.</p>
+<p>이때 펑터가 카테고리를 변경하는 행위를 <code>매핑(mapping)</code>이라고 하며, 조금 더 자세히 말해 카테고리에 함수를 적용하여 다른 카테고리로 변경하는 행위라고 할 수도 있다.</p>
+<p>이렇게 추상적인 개념을 가진 펑터이기에, 누구는 펑터를 이래서 쓴다, 누구는 펑터를 저래서 쓴다와 같이 이야기가 전부 다른 것이다. 사실 펑터 자체는 그저 매핑이라는 행위를 할 수 있는 무언가에 불과하기 때문에 펑터를 어떤 방식으로 응용하냐에 따라 그 사용 방법 또한 무궁무진하다.</p>
+<p>사실 펑터라는 개념 자체는 특정 메소드를 통해 펑터 내부의 값을 변경할 수 있도록 만들어주기만 하면 되기 때문에 프로그래밍으로 표현하는 것이 그렇게 어렵지는 않다.</p>
+<figure class="highlight typescript hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">interface</span> Functor<t> {</t></span><br><span class="line">  map<u><span class="hljs-function">(<span class="hljs-params">f: (<span class="hljs-params">x: T</span>) => U</span>): <span class="hljs-params">Functor</span><<span class="hljs-params">U</span>></span></u></span><br><span class="line"><span class="hljs-function">}</span></span><br></pre></td></tr></tbody></table></figure>
+<blockquote><p><code>Function<t></t></code>: 이 펑터는 <code>T</code> 타입의 값을 가지고 있다.<br><code>map<u></u></code>: 이 펑터의 사상을 적용하면 <code>U</code> 타입의 값을 가진 새로운 펑터를 얻는다.<br><code>f: (x: T) => U</code>: 이 펑터의 사상이 작동하는 방식은 <code>T</code> 타입의 값을 입력으로 받아 <code>U</code> 타입의 값을 출력하는 것이다.</p>
+</blockquote>
+<p><code>map</code> 메소드는 인자로 받은 <code>(x: T) => U</code> 꼴의 함수를 펑터 내부의 값에 적용하고, 변경된 값을 감싸고 있는 새로운 펑터를 반환한다.</p>
+<p>결국 <code>map</code> 메소드에 인자로 넘기는 이 함수가 실질적으로 펑터 내부의 값을 변경하는 역할을 하는 것이며, 값을 실질적으로 변경하는 역할을 하는 이 함수를 <code>트랜스폼(Transform)</code> 함수라고 부른다.</p>
+<p>매핑을 하고 난 뒤 변경된 값 자체가 아니라 변경된 값을 감싸고 있는 펑터가 반환되는 이유는 펑터라는 것이 본질적으로 <code>카테고리 -> 카테고리</code>로 변경하는 구조체일 뿐, 카테고리를 부숴버리고 내부에 있는 대상을 꺼내는 역할을 하는 게 아니기 때문이다.</p>
+<p>그리고 펑터는 단지 새로운 카테고리를 표현하는 수단이기 때문에 기존 카테고리의 대상을 변경해서는 안된다. 그렇기 때문에 기존 펑터의 값을 업데이트하는 것이 아니라 변경된 값을 담고 있는 새로운 펑터를 생성해서 반환해야하는 것이다.</p>
+<p>이 개념이 약간 혼란스럽게 느껴진다면 <code>Array.prototype.map</code> 메소드를 생각해보자. 잘 생각해보면 배열도 어떠한 박스 안에 값을 담고 있는 일종의 펑터라고 할 수 있다.</p>
+<figure class="highlight typescript hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// Functor<number></number></span></span><br><span class="line"><span class="hljs-keyword">const</span> array: <span class="hljs-built_in">Array</span><<span class="hljs-built_in">number</span>> = [<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>];</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// 트랜스폼 함수: (x: number) => string</span></span><br><span class="line"><span class="hljs-keyword">const</span> toString = <span class="hljs-function"><span class="hljs-params">v</span> =></span> v.toString();</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// 매핑!</span></span><br><span class="line">array.map(toString);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// 새로운 펑터 Functor<string></string></span></span><br><span class="line">[<span class="hljs-string">'1'</span>, <span class="hljs-string">'2'</span>, <span class="hljs-string">'3'</span>]</span><br></pre></td></tr></tbody></table></figure>
+<p>우리는 트랜스폼 함수인 <code>toString</code> 함수를 사용하여 배열이라는 펑터 내부의 값을 변경할 수는 있지만, 배열이라는 박스 자체를 없애버리지는 않는다.</p>
+<p>일반적으로 우리가 자주 사용하는 <code>map</code>이라는 메소드가 <code>Array</code>에 물려있기 때문에 매핑이라는 행위를 이터레이션과 연결지어 생각하기 쉬운데, 매핑은 그렇게 구체적인 행위가 아니다.</p>
+<p>뭐 <code>map</code> 메소드 내부에서 이터레이션을 돌던 북을 치던 브레이크댄스를 추던 최종적으로 <code>Functor<t> -> Functor<u></u></t></code>라는 변환만 수행할 수 있으면 되는 것이다. 이제 펑터가 어떤 느낌으로 돌아가는 개념인지 살짝 감을 잡을 수 있을 것이다.</p>
+<p>자, 이제 펑터를 직접 구현해볼 시간이다. 펑터라는 게 워낙 추상적인 개념인 만큼 어떻게 응용하냐에 따라 무궁무진한 펑터를 만들 수 있지만, 이미 포스팅이 꽤나 길어졌기 때문에 많은 펑터를 선보이기는 힘들 것 같다. 그리고 펑터를 사용한 구현체들은 다른 분들이 작성해주신 포스팅에도 많으니 궁금하신 분들은 그 쪽을 참고해보도록 하자.</p>
+<p>이 포스팅에서는 가장 간단한 형태의 펑터인 <code>Just</code> 펑터와 <code>Nothing</code> 펑터를 만들어보고, 이 두 펑터를 조합하여 값의 유무로 인한 사이드 이펙트를 관리할 수 있는 <code>Maybe</code> 펑터만 만들어보도록 하겠다.</p>
+<h3 id="Just"><a href="#Just" class="headerlink" title="Just"></a>Just</h3><p><code>Just</code> 펑터는 아무런 추가적인 기능없이 값을 그냥 감싸고 있기만 하고 <code>map</code> 메소드를 통해서 그 값을 변경할 수 있는 펑터이다.</p>
+<figure class="highlight typescript hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">class</span> Just<t> <span class="hljs-keyword">implements</span> Functor<t> {</t></t></span><br><span class="line">  value: T;</span><br><span class="line">  <span class="hljs-keyword">constructor</span> (<span class="hljs-params">value: T</span>) {</span><br><span class="line">    <span class="hljs-keyword">this</span>.value = value;</span><br><span class="line">  }</span><br><span class="line">  map<u> <span class="hljs-function">(<span class="hljs-params">f: (<span class="hljs-params">x: T</span>) => U</span>) {</span></u></span><br><span class="line"><span class="hljs-function">    <span class="hljs-params">return</span> <span class="hljs-params">new</span> <span class="hljs-params">Just</span><<span class="hljs-params">U</span>>(<span class="hljs-params">f(<span class="hljs-params"><span class="hljs-keyword">this</span>.value</span>)</span>);</span></span><br><span class="line"><span class="hljs-function">  }</span></span><br><span class="line"><span class="hljs-function">}</span></span><br></pre></td></tr></tbody></table></figure>
+<p><code>Just</code>는 자신 내부에 값을 가지고 있는 단순한 펑터이다. 이 펑터의 <code>map</code> 메소드를 사용한다는 것은 펑터가 가지고 있는 <code>T</code> 타입의 값을 <code>U</code> 타입의 값으로 변경하고, 이 값을 다시 새로운 <code>Just</code> 펑터에 감싸서 반환하는 것을 의미한다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">new</span> Just(<span class="hljs-number">3</span>)</span><br><span class="line">  .map(<span class="hljs-function"><span class="hljs-params">v</span> =></span> v + <span class="hljs-number">1000</span>)</span><br><span class="line">  .map(<span class="hljs-function"><span class="hljs-params">v</span> =></span> v.toString)</span><br><span class="line">  .map(<span class="hljs-function"><span class="hljs-params">v</span> =></span> v.length);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Just { <span class="hljs-attr">value</span>: <span class="hljs-number">4</span> }</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="Nothing"><a href="#Nothing" class="headerlink" title="Nothing"></a>Nothing</h3><p><code>Nothing</code> 펑터는 이름 그대로 내부에 어떠한 값도 가지고 있지 않은 펑터를 의미한다. 그리고 펑터 내부에 값이 없으니 트랜스폼 함수를 적용할 수도 없으므로 이 펑터의 <code>map</code> 메소드는 아무 행동도 하지 않고 그대로 <code>Nothing</code> 펑터를 반환하기만 한다.</p>
+<figure class="highlight typescript hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">class</span> Nothing <span class="hljs-keyword">implements</span> Functor<<span class="hljs-literal">null</span>> {</span><br><span class="line">  map () {</span><br><span class="line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> Nothing();</span><br><span class="line">  }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">new</span> Nothing().map().map().map();</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Nothing {}</span><br></pre></td></tr></tbody></table></figure>
+<p>굳이 이렇게 값의 유무를 표현하는 펑터가 필요한 이유는 무엇일까?</p>
+<p>한번 펑터를 사용하여 함수를 합성하기 시작하면 그 연산 과정에서 필요한 모든 값들 또한 펑터로 감싸져 있어야하기 때문이다. 만약 펑터로 감싸진 값에 그냥 함수를 적용하려고 하면 당연히 에러가 발생한다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> foo = <span class="hljs-keyword">new</span> Just(<span class="hljs-number">3</span>);</span><br><span class="line">foo + <span class="hljs-number">2</span>;</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Operator <span class="hljs-string">'+'</span> cannot be applied to types <span class="hljs-string">'Just<number>'</number></span> and <span class="hljs-string">'number'</span>.</span><br></pre></td></tr></tbody></table></figure>
+<p>그렇기 때문에 한번 펑터를 사용하여 함수를 합성하기 시작했다면 합성이 끝날 때까지 계속 펑터를 사용해야한다. 애초에 펑터를 사용하는 이유는 함수를 합성하는 동안 타입 안정성을 유지하고 사이드 이펙트를 관리하기 위해서인데, 이 과정에서 펑터가 아닌 녀석이 하나라도 끼어들게 되면 합성한 연산 전체의 안정성을 보장할 수 없기 때문이다. <small>(미꾸라지 한 마리가 물을 흐린다)</small></p>
+<p>이렇게 들으면 뭔가 불편하다고 느껴질 수도 있지만 아까 위에서 대표적인 펑터라고 이야기했던 <code>Array</code>를 사용하는 경우를 생각해보면 이게 그렇게 특이한 개념이 아니라는 사실을 알 수 있다.</p>
+<p>만약 <code>new Array(3)</code>이라는 배열이 있을 때 이 배열이 가지고 있는 값에 2를 더하고 싶다면 어떻게 해야할까? 단, 함수형 프로그래밍의 세계에서는 상태의 변경을 허용하지 않으므로 <code>new Array(3)[0] += 2</code>와 같은 개념으로 접근해서는 안된다는 사실을 잊지말자.</p>
+<p>즉, 불변성을 중시하는 함수형 프로그래밍의 세계에서 배열 내부의 값을 변경하고 싶다면, “변경된 값을 가지고 있는 새로운 배열”을 생성할 수 밖에 없다.</p>
+<p>그래서 우리는 불변성을 지키며 배열 내부의 값을 변경하기위해 무조건 <code>map</code>이라는 메소드를 사용해야하는 것이다. 이제 펑터의 <code>map</code> 메소드가 왜 값을 변경한 후 새로운 펑터를 생성해서 반환하는지 조금은 이해가 갈 거라고 생각한다.</p>
+<h3 id="Maybe"><a href="#Maybe" class="headerlink" title="Maybe"></a>Maybe</h3><p>자, 여기까지 이해했다면 조금 더 복잡한 펑터를 만들어보도록 하자. <code>Maybe</code>라는 펑터의 <code>map</code> 메소드는 펑터 내부에 값이 있다면 인자로 받은 함수를 값에 적용하고, 값이 없다면 값이 없음을 의미하는 펑터인 <code>Nothing</code> 펑터를 반환하는 펑터이다.</p>
+<figure class="highlight typescript hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">class</span> Maybe<t> <span class="hljs-keyword">implements</span> Functor<t> {</t></t></span><br><span class="line">  value: Just<t> | Nothing;</t></span><br><span class="line">  <span class="hljs-keyword">constructor</span> (<span class="hljs-params">value?: T</span>) {</span><br><span class="line">    <span class="hljs-keyword">if</span> (value) {</span><br><span class="line">      <span class="hljs-keyword">this</span>.value = <span class="hljs-keyword">new</span> Just<t>(value);</t></span><br><span class="line">    }</span><br><span class="line">    <span class="hljs-keyword">else</span> {</span><br><span class="line">      <span class="hljs-keyword">this</span>.value = <span class="hljs-keyword">new</span> Nothing();</span><br><span class="line">    }</span><br><span class="line">  }</span><br><span class="line">  map<u> <span class="hljs-function">(<span class="hljs-params">f: (<span class="hljs-params">x: T|<span class="hljs-literal">null</span></span>) => U</span>) {</span></u></span><br><span class="line"><span class="hljs-function">    <span class="hljs-params">if</span> (<span class="hljs-params"><span class="hljs-keyword">this</span>.value <span class="hljs-keyword">instanceof</span> Just</span>) {</span></span><br><span class="line"><span class="hljs-function">      <span class="hljs-params">return</span> <span class="hljs-params">this</span>.<span class="hljs-params">value</span>.<span class="hljs-params">map</span><<span class="hljs-params">U</span>>(<span class="hljs-params">f</span>);</span></span><br><span class="line"><span class="hljs-function">    }</span></span><br><span class="line"><span class="hljs-function">    <span class="hljs-params">else</span> {</span></span><br><span class="line"><span class="hljs-function">      <span class="hljs-params">return</span> <span class="hljs-params">new</span> <span class="hljs-params">Nothing</span><span class="hljs-params">()</span>;</span></span><br><span class="line"><span class="hljs-function">    }</span></span><br><span class="line"><span class="hljs-function">  }</span></span><br><span class="line"><span class="hljs-function">}</span></span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> getFirstLetter = <span class="hljs-function"><span class="hljs-params">s</span> =></span> s[<span class="hljs-number">0</span>];</span><br><span class="line"><span class="hljs-keyword">const</span> getStringLength = <span class="hljs-function"><span class="hljs-params">s</span> =></span> s.length;</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">const</span> foo = <span class="hljs-keyword">new</span> Maybe(<span class="hljs-string">'hi'</span>)</span><br><span class="line">  .map(getFirstLetter)</span><br><span class="line">  .map(getStringLength);</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">const</span> bar = <span class="hljs-keyword">new</span> Maybe(<span class="hljs-string">''</span>)</span><br><span class="line">  .map(getFirstLetter)</span><br><span class="line">  .map(getStringLength);</span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.log(foo); <span class="hljs-comment">// Just { value: 1 }</span></span><br><span class="line"><span class="hljs-built_in">console</span>.log(bar); <span class="hljs-comment">// Nothing {}</span></span><br></pre></td></tr></tbody></table></figure>
+<p><code>Maybe</code> 펑터를 사용하면 우리는 중간에 <code>null</code>이나 <code>undefined</code>가 반환되어 함수의 합성이 깨져버리는 걱정 없이 안심하고 함수를 합성할 수 있다.</p>
+<p>물론 최종적으로 연산 결과가 <code>Just</code>인지 <code>Nothing</code>인지 구분하려면 <code>if</code> 문을 통해서 조건 검사를 해야하기는 하지만, 적어도 함수를 합성하는 중간중간마다 검사하지는 않는다. 즉, 함수를 합성할 때는 합성에만 집중할 수 있다는 뜻이다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// 펑터가 없다면 함수를 함부로 합성할 수 없다</span></span><br><span class="line"><span class="hljs-keyword">const</span> firstLetter = getFirstLetter(<span class="hljs-string">''</span>);</span><br><span class="line"><span class="hljs-keyword">if</span> (firstLetter) {</span><br><span class="line">  <span class="hljs-built_in">console</span>.log(getStringLength(firstLetter));</span><br><span class="line">}</span><br><span class="line"><span class="hljs-keyword">else</span> {</span><br><span class="line">  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'함수 합성 실패'</span>);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// Maybe 펑터를 사용하면 마음놓고 합성이 가능하다</span></span><br><span class="line"><span class="hljs-keyword">const</span> result =</span><br><span class="line">  <span class="hljs-keyword">new</span> Maybe(<span class="hljs-string">''</span>)</span><br><span class="line">  .map(getFirstLetter)</span><br><span class="line">  .map(getStringLength);</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">if</span> (result <span class="hljs-keyword">instanceof</span> Just) {</span><br><span class="line">  <span class="hljs-built_in">console</span>.log(result);</span><br><span class="line">}</span><br><span class="line"><span class="hljs-keyword">else</span> {</span><br><span class="line">  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'함수 합성 실패'</span>);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>이렇게 단순히 값을 감싸고, 내부에 있는 값을 변경할 수 있다는 단순한 개념만으로 우리는 함수의 안전한 합성을 할 수 있게 되었다.</p>
+<p>이 포스팅에서는 값의 유무로 인한 사이드 이펙트를 관리할 수 있는 <code>Maybe</code> 펑터 만을 예시로 들었지만, 여러 번 이야기 했듯이 펑터는 그냥 값을 감싸고 있는 박스이기 때문에 어떤 로직을 구현하냐에 따라 천차만별로 다른 펑터를 만들어낼 수 있다.</p>
+<p>예를 들면 현재에는 아직 값이 없지만 미래에 값이 결정되는 것을 약속해주는 <code>Promise</code> 같은 개념도 일종의 펑터라고 볼 수 있고, 여러 개의 값을 순차적으로 저장할 수 있는 <code>Array</code>도 일종의 펑터라고 할 수 있다.</p>
+<p>펑터라는 것은 추상적인 개념일 뿐이지 구체적으로 특정 로직만을 수행하는 구현체가 아니라는 말이다. 말 그대로 코에 붙히면 코걸이고 귀에 붙히면 귀걸이기 때문에 단순히 뭔가로 값을 감싸고 그 값을 변환할 수 있다는 개념만으로도 마음껏 상상의 나래를 펼치며 다양한 펑터 구현체들을 만들어낼 수 있다.</p>
+<h2 id="마치며"><a href="#마치며" class="headerlink" title="마치며"></a>마치며</h2><p>이 포스팅을 읽는 독자 분들 중 펑터에 대한 설명을 읽으면서 “어? 이거 모나드 아닌가?”라고 하신 분들도 있을 것이라 생각한다.</p>
+<p>정확히 말하면 반은 맞고 반은 틀리다. 모나드도 결국 함수를 안전하게 합성하기 위한 펑터의 한 종류이기 때문이다. 간단하게 말하면 모나드라는 것은 수학적으로 특별한 몇 가지 조건을 만족시키는 두 개의 펑터 사이의 사상이라고 할 수 있다.</p>
+<p>어플리케이티브 펑터나 모나드를 이 포스팅에서 따로 설명하지는 않았지만, 뭐 원리가 어쩌고 저쩌고를 떠나서 그냥 이런 개념들을 추가적으로 사용하는 이유는 그냥 딱 한 가지 밖에 없다.</p>
+<blockquote>
+<p>어 뭐여…? 펑터로도 해결이 안되네…?</p>
+</blockquote>
+<p>함수의 안전한 합성이라는 목표를 이루기 위해 펑터를 사용했지만 사실 프로그래밍을 하다보면 펑터로 해결이 안되는 케이스도 수두룩하기 때문이다. 뭐 펑터로 여러 번 감싸져 있는 값에 매핑해야한다거나 하는 케이스말이다. 이런 경우에는 펑터의 매핑만으로는 함수를 합성할 수 없다.</p>
+<p>결국 어플리케이티브 펑터나 모나드는 펑터로도 해결되지 않는 예외 상황들까지 모두 커버할 수 있도록 더 추상적이고 강력하게 만든 펑터라고 생각하면 된다.</p>
+<p>사실 이번 포스팅에서 모나드의 개념까지 설명을 해보려고 했지만, 이 포스팅에서 펑터를 설명했던 방식으로 모나드를 설명하기 위해서는 개요 수준의 카테고리 이론이 아니라 조금 더 깊숙한 설명이 필요하기 때문에 포기했다. <small>(모나드는 다음 포스팅에서 한 번 조져보겠다)</small></p>
+<p>물론 함수의 합성과 펑터와의 관계를 파악하는 것은 꽤나 추상적인 개념이기 때문에 이해하기에 조금 어렵긴 하다. 그런 이유로 어떤 개발자들은 펑터와 모나드의 사용 방법 정도만 익히고 프로그래밍하기도 하지만, 개인적으로는 이러한 개념들이 왜 사용되는 것인지, 어디서 아이디어를 얻은 것인지 알고 있다면 프로그래밍이 더 재밌어지지 않을까라는 생각이 든다.</p>
+<p>이상으로 어떻게 하면 안전하게 함수를 합성할 수 있을까? 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/12/29/about-pure-functions/" title="수학에서 기원한 프로그래밍 패러다임, 순수 함수" rel="bookmark">수학에서 기원한 프로그래밍 패러다임, 순수 함수</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2020/01/05/what-is-immutable/" title="변하지 않는 상태를 유지하는 방법, 불변성(Immutable)" rel="bookmark">변하지 않는 상태를 유지하는 방법, 불변성(Immutable)</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/12/15/about-functional-thinking/" title="기존의 사고 방식을 깨부수는 함수형 사고" rel="bookmark">기존의 사고 방식을 깨부수는 함수형 사고</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/composition/">Composition</a><a class="tag -link" href="/tags/functional-programming/">Functional Programming</a><a class="tag -link" href="/tags/functor/">Functor</a><a class="tag -link" href="/tags/monad/">Monad</a><a class="tag -link" href="/tags/모나드/">모나드</a><a class="tag -link" href="/tags/범주론/">범주론</a><a class="tag -link" href="/tags/카테고리-이론/">카테고리 이론</a><a class="tag -link" href="/tags/펑터/">펑터</a><a class="tag -link" href="/tags/함수형-프로그래밍/">함수형 프로그래밍</a><a class="tag -link" href="/tags/합성-함수/">합성 함수</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2020/02/11/question-driven-thinking/">
+                <i class="fas fa-chevron-left"></i> Question Driven Thinking - 스스로 질문하며 학습하기
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2020/01/05/what-is-immutable/">
+                변하지 않는 상태를 유지하는 방법, 불변성(Immutable) <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#모든-것은-함수의-합성으로-이루어진다" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>모든 것은 함수의 합성으로 이루어진다</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#정의역과-치역이-일치해야-함수를-합성할-수-있다" data-link-name="toc">
+        <span class="has-mr-6">1.1</span>
+        <span>정의역과 치역이 일치해야 함수를 합성할 수 있다</span>
+        </a></li><li>
+        <a class="is-flex" href="#순수-함수에도-사이드-이펙트는-존재한다" data-link-name="toc">
+        <span class="has-mr-6">1.2</span>
+        <span>순수 함수에도 사이드 이펙트는 존재한다</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#그럼-사이드-이펙트를-어떻게-관리해야할까" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>그럼 사이드 이펙트를 어떻게 관리해야할까?</span>
+        </a></li><li>
+        <a class="is-flex" href="#펑터란-무엇일까" data-link-name="toc">
+        <span class="has-mr-6">3</span>
+        <span>펑터란 무엇일까?</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#카테고리-Category" data-link-name="toc">
+        <span class="has-mr-6">3.1</span>
+        <span>카테고리(Category)</span>
+        </a></li><li>
+        <a class="is-flex" href="#펑터-Functor" data-link-name="toc">
+        <span class="has-mr-6">3.2</span>
+        <span>펑터(Functor)</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#펑터를-직접-만들어보자" data-link-name="toc">
+        <span class="has-mr-6">4</span>
+        <span>펑터를 직접 만들어보자!</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#Just" data-link-name="toc">
+        <span class="has-mr-6">4.1</span>
+        <span>Just</span>
+        </a></li><li>
+        <a class="is-flex" href="#Nothing" data-link-name="toc">
+        <span class="has-mr-6">4.2</span>
+        <span>Nothing</span>
+        </a></li><li>
+        <a class="is-flex" href="#Maybe" data-link-name="toc">
+        <span class="has-mr-6">4.3</span>
+        <span>Maybe</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#마치며" data-link-name="toc">
+        <span class="has-mr-6">5</span>
+        <span>마치며</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="어떻게 하면 안전하게 함수를 합성할 수 있을까?" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

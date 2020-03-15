@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>JavaScript와 함께 해시테이블을 파헤쳐보자 - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="이번 포스팅에서는 많이 사용되는 자료구조 중 하나인 해시 테이블(Hash Table)에 대해서 정리하려고 한다. 먼저 해시 테이블이 무엇인지, 왜 사용하는지 알아보자!">
+<meta name="keywords" content="JavaScript,컴퓨터 공학,자료구조,해시테이블,Hash Table,Data structure">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JavaScript와 함께 해시테이블을 파헤쳐보자">
+<meta property="og:url" content="https://evan-moon.github.io/2019/06/25/hashtable-with-js/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="이번 포스팅에서는 많이 사용되는 자료구조 중 하나인 해시 테이블(Hash Table)에 대해서 정리하려고 한다. 먼저 해시 테이블이 무엇인지, 왜 사용하는지 알아보자!">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2019/06/25/hashtable-with-js/thumbnail.jpg">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.131Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JavaScript와 함께 해시테이블을 파헤쳐보자">
+<meta name="twitter:description" content="이번 포스팅에서는 많이 사용되는 자료구조 중 하나인 해시 테이블(Hash Table)에 대해서 정리하려고 한다. 먼저 해시 테이블이 무엇인지, 왜 사용하는지 알아보자!">
+<meta name="twitter:image" content="https://evan-moon.github.io/2019/06/25/hashtable-with-js/thumbnail.jpg">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2019/06/25/hashtable-with-js/">
+
+
+<link rel="alternative" href="/feed.xml" title="JavaScript와 함께 해시테이블을 파헤쳐보자" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="JavaScript와 함께 해시테이블을 파헤쳐보자" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2019/06/25/hashtable-with-js/thumbnail.jpg" alt="JavaScript와 함께 해시테이블을 파헤쳐보자">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-06-24T23:22:36.000Z">2019-06-25</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/programming/">Programming</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/programming/algorithm/">Algorithm</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                JavaScript와 함께 해시테이블을 파헤쳐보자
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>이번 포스팅에서는 많이 사용되는 자료구조 중 하나인 <code>해시 테이블(Hash Table)</code>에 대해서 정리하려고 한다. 먼저 <code>해시 테이블</code>이 무엇인지, 왜 사용하는지 알아보자!<br><a id="more"></a></p>
+<h2 id="해시-테이블-Hash-Table-이-뭔가요"><a href="#해시-테이블-Hash-Table-이-뭔가요" class="headerlink" title="해시 테이블(Hash Table)이 뭔가요?"></a>해시 테이블(Hash Table)이 뭔가요?</h2><p>해시 테이블은 어떤 특정 값을 받으면 그 값을 해시 함수에 통과시켜 나온 <code>인덱스(index)</code>에 저장하는 자료구조이다. 보통 배열을 사용해서 구현하는 경우가 많은 것 같다. 일단 <code>해시 함수</code>가 뭐길래 사용한다는 건지 <code>해시</code>가 뭔지 설명하기 전에 <code>해시 테이블</code>이라는 개념이 어디서부터 출발한 것인지 알아보자.</p>
+<h3 id="직접-주소-테이블-Direct-Address-Table"><a href="#직접-주소-테이블-Direct-Address-Table" class="headerlink" title="직접 주소 테이블(Direct Address Table)"></a>직접 주소 테이블(Direct Address Table)</h3><p><code>해시 테이블</code>의 아이디어는 <code>직접 주소 테이블</code>이라는 자료구조에서 부터 출발한다. <code>직접 주소 테이블</code>은 입력받은 <code>value</code>가 곧 <code>key</code>가 되는 데이터 매핑 방식이다. 코드로 보면 더 이해가 쉽다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">DirectAddressTable</span> </span>{</span><br><span class="line">  <span class="hljs-keyword">constructor</span> () {</span><br><span class="line">    <span class="hljs-keyword">this</span>.table = [];</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  setValue (value = <span class="hljs-number">-1</span>) {</span><br><span class="line">    <span class="hljs-keyword">this</span>.table[value] = value;</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  getValue (value = <span class="hljs-number">-1</span>) {</span><br><span class="line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.table[value];</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  getTable () {</span><br><span class="line">    <span class="hljs-keyword">return</span> <span class="hljs-keyword">this</span>.table;</span><br><span class="line">  }</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">const</span> myTable = <span class="hljs-keyword">new</span> DirectAddressTable();</span><br><span class="line">myTable.setValue(<span class="hljs-number">3</span>);</span><br><span class="line">myTable.setValue(<span class="hljs-number">10</span>);</span><br><span class="line">myTable.setValue(<span class="hljs-number">90</span>);</span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.log(myTable.getTable());</span><br></pre></td></tr></tbody></table></figure>
+<p>만약 데스크톱으로 이 포스팅을 보고 있다면 이 코드를 복붙한 후 브라우저 콘솔이나 NodeJS로 실행해보자.<small>(물론 IE에서는 안돌아간다)</small><br>그러면 콘솔에 우리의 이쁜 테이블이 출력된다.</p>
+<figure class="highlight plain hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[ <3 empty items>, 3, <6 empty items>, 10, <79 empty items>, 90 ]</79></6></3></span><br></pre></td></tr></tbody></table></figure>
+<p>우리가 <code>3</code>을 테이블에 넣으면 이 값은 배열의 <code>3</code>번 인덱스의 요소가 되고 <code>90</code>을 넣으면 <code>90</code>번 인덱스의 요소가 된다. 그야말로 초 심플하다.<br>이렇게 <code>직접 주소 테이블</code>을 사용할때는 들어오는 값이 뭔지 알면 이 값이 저장된 인덱스도 함께 알 수 있기 때문에 저장된 데이터에 바로 접근해서 값을 가져올 수 있다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">myTable.getValue(<span class="hljs-number">3</span>); <span class="hljs-comment">// 3</span></span><br></pre></td></tr></tbody></table></figure>
+<p>찾고자 하는 값과 테이블의 인덱스가 동일하므로 테이블을 뒤적거릴 필요없이 값이 저장된 공간에 바로 접근해서 값을 가져올 수 있으므로 시간복잡도는 $O(1)$이다. 마찬가지로 테이블에 있는 값을 <code>삽입</code>, <code>수정</code>, <code>삭제</code>하는 행위도 값이 어디 있는지만 알고있으면 모두 한방에 해결할 수 있으므로 역시 $O(1)$의 시간복잡도로 해결할 수 있다.</p>
+<p>보통 이런 단순한 자료구조에서 값을 <code>탐색</code>, <code>삽입</code>, <code>수정</code>, <code>삭제</code>하는 알고리즘이 시간을 잡아먹게 되는 이유는 대부분 비슷비슷하다.</p>
+<hr>
+<ol>
+<li>내가 찾고 싶은 값이 어디 있는지 모른다. 일단 효율적으로 뒤져보자.(<code>이진트리탐색</code> 같은 경우)</li>
+<li>내가 이 값을 삽입하거나 삭제하면 다른 값이 영향을 받는다.(<code>링크드 리스트</code> 같은 경우)</li>
+</ol>
+<hr>
+<p>이렇게 <code>직접 주소 테이블</code>은 내가 보고 싶은 값이 어디 있는지 알고 있기 때문에 바로 접근해서 이후 작업을 수행할 수 있다는 점에서 굉장히 편리하다고 할 수 있다.</p>
+<center><br>  <img src="/2019/06/25/hashtable-with-js/fantastic.jpeg"><br>  <br><br></center>
+
+<p>하지만 <code>직접 주소 테이블</code>도 당연히 <strong>단점</strong>이 있다. 바로 <code>공간의 효율성</code>이 좋지 않다는 것이다.<br>방금 선언했던 <code>myTable</code>의 테이블 상태를 한번 보면 이해가 바로 된다. 이 테이블에는 <code>3</code>, <code>10</code>, <code>90</code>의 값을 넣었고 이 값들은 크기 차이가 꽤나 큰 편이다.</p>
+<p>그 결과 우리의 <code>myTable</code>은 이렇게 듬성듬성한 구조로 데이터를 저장하게 된 것이다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-built_in">Array</span>(<span class="hljs-number">91</span>) [</span><br><span class="line"> <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">3</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">10</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>,</span><br><span class="line"> <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>,</span><br><span class="line"> <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>,</span><br><span class="line"> <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>,</span><br><span class="line"> <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">0</span>, <span class="hljs-number">90</span>]</span><br></pre></td></tr></tbody></table></figure>
+<center><br>  <sub>윌리를 찾아라 Array 버전. 값이 어디에 저장되었을까요?</sub><br>  <br><br></center>
+
+<p>위에서도 볼 수 있듯이 저장된 데이터를 제외하고 <code>0</code>으로 채워진 나머지 공간은 <code>값은 없지만 메모리 공간은 할당되어 있는 상태</code>인 것이다. 즉, 사용하지 않는 아까운 공간이다. 즉 테이블에 넣고자 하는 데이터의 <code>값의 범위</code>보다 <code>값의 개수</code>가 작다면 공간적인 효율이 떨어지는 것이다.</p>
+<p>이런 상황을 <code>적재율이 낮다</code>라고 표현하는데, 적재율은 <code>값의 개수/테이블의 크기</code>로 나타내게 된다. 필자가 방금 만든 이 테이블의 현재 적재율은 <code>3/91 = 0.03296...</code>으로 약 <code>3%</code> 정도이므로 높은 적재율은 아니라고 볼 수 있다.</p>
+<p>만약 <code>1000</code>과 같이 큰 값이 하나만 더 테이블에 들어온다고 해도 테이블의 크기는 <code>1001</code>이 되고 적재율은 <code>0.003996...</code>으로 약 <code>0.4%</code>가 된다. 즉, <code>직접 주소 테이블</code>이 큰 힘을 발휘할 수 있는 순간은 <code>1, 2, 3</code>과 같이 연속적인 값을 저장하거나 혹은 값들의 범위 차이가 크지 않은 데이터라고 할 수 있다.</p>
+<h3 id="직접-주소-테이블의-단점을-해시-함수로-보완하자"><a href="#직접-주소-테이블의-단점을-해시-함수로-보완하자" class="headerlink" title="직접 주소 테이블의 단점을 해시 함수로 보완하자!"></a>직접 주소 테이블의 단점을 해시 함수로 보완하자!</h3><p>이렇게 <code>직접 주소 테이블</code>은 값에 접근하기는 편하지만 공간 효율이 좋지 않다는 단점이 있다. 그래서 이 단점을 보완한 게 바로 <code>해시 테이블</code>인 것이다.</p>
+<p><code>해시 테이블</code>은 <code>직접 주소 테이블</code>처럼 값을 바로 테이블의 인덱스로 사용하는 것이 아니라 <code>해시 함수(Hash Function)</code>이라는 것에 한번 통과시켜서 사용한다. <code>해시 함수</code>는 임의의 길이를 가지는 임의의 데이터를 고정된 길이의 데이터로 매핑하는 함수이다. 이때 이 함수가 뱉어내는 결과물을 <code>해시(Hash)</code>라고 부른다.</p>
+<center><br>  <img src="/2019/06/25/hashtable-with-js/hashbrown.jpg"><br>  <sub>해시(Hash)의 사전적 정의는 사실 “잘게 썬 요리” 같은 뉘앙스로 사용된다. 롯데리아에서 파는 해시브라운을 생각해보자.<br>해시 함수도 어떤 값이 들어오든 간에 다 뭉개서 내가 원하는 길이의 값으로 만든다는 점에서 일맥상통한다.</sub><br>  <br><br></center>
+
+<p>그럼 한번 이해를 돕기위해 간단한 <code>해시 함수</code>를 만들어보겠다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">hashFunction</span> (<span class="hljs-params">key</span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">return</span> key % <span class="hljs-number">10</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.log(hashFunction(<span class="hljs-number">102948</span>)); <span class="hljs-comment">// 8</span></span><br><span class="line"><span class="hljs-built_in">console</span>.log(hashFunction(<span class="hljs-number">191919191</span>)); <span class="hljs-comment">// 1</span></span><br><span class="line"><span class="hljs-built_in">console</span>.log(hashFunction(<span class="hljs-number">13</span>)); <span class="hljs-comment">// 3</span></span><br><span class="line"><span class="hljs-built_in">console</span>.log(hashFunction(<span class="hljs-number">997</span>)); <span class="hljs-comment">// 7</span></span><br></pre></td></tr></tbody></table></figure>
+<p>이게 끝이다. 물론 허접한 <code>해시 함수</code>이지만 그래도 <code>해싱</code>이라는 본연의 역할을 잘 수행하는데는 별로 문제가 없다.<br>필자의 허접한 <code>해시 함수</code>는 무조건 들어온 값을 <code>10</code>으로 나눈 후의 나머지를 반환하는 일을 할 뿐이지만 어떤 값이 들어오든 그 값의 <code>1</code>의 자리만 반환될 것이기 때문에 반환되는 값은 무조건 <code>0~9</code> 사이의 값이라는 것이 보장된다.</p>
+<p>그리고 해시 함수의 특성 중 하나가 <code>해싱만 보고는 인자로 어떤 값을 받았는지 추측하기 힘들다</code>는 것이다. 1의 자리만 보고 원래 수가 얼마였는지 맞출 수는 없을 것이다. 이러한 해시 함수의 특징은 <code>암호학</code>에서도 아주 잘 사용하고 있다.</p>
+<p>자, 하지만 우리에게 중요한건 <code>암호학</code>이 아니라 바로 이것이다.</p>
+<blockquote>
+<p>어떤 값이 해시 함수로 들어오든 무조건 <strong>0~9</strong>사이의 값이 반환된다!</p>
+</blockquote>
+<p><code>직접 주소 테이블</code>의 단점이 바로 <code>10000</code>이라는 값이 하나만 들어오더라도 <code>10000</code>번 인덱스에 값을 저장하기 위해 <code>10000</code>의 크기를 가진 테이블을 생성해야하기 때문에 나머지 <code>9999</code>개의 버리는 공간이 생기는 것이다.</p>
+<p>그러나 필자의 <code>해시 함수</code>를 사용하면 <code>100</code>이 들어오면 <code>0</code>을 반환할 것이고 <code>10001</code>이 들어오면 <code>1</code>을 반환, 심지어 <code>8982174981274</code>가 들어와도 <code>4</code>를 반환한다.</p>
+<p>즉, 고정된 테이블의 길이를 정해둘 수 있고 그 안에만 데이터를 저장할 수 있게 된 것이다. <code>해시 함수</code>의 이러한 성질을 이용해서 아주 간단한 해시테이블을 한번 작성해보겠다. 필자는 <code>해시 테이블</code> 크기를 <code>5</code>로 설정하고 어떤 값이 들어와도 이 테이블 안에 저장될 수 있도록 <code>해시 함수</code>를 작성할 것이다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> myTableSize = <span class="hljs-number">5</span>;</span><br><span class="line"><span class="hljs-keyword">const</span> myHashTable = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Array</span>(myTableSize);</span><br><span class="line"></span><br><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">hashFunction</span> (<span class="hljs-params">key</span>) </span>{</span><br><span class="line">  <span class="hljs-comment">// 들어온 값을 테이블의 크기로 나눠주고 나머지를 반환하면 된다.</span></span><br><span class="line">  <span class="hljs-keyword">return</span> key % myTableSize;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">myHashTable[hashFunction(<span class="hljs-number">1991</span>)] = <span class="hljs-number">1991</span>;</span><br><span class="line">myHashTable[hashFunction(<span class="hljs-number">1234</span>)] = <span class="hljs-number">1234</span>;</span><br><span class="line">myHashTable[hashFunction(<span class="hljs-number">5678</span>)] = <span class="hljs-number">5678</span>;</span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.log(myHashTable); <span class="hljs-comment">// [empty, 1991, empty, 5678, 1234]</span></span><br></pre></td></tr></tbody></table></figure>
+<p>들어온 값들은 <code>1991</code>, <code>1234</code>, <code>5678</code>로, 해시 테이블의 사이즈인 <code>5</code>보다 훨씬 큰 값이지만 <code>해시 함수</code>를 거친 결과 <code>0~4</code> 사이의 값만 반환되기 때문에 필자의 작고 귀여운 해시 테이블 안에 값이 차곡차곡 저장될 수 있다.</p>
+<p></p><center><br>  <img src="/2019/06/25/hashtable-with-js/cute.jpeg"><br>  <sub>내 해시 테이블…자그마해 귀여워</sub><br>  <br><br></center><br>이로써 <code>직접 주소 테이블</code>의 단점이었던 밑도 끝도 없이 낭비되는 공간을 줄일 수 있게 되었다!<p></p>
+<h2 id="해시의-충돌-Collision"><a href="#해시의-충돌-Collision" class="headerlink" title="해시의 충돌(Collision)"></a>해시의 충돌(Collision)</h2><p>이렇게 해피 엔딩으로 끝나면 좋겠지만 해시 테이블의 단점도 있다. 그 단점은 바로 <code>해시의 충돌</code>이다. 충돌이 뭔지 설명하기 전에 필자의 해시 함수를 가지고와서 한번 충돌을 일으켜보고 직접 확인해보자.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">hashFunction(<span class="hljs-number">1991</span>) <span class="hljs-comment">// 1</span></span><br><span class="line">hashFunction(<span class="hljs-number">6</span>) <span class="hljs-comment">// 1</span></span><br></pre></td></tr></tbody></table></figure>
+<blockquote>
+<p><code>다른 값</code>을 해시 함수에 넣었지만 <code>같은 값</code>이 튀어나오는 것이 바로 <code>충돌(Collision)</code>이다.</p>
+</blockquote>
+<p>사실 상식적으로 생각해보면 <code>직접 주소 테이블</code>은 동적으로 테이블을 늘려나갔지만 <code>해시 테이블</code>은 처음부터 고정적인 공간을 할당하고 값을 계속 우겨넣는 방식이다.<br>그렇다면 테이블의 크기를 <code>100</code>으로 잡고 그 테이블에 <code>200</code>개의 데이터를 넣는다면 100개만 저장되고 100개는 남을텐데 얘네는 어떻게 되는걸까?</p>
+<p>걱정하지 말자. 애초에 <code>해시 테이블</code>은 담고자 하는 데이터의 개수보다 테이블의 크기를 작게 하고 싶다는 의지에서 나온 자료구조이기 때문에 충돌을 해결할 수 있는 방법 또한 같이 고안되었다.</p>
+<h3 id="충돌-해결하기"><a href="#충돌-해결하기" class="headerlink" title="충돌 해결하기"></a>충돌 해결하기</h3><p>이처럼 해시 테이블에는 <code>해시의 충돌</code>이라는 단점이 있기 때문에 해시 테이블을 운용할 때 가장 중요한 것은 사실 <code>해시 함수가 얼마나 균일하게 값을 퍼트릴 수 있느냐</code>이다. 어떤 값을 넣어도 같은 인덱스만 주구장창 나올 확률이 높다면 좋은 해시 함수가 아니라는 것이다.<br>그러나 <code>해시 함수</code>를 아무리 잘 짜더라도 근본적으로 충돌을 완전히 방지한다는 것은 힘든 일이다. 그렇기 때문에 어느 정도는 <code>충돌을 감안하되 최소화</code>하기 위해 해시 함수의 알고리즘을 개발하거나, 혹은 <code>충돌이 발생하더라도 우회해서 해결</code>할 수 있는 방법을 사용한다.</p>
+<p>그 중 이 포스팅에서는 <code>충돌이 발생하더라도 우회해서 해결</code>하는 방법 중 몇가지를 설명하려고 한다.</p>
+<h4 id="개방-주소법-Open-Address"><a href="#개방-주소법-Open-Address" class="headerlink" title="개방 주소법(Open Address)"></a>개방 주소법(Open Address)</h4><p><code>개방 주소법</code>은 해시 충돌이 발생하면 테이블 내의 새로운 주소를 <code>탐사(Probe)</code>한 후, 비어있는 곳에 충돌된 데이터를 입력하는 방식이다. <code>해시 함수</code>를 통해서 얻은 인덱스가 아니라 다른 인덱스를 허용한다는 의미로 <code>개방 주소(Open Address)</code>라고 한다.</p>
+<p><code>개방 주소법</code>은 어떤 방식으로 비어있는 공간을 탐사할 것이냐에 따라 4가지로 나누어 진다.</p>
+<h5 id="1-선형-탐사법-Linear-Probing"><a href="#1-선형-탐사법-Linear-Probing" class="headerlink" title="1. 선형 탐사법(Linear Probing)"></a>1. 선형 탐사법(Linear Probing)</h5><p><code>선형 탐사법(Linear Probing)</code>은 말 그대로 선형으로 순차적으로 탐사하는 방법이다. 위에서 해시 충돌의 예로 들었던 <code>1991</code>과 <code>6</code>의 상황을 한번 예시로 알아보자.</p>
+
+<br>
+<ul class="hash-table-dummy">
+  <li><dt>0</dt><dd></dd></li>
+  <li><dt>1</dt><dd>1991</dd></li>
+  <li><dt>2</dt><dd></dd></li>
+  <li><dt>3</dt><dd></dd></li>
+  <li><dt>4</dt><dd></dd></li>
+  <li><dt>5</dt><dd></dd></li>
+  <li><dt>6</dt><dd></dd></li>
+</ul>
+<br>
+
+<p>처음에 <code>1991</code>을 해시 함수에 통과 시킨 후 해시 테이블에 넣었을 때에는 테이블의 <code>1</code>번 인덱스에 위치했을 것이다. 그 이후 <code>6</code>을 해시 함수에 통과시켰더니 또 <code>1</code>이 나왔다. 하지만 이미 <code>1</code>번 인덱스에는 <code>1991</code>이 들어가 있기 때문에 <code>6</code>은 더 이상 <code>해시 테이블</code>에 들어갈 자리가 없게 되었다. 충돌이 발생한 것이다!</p>
+<p><code>선형 탐사법</code>은 이렇게 충돌이 났을 때 정해진 $n$ 칸만큼의 옆 방을 주는 방법이다. 만약에 $n = 1$이라면 <code>2</code>번 인덱스를, $n = 3$이라면 <code>4</code>번 인덱스에 <code>6</code>을 저장할 것이다.</p>
+
+<br>
+<ul class="hash-table-dummy">
+  <li><dt>0</dt><dd></dd></li>
+  <li><dt>1</dt><dd>1991</dd></li>
+  <li><dt>2</dt><dd><strong style="color: #ff0000;">6</strong></dd></li>
+  <li><dt>3</dt><dd></dd></li>
+  <li><dt>4</dt><dd></dd></li>
+  <li><dt>5</dt><dd></dd></li>
+  <li><dt>6</dt><dd></dd></li>
+</ul>
+<center><sub>아쉬운대로 옆 방이라도 들어가야지...</sub></center>
+<br>
+
+<p>이런 식으로 충돌이 났을 때 순차적으로 정해진 만큼의 옆 방을 주는 것이 바로 <code>선형 탐사법</code>이다. 만약 여기서 또 충돌이 발생한다면 이번에는 그 값을 <code>3</code>번 인덱스에 저장할 것이다. 이런 방식으로 빈 공간이 나타날 때까지 순차적으로 탐사를 한다.<br><code>선형 탐사법</code>의 단점은 특정 해시 값의 주변이 모두 채워져있는 <code>일차 군집화(Primary Clustering)</code>문제에 취약하다는 것이다.</p>
+
+<br>
+<ul class="hash-table-dummy">
+  <li><dt>0</dt><dd></dd></li>
+  <li><dt>1</dt><dd>1991</dd></li>
+  <li><dt>2</dt><dd>6</dd></li>
+  <li><dt>3</dt><dd>13</dd></li>
+  <li><dt>4</dt><dd>21</dd></li>
+  <li><dt>5</dt><dd></dd></li>
+  <li><dt>6</dt><dd></dd></li>
+</ul>
+<br>
+
+<p>같은 해시가 여러 번 나오는 경우 <code>선형 탐사법</code>을 사용하면 데이터가 연속되게 저장될 가능성이 높아진다. 즉, <code>데이터의 밀집도가 높아진다는 것</code>이다. 이런 경우 해시의 값이 <code>1</code>이 나왔을 때 뿐만 아니라 <code>2</code>나 <code>3</code>이 나왔을 때도 충돌이 발생한다.</p>
+<p>이게 진짜 악순환의 반복인데, 이런 식으로 충돌이 계속 될 수록 데이터가 <code>연속되게 저장</code>되기 때문에 나중에 가면 데이터가 밀집되어 있는 거대한 덩어리가 생긴다. 그럼 해시로 어떤 값이 나오더라도 그 덩어리가 차지한 인덱스와 충돌이 날 확률이 올라가고, 충돌난 값은 또 그 덩어리 뒤에 저장되게 되므로 데이터 덩어리가 더 커진다.</p>
+<blockquote>
+<p><strong>충돌!</strong> -> 데이터 덩어리 뒤에 충돌난 값 저장 -> 충돌 발생 확률 증가 -> <strong>충돌!</strong> -> 또 저장. 덩어리 더 커짐 -> 충돌 발생 확률 증가 -> <strong>충돌</strong>…</p>
+</blockquote>
+<p>이런 식으로 눈물나는 무한 반복 사이클이 발생한다. 이것이 <code>Primary Clustering</code>이다. 이제 이 눈물나는 문제점을 그나마 보완한 다른 방법을 알아보자.</p>
+<h5 id="2-제곱-탐사법-Quadratic-Probing"><a href="#2-제곱-탐사법-Quadratic-Probing" class="headerlink" title="2. 제곱 탐사법(Quadratic Probing)"></a>2. 제곱 탐사법(Quadratic Probing)</h5><p><code>제곱 탐사법(Quadratic Probing)</code>은 <code>선형 탐사법</code>과 동일하지만 탐사하는 폭이 <code>고정폭</code>아닌 <code>제곱</code>으로 늘어난다는 것이 다르다.<br>첫번째 충돌이 발생했을 때는 충돌난 지점으로 부터 $1^2$만큼, 두번째 충돌이 발생했을 때는 $2^2$, 세번째는 $3^2$과 같은 식으로 탐사하는 스텝이 빠르게 커진다.<br><code>선형 탐사법</code>때와 동일한 상황에서 <code>제곱 탐사법</code>을 사용하면 해시 테이블은 아래와 같은 모양이 된다.</p>
+
+<br>
+<ul class="hash-table-dummy">
+  <li><dt>0</dt><dd></dd></li>
+  <li><dt>1</dt><dd>1991</dd></li>
+  <li><dt>2</dt><dd>6</dd></li>
+  <li><dt>3</dt><dd></dd></li>
+  <li><dt>4</dt><dd></dd></li>
+  <li><dt>5</dt><dd>13</dd></li>
+  <li><dt>6</dt><dd></dd></li>
+  <li><dt>...</dt><dd></dd></li>
+  <li><dt>10</dt><dd>21</dd></li>
+</ul>
+<br>
+
+<blockquote>
+<p>첫번째 충돌이 났을 때 <code>6</code>은 충돌이 난 <code>1</code>번 인덱스로 부터 $1^2 = 1$만큼의 옆 방에 들어간다.<br>두번째 충돌이 났을 때 <code>13</code>은 충돌이 난 <code>1</code>번 인덱스로 부터 $2^2 = 4$만큼의 옆 방에 들어간다.<br>세번째 충돌이 났을 때 <code>21</code>은 충돌이 난 <code>1</code>번 인덱스로 부터 $3^3 = 9$만큼의 옆 방에 들어간다.</p>
+</blockquote>
+<p>이렇게 <code>제곱 탐사법</code>을 사용하면 충돌이 발생하더라도 데이터의 밀집도가 <code>선형 탐사법</code>보다 많이 낮기 때문에 다른 해시값까지 영향을 받아서 연쇄적으로 충돌이 발생할 확률이 많이 줄어든다.<br>그래도 결국 해시로 <code>1</code>이 여러번 나오면 계속 충돌이 나는 것은 피할 수 없다. 결국 데이터의 군집은 피할 수 없는 숙명이므로 이 현상을 <code>이차 군집화(Secondary Clustering)</code>이라고 부른다.</p>
+<p>그럼 여기서 더 개선할 수는 없을까?</p>
+<h5 id="3-이중해싱-Double-Hashing"><a href="#3-이중해싱-Double-Hashing" class="headerlink" title="3. 이중해싱(Double Hashing)"></a>3. 이중해싱(Double Hashing)</h5><p>그래서 나온 방법이 바로 <code>이중해싱</code>이다. 말 그대로 <code>해시 함수</code>를 <code>이중</code>으로 사용하는 것이다.<br>하나는 기존과 마찬가지로 <code>최초 해시를 얻을 때 사용</code>하고, 다른 하나는 <code>충돌이 났을 경우 탐사 이동폭을 얻기 위해 사용</code>한다. 이렇게 하면 최초 해시로 같은 값이 나오더라도 다시 다른 해시 함수를 거치면서 다른 탐사 이동폭이 나올 확률이 높기 때문에 매번 다른 공간에 값이 골고루 저장될 확률도 높아진다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> myTableSize = <span class="hljs-number">23</span>; <span class="hljs-comment">// 테이블 사이즈가 소수여야 효과가 좋다</span></span><br><span class="line"><span class="hljs-keyword">const</span> myHashTable = [];</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">const</span> getSaveHash = <span class="hljs-function"><span class="hljs-params">value</span> =></span> value % myTableSize;</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// 스텝 해시에 사용되는 수는 테이블 사이즈보다 약간 작은 소수를 사용한다.</span></span><br><span class="line"><span class="hljs-keyword">const</span> getStepHash = <span class="hljs-function"><span class="hljs-params">value</span> =></span> <span class="hljs-number">17</span> - (value % <span class="hljs-number">17</span>);</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">const</span> setValue = <span class="hljs-function"><span class="hljs-params">value</span> =></span> {</span><br><span class="line">  <span class="hljs-keyword">let</span> index = getSaveHash(value);</span><br><span class="line">  <span class="hljs-keyword">let</span> targetValue = myHashTable[index];</span><br><span class="line">  <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) {</span><br><span class="line">    <span class="hljs-keyword">if</span> (!targetValue) {</span><br><span class="line">      myHashTable[index] = value;</span><br><span class="line">      <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`<span class="hljs-subst">${index}</span>번 인덱스에 <span class="hljs-subst">${value}</span> 저장! `</span>);</span><br><span class="line">      <span class="hljs-keyword">return</span>;</span><br><span class="line">    }</span><br><span class="line">    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (myHashTable.length >= myTableSize) {</span><br><span class="line">      <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'풀방입니다'</span>);</span><br><span class="line">      <span class="hljs-keyword">return</span>;</span><br><span class="line">    }</span><br><span class="line">    <span class="hljs-keyword">else</span> {</span><br><span class="line">      <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`<span class="hljs-subst">${index}</span>번 인덱스에 <span class="hljs-subst">${value}</span> 저장하려다 충돌 발생!ㅜㅜ`</span>);</span><br><span class="line">      index += getStepHash(value);</span><br><span class="line">      index = index > myTableSize ? index - myTableSize : index;</span><br><span class="line">      targetValue = myHashTable[index];</span><br><span class="line">    }</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>이때 테이블 사이즈와 두번째 해시함수에 사용될 수는 둘 다 <code>소수</code>를 사용하는 것이 좋다. 둘 중에 하나가 소수가 아니라면 결국 언젠가 같은 해싱이 반복되기 때문이다. 딱 보기에 뭔가 좀 복잡해보이지만 하나하나 뜯어보면 별 거 없다. 한번 순서대로 살펴보자.</p>
+<hr>
+<ol>
+<li>저장할 인덱스를 <code>getSaveHash</code> 해시 함수로 얻는다.</li>
+<li>반복문 시작</li>
+<li>거기 비었니?<br>3-1. 비었어? 오케이 저장!<br>3-2. 사람 있어? 다음 인덱스 내놔! 다시 3으로…<br>3-3. 풀방이야? 종료합시다.</li>
+</ol>
+<hr>
+<p>위 코드를 브라우저 콘솔이나 NodeJS로 실행시켜보면 출력되는 문자열을 통해 이 과정이 어떤 방식으로 흘러가는 지 대략적으로 알 수 있다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-built_in">console</span>.log(setValue(<span class="hljs-number">1991</span>));</span><br><span class="line"><span class="hljs-built_in">console</span>.log(setValue(<span class="hljs-number">6</span>));</span><br><span class="line"><span class="hljs-built_in">console</span>.log(setValue(<span class="hljs-number">13</span>));</span><br><span class="line"><span class="hljs-built_in">console</span>.log(setValue(<span class="hljs-number">21</span>));</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// 13번 인덱스에 1991 저장!</span></span><br><span class="line"><span class="hljs-comment">// 6번 인덱스에 6 저장!</span></span><br><span class="line"><span class="hljs-comment">// 13번 인덱스에 13 저장하려다 충돌 발생!ㅜㅜ</span></span><br><span class="line"><span class="hljs-comment">// 17번 인덱스에 13 저장!</span></span><br><span class="line"><span class="hljs-comment">// 21번 인덱스에 21 저장!</span></span><br></pre></td></tr></tbody></table></figure>
+<p>아까 <code>선형 탐사법</code>과 <code>제곱 탐사법</code>을 사용했다면 모두 해시의 결과가 <code>1</code>이어서 연쇄적으로 충돌이 발생해야 할 값들이지만 <code>이중 해싱</code>을 사용함으로써 한번의 충돌만으로 모든 값을 저장할 수 있게 되었다.<br>위에 코드를 복붙해서 함수를 선언해놨다면 저 콘솔을 여러 번 돌려보고 저장할 값도 바꿔보면서 어떤 식으로 해쉬테이블에 값들이 저장되는지 살펴볼 수 있다. 테이블이 꽉 차면 <code>풀방입니다</code>가 출력되니까 그때까진 신나게 돌려봐도 된다.</p>
+<h4 id="분리-연결법-Separate-Chaining"><a href="#분리-연결법-Separate-Chaining" class="headerlink" title="분리 연결법(Separate Chaining)"></a>분리 연결법(Separate Chaining)</h4><p><code>분리 연결법</code>은 <code>개방 주소법</code>과는 다른 개념으로 접근하는 충돌 우회 방법이다. <code>분리 연결법</code>은 해쉬 테이블의 버킷에 <code>하나의 값</code>이 아니라 <code>링크드 리스트(Linked List)</code>나 <code>트리(Tree)</code>를 사용한다.<br>사실 트리를 쓰던 링크드 리스트를 쓰던 개념은 동일하니 링크드 리스트로 설명을 진행하겠다.</p>
+<p>위에서 계속 사용했던 예시를 또 가져와보자. 테이블 크기가 <code>5</code>일때 해시로 <code>1</code>을 반환하는 <code>1991</code>, <code>6</code>, <code>13</code>, <code>21</code>을 저장할 때 <code>분리 연결법</code>을 사용하면 이렇게 된다.</p>
+
+<br>
+<ul class="hash-table-dummy">
+  <li><dt>0</dt><dd></dd></li>
+  <li><dt>1</dt><dd>[21, 13, 6, 1991]</dd></li>
+  <li><dt>2</dt><dd></dd></li>
+  <li><dt>3</dt><dd></dd></li>
+  <li><dt>4</dt><dd></dd></li>
+</ul>
+<br>
+
+<p>간단하다. 근데 자세히 보면 <code>[1991, 6, 13, 21]</code>의 순서가 아니라 <code>[21, 13, 6, 1991]</code>의 순서로 뒤집혀 있다. 이는 데이터를 삽입할 때 조금이라도 수행 시간을 줄이기 위해서 사용하는 방법이다.</p>
+<p>왜 그런지 설명하기 위해서 우리 테이블의 <code>1</code>번 인덱스에 저장된 링크드 리스트가 <code>[1991, 6, 13, 21]</code> 순서일때를 살펴보자.</p>
+
+<br>
+<ul class="hash-table-dummy">
+  <li><dt>1</dt><dd>{ 값: 1991, 다음 노드: 2 }</dd></li>
+  <li><dt>2</dt><dd>{ 값: 6, 다음 노드: 3 }</dd></li>
+  <li><dt>3</dt><dd>{ 값: 13, 다음 노드: 4 }</dd></li>
+  <li><dt>4</dt><dd>{ 값: 21, 다음 노드: null }</dd></li>
+</ul>
+<center><sub>왠지 해쉬테이블이랑 비슷하게 생겼지만 이번엔 링크드 리스트다</sub></center>
+<br>
+
+<p>만약 이번에 추가할 값이 <code>11</code>이라고 해보자. 일단 메모리 주소가 <code>99</code>인 곳이 남길래 여기에 <code>{ 값: 11, 다음 노드: null }</code>을 저장했다.<br>그 후 이 새로운 노드를 리스트에 붙혀야 하니까 해당 리스트의 마지막 노드인 메모리 <code>4</code>에 저장된 노드까지 찾아가야 한다.<br>그 다음에 메모리 <code>4</code>에 저장된 값을 <code>{ 값: 21, 다음 노드: 99 }</code>로 바꿔주면 끝!</p>
+
+<br>
+<ul class="hash-table-dummy">
+  <li><dt>1</dt><dd>{ 값: 1991, 다음 노드: 2 }</dd></li>
+  <li><dt>2</dt><dd>{ 값: 6, 다음 노드: 3 }</dd></li>
+  <li><dt>3</dt><dd>{ 값: 13, 다음 노드: 4 }</dd></li>
+  <li><dt>4</dt><dd>{ 값: 21, 다음 노드: 99 }</dd></li>
+  <li><dt>99</dt><dd>{ 값: 11, 다음 노드: null }</dd></li>
+</ul>
+<br>
+
+<p>문제는 새 노드를 리스트에 붙히기 위해서 메모리 <code>4</code>에 저장된 노드를 찾는 과정이다. 먼저 리스트의 머리인 메모리 <code>1</code>부터 찾은 다음에 <code>다음 메모리 주소</code> 값을 확인하고 <code>2</code>로 이동해서 또 <code>다음 메모리 주소</code>를 확인하고…<br>이게 지금 <code>4</code>번이니까 할만하지, 리스트의 길이가 길어질수록 수행 시간도 비례해서 늘어나기 때문에 확실히 좋은 느낌은 아니다. 하지만 순서를 반대로 뒤집으면 데이터 삽입이 한결 쉬워진다.</p>
+
+<br>
+<ul class="hash-table-dummy">
+  <li><dt>99</dt><dd>{ 값: 11, 다음 노드: 1 }</dd></li>
+  <li><dt>1</dt><dd>{ 값: 1991, 다음 노드: 2 }</dd></li>
+  <li><dt>2</dt><dd>{ 값: 6, 다음 노드: 3 }</dd></li>
+  <li><dt>3</dt><dd>{ 값: 13, 다음 노드: 4 }</dd></li>
+  <li><dt>4</dt><dd>{ 값: 21, 다음 노드: null }</dd></li>
+</ul>
+<br>
+
+<p>맨 앞에 노드를 추가하는 것이기 때문에 다른 노드를 탐색할 필요없이 그냥 메모리에 밀어넣고 <code>{ 값: 11, 다음 노드: 1 }</code>이라고 저장해주면 되기 때문이다. 그래서 해시 테이블에 저장할 때도 리스트의 <code>꼬리(Tail)</code>로 데이터를 붙히기보다는 <code>머리(Head)</code>에 붙히는 방법을 보통 많이 사용한다.</p>
+<p>대신 이렇게 <code>분리 연결법</code>을 사용하려면 <code>해시 함수</code>의 역할이 굉장히 중요하다. 결국 균일하지 못한 해시를 사용해서 특정 인덱스에 데이터가 몰리게 된다면 다른 곳은 텅텅 비어있는데 한 버킷에 저장된 리스트의 길이만 계속 길어지기 때문이다.</p>
+
+<br>
+<ul class="hash-table-dummy">
+  <li><dt>0</dt><dd></dd></li>
+  <li><dt>1</dt><dd>[21, 13, 6, 1991, 7, 11, 25, ...]</dd></li>
+  <li><dt>2</dt><dd></dd></li>
+  <li><dt>3</dt><dd></dd></li>
+  <li><dt>4</dt><dd></dd></li>
+</ul>
+<center><sub>극단적인 예시긴 하지만... 이건 그냥 링크드 리스트를 쓰는 것과 다를 게 없다</sub></center>
+<br>
+
+<p>결국 내가 찾고자 하는 값이 리스트의 맨 마지막에 위치하고 있다면 링크드 리스트를 처음부터 끝까지 다 탐색해야하기 때문에 $O(n)$의 시간복잡도를 가지게 된다. 그렇기 때문에 최대한 저장하고 하는 <code>데이터를 균일하게 퍼트려서 리스트의 길이를 어느 정도로 유지</code>해주는 해시 함수의 역할이 중요한 것이다.</p>
+<h2 id="테이블-크기-재할당-Resizing"><a href="#테이블-크기-재할당-Resizing" class="headerlink" title="테이블 크기 재할당(Resizing)"></a>테이블 크기 재할당(Resizing)</h2><p>해시 테이블은 고정적인 공간을 할당해서 많은 데이터를 담기 위한 자료구조인 만큼 언젠가 데이터가 넘치기 마련이다.</p>
+<p><code>개방 주소법</code>을 사용하는 경우에는 위에서 예시로 작성했던 코드에서 <code>풀방입니다</code>가 출력되는 상황, 즉 테이블이 실제로 꽉 차서 더이상 저장을 못하는 상황이 발생할 것이고,<br><code>분리 연결법</code>을 사용하는 경우에는 테이블에 빈 공간이 적어지면서 충돌이 발생할 수록 각각의 버킷에 저장된 리스트가 점점 더 길어져서 리스트를 탐색하는 리소스가 너무 늘어난 상황이 발생할 것이다.</p>
+<p>그렇기 때문에 해시 테이블은 꽉꽉 아낌없이 채우기보다는 어느 정도 비워져 있는 것이 성능 상 더 좋으며, 해시 테이블을 운용할 때는 어느 정도 데이터가 차면 테이블의 크기를 늘려줘야한다.<br>이건 특별한 알고리즘이라기보다는 그냥 기존 크기의 두 배정도로 새로운 테이블을 선언해서 기존 테이블의 데이터를 그대로 옮겨 담는 방법을 사용한다. <code>분리 연결법</code>을 사용한 해시 테이블의 경우 <code>재해싱(Rehashing)</code>을 통해 너무 길어진 리스트의 길이를 나누어서 다시 저장하는 방법을 사용하기도 한다.</p>
+<p>이상으로 JavaScript와 함께 해시테이블을 파헤쳐보자 포스팅을 마친다.</p>
+<style>
+ul.hash-table-dummy {
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  border: 1px solid #ddd;
+}
+ul.hash-table-dummy > li {
+  flex-grow: 1;
+  list-style: none;
+  border-right: 1px solid #ddd;
+  margin: 0;
+  text-align: center;
+  font-size: 14px;
+}
+ul.hash-table-dummy dt {
+  border-bottom: 1px solid #ddd;
+  background-color: #f0f0f0;
+}
+ul.hash-table-dummy dd {
+  margin: 0;
+}
+</style></body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/10/27/inheritance-with-prototype/" title="[JS 프로토타입] 프로토타입을 사용하여 상속하기" rel="bookmark">[JS 프로토타입] 프로토타입을 사용하여 상속하기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/03/calculate-orbit-1/" title="[JavaScript로 천체 구현하기] 케플러 6요소 알아보기" rel="bookmark">[JavaScript로 천체 구현하기] 케플러 6요소 알아보기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/06/gravity-via-js-1/" title="[JavaScript로 중력 구현하기] 1. 중력이란 무엇일까?" rel="bookmark">[JavaScript로 중력 구현하기] 1. 중력이란 무엇일까?</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/06/gravity-via-js-2/" title="[JavaScript로 중력 구현하기] 2. 코딩하기" rel="bookmark">[JavaScript로 중력 구현하기] 2. 코딩하기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/06/15/diving-into-js-array/" title="JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기" rel="bookmark">JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/data-structure/">Data structure</a><a class="tag -link" href="/tags/hash-table/">Hash Table</a><a class="tag -link" href="/tags/javascript/">JavaScript</a><a class="tag -link" href="/tags/자료구조/">자료구조</a><a class="tag -link" href="/tags/컴퓨터-공학/">컴퓨터 공학</a><a class="tag -link" href="/tags/해시테이블/">해시테이블</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2019/06/28/v8-analysis/">
+                <i class="fas fa-chevron-left"></i> V8 엔진은 어떻게 내 코드를 실행하는 걸까?
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2019/06/22/my-home-to-google/">
+                우리 집에서 구글까지 가는 길 <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#해시-테이블-Hash-Table-이-뭔가요" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>해시 테이블(Hash Table)이 뭔가요?</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#직접-주소-테이블-Direct-Address-Table" data-link-name="toc">
+        <span class="has-mr-6">1.1</span>
+        <span>직접 주소 테이블(Direct Address Table)</span>
+        </a></li><li>
+        <a class="is-flex" href="#직접-주소-테이블의-단점을-해시-함수로-보완하자" data-link-name="toc">
+        <span class="has-mr-6">1.2</span>
+        <span>직접 주소 테이블의 단점을 해시 함수로 보완하자!</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#해시의-충돌-Collision" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>해시의 충돌(Collision)</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#충돌-해결하기" data-link-name="toc">
+        <span class="has-mr-6">2.1</span>
+        <span>충돌 해결하기</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#개방-주소법-Open-Address" data-link-name="toc">
+        <span class="has-mr-6">2.1.1</span>
+        <span>개방 주소법(Open Address)</span>
+        </a></li><li>
+        <a class="is-flex" href="#분리-연결법-Separate-Chaining" data-link-name="toc">
+        <span class="has-mr-6">2.1.2</span>
+        <span>분리 연결법(Separate Chaining)</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#테이블-크기-재할당-Resizing" data-link-name="toc">
+        <span class="has-mr-6">3</span>
+        <span>테이블 크기 재할당(Resizing)</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="JavaScript와 함께 해시테이블을 파헤쳐보자" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

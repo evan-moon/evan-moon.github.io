@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>패킷의 흐름과 오류를 제어하는 TCP - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="TCP(Transmission Control Protocol)은 원활한 통신을 위해 전송하는 데이터 흐름을 제어하고 네트워크의 혼잡 상태를 파악해서 대처하는 기능을 프로토콜 자체에 포함하고 있다.">
+<meta name="keywords" content="TCP,흐름 제어,오류 제어,Flow Control,Error Control,Stop and Wait,Go bacK N,Selective Repeat,슬라이딩 윈도우,Sliding Window">
+<meta property="og:type" content="article">
+<meta property="og:title" content="패킷의 흐름과 오류를 제어하는 TCP">
+<meta property="og:url" content="https://evan-moon.github.io/2019/11/22/tcp-flow-control-error-control/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="TCP(Transmission Control Protocol)은 원활한 통신을 위해 전송하는 데이터 흐름을 제어하고 네트워크의 혼잡 상태를 파악해서 대처하는 기능을 프로토콜 자체에 포함하고 있다.">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2019/11/22/tcp-flow-control-error-control/thumbnail.png">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.472Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="패킷의 흐름과 오류를 제어하는 TCP">
+<meta name="twitter:description" content="TCP(Transmission Control Protocol)은 원활한 통신을 위해 전송하는 데이터 흐름을 제어하고 네트워크의 혼잡 상태를 파악해서 대처하는 기능을 프로토콜 자체에 포함하고 있다.">
+<meta name="twitter:image" content="https://evan-moon.github.io/2019/11/22/tcp-flow-control-error-control/thumbnail.png">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2019/11/22/tcp-flow-control-error-control/">
+
+
+<link rel="alternative" href="/feed.xml" title="패킷의 흐름과 오류를 제어하는 TCP" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="패킷의 흐름과 오류를 제어하는 TCP" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2019/11/22/tcp-flow-control-error-control/thumbnail.png" alt="패킷의 흐름과 오류를 제어하는 TCP">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-11-22T07:46:25.000Z">2019-11-22</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/programming/">Programming</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/programming/network/">Network</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                패킷의 흐름과 오류를 제어하는 TCP
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p><code>TCP(Transmission Control Protocol)</code>은 원활한 통신을 위해 전송하는 데이터 흐름을 제어하고 네트워크의 혼잡 상태를 파악해서 대처하는 기능을 프로토콜 자체에 포함하고 있다.</p>
+<a id="more"></a>
+<p>만약 TCP가 이런 기능들을 제공해주지 않는다면 개발자가 일일히 데이터를 어떤 단위로 보낼 것인지 정의해야하고, 패킷이 유실되면 어떤 예외처리를 해야하는 지까지 신경써야하기 때문에 TCP가 제공해주는 이러한 기능들 덕분에 우리는 온전히 상위 레이어의 동작에만 집중할 수 있는 것이다.</p>
+<p>보통 TCP의 전송 제어 방법은 전송되는 데이터의 양을 조절하는 <code>흐름 제어</code>, 통신 도중에 데이터가 유실되거나 잘못된 데이터가 수신되었을 경우 대처하는 방법인 <code>오류 제어</code>, 네트워크 혼잡에 대처하는 <code>혼잡 제어</code>로 나누어진다.</p>
+<p>물론 TCP 같은 전송 계층의 프로토콜을 어플리케이션 레이어에서 활동하는 개발자가 건드릴 일은 많이 없다. 그러나 혹시라도 이 부분에서 뭔가 문제가 발생했을 경우, TCP가 어떤 식으로 작동하는지 모른다면 고치는 건 둘째치고 원인 파악조차 하지 못하는 슬픈 상황이 발생할 수 있으므로 여러모로 알아두는 것이 좋다고 생각한다. <small>(더불어 야근도 따라올 것이다)</small></p>
+<p>그런 의미에서 이번 포스팅에서는 TCP의 흐름 제어 기법들과 오류 제어 기법들에 대한 이야기를 한번 해보려고 한다.</p>
+<h2 id="TCP의-흐름-제어"><a href="#TCP의-흐름-제어" class="headerlink" title="TCP의 흐름 제어"></a>TCP의 흐름 제어</h2><p>송신 측과 수신 측이 서로 데이터를 주고 받을 때, 여러가지 요인에 따라 이 두 친구들의 처리 속도가 달라질 수 있다. 이때 데이터를 받는 수신 측의 처리 속도가 송신 측보다 빠른 경우는 사실 별 문제가 없다.</p>
+<p>주는 족족 빠르게 처리해주니 딱히 문제될 것이 없는 것이다. 그러나 수신 측의 처리 속도보다 송신 측이 더 빠른 경우 문제가 생긴다.</p>
+<p>송신 측과 수신 측은 모두 데이터를 저장할 수 있는 버퍼를 가지고 있다. 이때 수신 측이 자신의 버퍼 안에 있는 데이터를 처리하는 속도보다 송신 측이 데이터를 전송하는 속도가 더 빠르다면, 당연히 수신 측의 버퍼는 언젠가 꽉 차버릴 것이기 때문이다.</p>
+<center><br>  <img src="/2019/11/22/tcp-flow-control-error-control/overflow.jpg" width="400"><br>  <small>마치 꽉 찬 물컵에 물을 계속 붓는 상황이랄까</small><br>  <br><br></center>
+
+<p>수신 측의 버퍼가 꽉 찬 상태에서 도착한 데이터는 더 이상 담아둘 공간이 없기 때문에 폐기 처분된다. 물론 이런 상황에서는 송신 측이 다시 데이터를 보내주기는 하겠지만, 데이터 전송이라는게 네트워크 환경에 따라 변수가 워낙 많은 작업이기 때문에 사실 이 작업을 줄일 수 있으면 줄이는 것이 가장 좋다.</p>
+<p>그래서 송신 측은 수신 측의 데이터 처리 속도를 파악하고 자신이 얼마나 빠르게, 많은 데이터를 전송할 지 결정해야한다. 이것이 바로 TCP의 흐름 제어인 것이다.</p>
+<p>수신 측은 자신이 처리할 수 있는 데이터의 양을 의미하는 <code>윈도우 크기(Window Size)</code>를 자신의 응답 헤더에 담아서 송신 측에게 전해주게 되고, 송신 측은 상대방에게 데이터를 보낼 때 이 윈도우 크기와 네트워크의 현재 상황을 참고해서 알맞은 양의 데이터를 보냄으로써 전체적인 데이터의 흐름을 제어하게 된다.</p>
+<h3 id="Stop-and-Wait"><a href="#Stop-and-Wait" class="headerlink" title="Stop and Wait"></a>Stop and Wait</h3><p><code>Stop and Wait</code> 방식은 이름 그대로 상대방에게 데이터를 보낸 후 잘 받았다는 응답이 올 때까지 기다리는 모든 방식을 통칭하는 말이다. 이때 데이터를 받는 수신 측은 <code>잘 받았어!</code>와 <code>못 받았어...</code> 등의 대답을 해주게 되는데, 수신 측이 어떤 대답을 해주냐에 따라 사용할 수 있는 오류 제어 방법이 나눠지기도 한다.</p>
+<center><br>  <img src="/2019/11/22/tcp-flow-control-error-control/stop-and-wait.png" width="300"><br>  <br><br></center>
+
+<p>Stop and Wait로 흐름 제어를 할 경우의 대원칙은 단순히 <code>상대방이 응답을 하면 데이터를 보낸다</code>이기 때문에 구현 자체도 간단하고 프로그래머가 어플리케이션의 작동 원리를 파악하기도 쉬운 편이다.</p>
+<p>기본적인 <code>ARQ(Automatic Repeat Request)</code>를 구현한다고 생각해보면, 수신 측의 윈도우 크기를 1 byte로 설정하고 <code>처리 가능 = 1</code>, <code>처리 불가능 = 0</code>과 같은 식으로 대충 구현해도 돌아가기는 하기 때문이다.</p>
+<p>하지만 서로 <code>처리 가능</code>, <code>처리 불가능</code> 정도의 의미만 주고받는 방식은 간단한만큼 비효율적이라고 할 수도 있다. 왜냐하면 송신 측은 자신이 직접 데이터를 보내봐야 이 데이터를 수신 측이 처리할 수 있는지 알 수 있기 때문이다. 쉽게 말해서 이런 기초적인 Stop and Wait 방식은 그냥 될 때까지 주구장창 보내는 방식이라고 봐도 무방하다.</p>
+<p>그런 이유로 Stop and Wait 방식을 사용하여 흐름 제어를 할 경우에는, 이런 비효율성을 커버하기 위해 이런 단순한 구현이 아닌 여러가지 오류 제어 방식을 함께 도입해서 사용한다.</p>
+<h3 id="Sliding-Window"><a href="#Sliding-Window" class="headerlink" title="Sliding Window"></a>Sliding Window</h3><p>방금 알아본 바와 같이 Stop and Wait를 사용하여 흐름 제어를 하게 되면 비효율적인 부분이 있기 때문에, 오늘날의 TCP는 특별한 경우가 아닌 이상 대부분 <code>슬라이딩 윈도우(Sliding Window)</code> 방식을 사용한다. </p>
+<p>슬라이딩 윈도우는 수신 측이 한 번에 처리할 수 있는 데이터를 정해놓고 그때그때 수신 측의 데이터 처리 상황을 송신 측에 알려줘서 데이터의 흐름을 제어하는 방식이다.</p>
+<p>Stop and Wait과 여러 가지 차이점이 있겠지만, 사실 가장 큰 차이점은 송신 측이 <code>수신 측이 처리할 수 있는 데이터의 양</code>을 알고 있다는 점이다. 이 정보를 알고 있기 때문에 굳이 수신 측이 <code>처리 가능</code>이라는 대답을 일일히 해주지 않아도 데이터를 보내기 전에 이게 처리될 지 어떨지 어느 정도 예측이 가능하다는 말이다.</p>
+<p>송신 측과 수신 측은 각각 데이터를 담을 수 있는 버퍼를 가지고 있고, 별도로 <code>윈도우</code>라는 일종의 마스킹 도구를 가지고 있다. 이때 송신 측은 이 윈도우에 들어있는 데이터를 수신 측의 응답이 없어도 연속적으로 보낼 수 있다.</p>
+<center><br>  <img src="/2019/11/22/tcp-flow-control-error-control/window.png" width="500"><br>  <small>윈도우 안에 들어있는 프레임은 수신 측의 응답이 없이도 연속으로 보낼 수 있다</small><br>  <br><br></center>
+
+<p>송신 측의 윈도우 크기는 맨 처음 TCP의 연결을 생성하는 과정인 3 Way Handshake 때 결정된다. 이때 송신 측과 수신 측은 자신의 현재 버퍼 크기를 서로에게 알려주게 되고, 송신 측은 수신 측이 보내준 버퍼 크기를 사용하여 <code>음, 대충 이 정도 처리 가능하겠군</code>이라는 과정을 통해 자신의 윈도우 크기를 정하게 된다.</p>
+<figure class="highlight bash hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">localhost.initiator > localhost.receiver: Flags [S], seq 1487079775, win 65535</span><br><span class="line">localhost.receiver > localhost.initiator: Flags [S.], seq 3886578796, ack 1487079776, win 65535</span><br><span class="line">localhost.initiator > localhost.receiver: Flags [.], ack 1, win 6379</span><br></pre></td></tr></tbody></table></figure>
+<p><code>tcpdump</code>를 통해 3 Way Handshake를 관찰해보면 처음의 <code>SYN</code>과 <code>SYN+ACK</code> 패킷에는 각자 자신의 버퍼를 알려준 후 마지막 <code>ACK</code> 패킷 때 송신 측이 자신이 정한 윈도우 사이즈를 상대방에게 통보하는 것을 볼 수 있다.</p>
+<p>이때 송신 측과 수신 측 모두 자신의 버퍼 크기라 <code>65535</code>라고 이야기했지만 최종적으로 송신 측이 정한 자신의 윈도우 크기는 <code>6379</code>이다. 왜 송신 측은 수신 측 버퍼 크기의 10분의 1로 자신의 윈도우 크기를 정한 것일까?</p>
+<p>사실 송신 측의 윈도우 크기는 수신 측의 버퍼 크기로만 정하는 것이 아니라 다른 여러가지 요인들을 함께 고려해서 결정된다. 상대방이 보낸 버퍼 크기만 믿고 자신의 윈도우 크기를 정하기에는 네트워크는 너무나도 험난한 환경이기 때문이다. 이때 사용하는 대표적인 값이 바로 패킷의 왕복 시간을 의미하는 <code>RTT(Round Trip Time)</code>이다.</p>
+<p>송신 측은 자신이 처음 <code>SYN</code> 패킷을 보내고, 다시 수신 측이 <code>SYN+ACK</code> 패킷으로 응답하는 시간을 재고, 이 값을 통해 현재 네트워크 상황을 유추한다. 이때 이 값이 너무 크다면 왕복 시간이 느리다는 것이므로 네트워크 상태가 좋지 않다고 생각하고 윈도우 크기를 조금 더 줄이게 되는 것이다.</p>
+<p>그리고 이때 정해진 윈도우 크기는 고정이 아니라 통신을 하는 과정 중간에도 계속 네트워크의 혼잡 환경과 수신 측이 보내주는 윈도우 크기를 통해 동적으로 변경될 수 있다. 윈도우의 크기, 즉 연속적으로 보낼 데이터의 양을 변경해가면서 유연하게 흐름 제어를 할 수 있다는 말이다.</p>
+<p>윈도우에 대해 대략적으로 이해를 했다면 이제 이 기법을 왜 <code>슬라이딩 윈도우</code>라고 하는 지 한번 살펴보도록 하자.</p>
+<p>먼저, 송신 측이 <code>0 ~ 6</code>번의 시퀀스 번호를 가진 데이터를 상대방에게 전송하고 싶어하는 상황을 상상해보자. 이때 송신 측의 버퍼에는 전송해야할 데이터들이 이렇게 담겨져 있을 것이다.</p>
+<center><br>  <img src="/2019/11/22/tcp-flow-control-error-control/sw-0.png" width="500"><br>  <br><br></center>
+
+<p>이때 송신 측은 수신 측에게 받은 윈도우 크기와 현재 네트워크 상황을 고려하여 윈도우 크기를 3으로 잡았고, 윈도우 안에 있는 데이터를 우선 주르륵 전송한다.</p>
+<center><br>  <img src="/2019/11/22/tcp-flow-control-error-control/sw-1.png" width="500"><br>  <br><br></center>
+
+<p>이때 윈도우 안에 들어있는 데이터는 어떤 상태일까? 일단 데이터를 전송하기는 했지만 아직 수신 측으로부터 잘 받았다는 응답을 받지 못한 상태일 것이다.</p>
+<p>즉, 윈도우에 들어있는 데이터들은 항상 <code>전송은 했지만, 상대방이 처리했는지는 모르는 상태</code>라고 할 수 있다. 물론 데이터를 윈도우에 넣고 나서 블록킹이 걸려 데이터를 처리하지 못하는 상태도 존재할 수 있지만, 그런 것까지 다 고려하면 너무 복잡하니까 간단하게 생각하도록 하자.</p>
+<p>이후 수신 측은 자신의 처리 속도에 맞게 데이터를 처리한 후 응답으로 현재 자신의 버퍼에 남아있는 공간의 크기를 알려준다. 만약 수신 측이 응답으로 <code>Window Size: 1</code>을 보냈다면 “내 버퍼 공간이 1 byte만큼 남았으니까 그 만큼만 더 보내봐”라는 의미가 된다.</p>
+<p>이제 송신 측은 자신이 데이터 한 개를 더 보낼 수 있다는 사실을 알았으니, 자신의 윈도우를 한 칸 옆으로 밀고 새롭게 윈도우에 들어온 3번 데이터를 수신 측에게 전송한다.</p>
+<center><br>  <img src="/2019/11/22/tcp-flow-control-error-control/sw-2.png" width="500"><br>  <br><br></center>
+
+<p>이때 윈도우를 옆으로 이동시키며 새로 들어온 데이터를 전송하기 때문에 <code>슬라이딩 윈도우</code>라고 하는 것이다. 만약 수신 측이 윈도우 크기를 1이 아니라 더 큰 수를 보냈다면, 송신 측은 그 만큼 윈도우를 옆으로 밀고 더 많은 데이터를 연속적으로 전송할 수 있을 것이다.</p>
+<p>단, 이 경우 송신 측의 윈도우 크기가 3이기 때문에 수신 측이 4를 보냈다고 해서 4칸을 밀지는 않고, 자신의 윈도우 크기인 3만큼만 밀 수 있다. 그러나 이 경우에는 송신 측이 수신 측의 퍼포먼스가 더 좋아졌다는 것을 알았으니 자신의 윈도우 크기를 늘리는 방법으로 대처할 수 있을 것이다.</p>
+<p>이렇게 데이터를 전송하는 송신 측의 버퍼는 대략 3가지 상태로 나눠질 수 있다.</p>
+<center><br>  <img src="/2019/11/22/tcp-flow-control-error-control/sw-3.png" width="500"><br>  <br><br></center>
+
+<p>즉 슬라이딩 윈도우 방식은 <code>보내고 -> 응답받고 -> 윈도우 밀고</code>를 반복하면서, 현재 자신이 보낼 수 있는 데이터를 최대한 연속적으로 보내는 방법이라고 할 수 있다.</p>
+<p>이게 지금 <code>0 ~ 6</code> 밖에 안되는 단순화된 그림으로 봐서 잘 와닿지 않을 수도 있지만, 아무런 옵션도 적용하지 않은 TCP의 최대 윈도우 크기는 <code>65,535 bytes</code>이고, WSCALE 옵션을 최대로 적용하면 <code>1GB</code>로 설정하는 것도 가능하다.</p>
+<p>게다가 연속적으로 한번에 보내는 데이터도 이렇게 한 개, 두 개 정도가 아니라 몇 백 바이트 단위로 보내는 경우가 많기 때문에 실제 환경에서는 Stop and Wait로 흐름 제어를 하는 것과 비교해봤을때 상당히 좋은 효율을 뽑아낼 수 있다. 즉, 이론적으로는 수신 측의 ACK 응답 없이도 최대 1GB를 연속적으로 전송할 수 있다는 말이다.</p>
+<p>이렇게 슬라이딩 윈도우 방식은 일일히 하나 보내고, 응답 받고 하는 Stop and Wait보다 확실히 전송 속도 측면에서 빠르기도 하고, 송신 측과 수신 측의 지속적인 커뮤니케이션을 통해 윈도우 크기 또한 유연하게 조절할 수 있기 때문에 최근의 TCP에서는 기본적으로 슬라이딩 윈도우를 사용하여 흐름 제어를 하고 있다.</p>
+<h2 id="TCP의-오류-제어"><a href="#TCP의-오류-제어" class="headerlink" title="TCP의 오류 제어"></a>TCP의 오류 제어</h2><p>TCP는 기본적으로 <code>ARQ(Automatic Repeat Request)</code>, 재전송 기반 오류 제어를 사용한다. 말 그대로 통신 중에 뭔가 오류가 발생하면 송신 측이 수신 측에게 해당 데이터를 다시 전송해야한다는 말이다.</p>
+<p>하지만 이 <code>재전송</code>이라는 작업 자체가 했던 일을 또 해야하는 비효율적인 작업이기 때문에, 이 재전송 과정을 최대한 줄일 수 있는 여러가지 방법을 사용하게 된다.</p>
+<h3 id="오류가-발생했다는-것은-어떻게-알-수-있나요"><a href="#오류가-발생했다는-것은-어떻게-알-수-있나요" class="headerlink" title="오류가 발생했다는 것은 어떻게 알 수 있나요?"></a>오류가 발생했다는 것은 어떻게 알 수 있나요?</h3><p>TCP를 사용하는 송수신 측이 오류를 파악하는 방법은 크게 두 가지로 나누어진다.</p>
+<p>수신 측이 송신 측에게 명시적으로 <code>NACK(부정응답)</code>을 보내는 방법, 그리고 송신 측에게 <code>ACK(긍정응답)</code>가 오지 않거나, 중복된 ACK가 계속 해서 오면 오류가 발생했다고 추정하는 방법이다.</p>
+<p>간단히 생각해보면 왠지 NACK를 사용하는 방법이 더 명확하고 간단할 것 같지만, NACK를 사용하게되면 수신 측이 상대방에게 ACK를 보낼 지 NACK를 보낼 지 선택해야하는 로직이 추가적으로 필요하기 때문에, 일반적으로는 ACK만을 사용해서 오류를 추정하는 방법이 주로 사용되고 있다.</p>
+<p>이때 타임아웃은 말 그대로 송신 측이 보낸 데이터가 중간에 유실되어, 수신 측이 아예 데이터를 받지 못해 ACK를 보내지도 않았거나, 수신 측은 제대로 응답했지만 해당 ACK 패킷이 유실되는 경우에 발생하게 된다.</p>
+<p>어쨌든 두 경우 모두 송신 측은 데이터를 전송했는데 수신 측이 응답하지 않고 일정 시간이 경과한 경우라고 생각하면된다.</p>
+<p>그리고 두 번째 방법인 송신 측이 중복된 ACK를 받는 경우 오류라고 판별하는 방법은 대략 이런 느낌이다.</p>
+<center><br>  <img src="/2019/11/22/tcp-flow-control-error-control/duplicated-ack.png" width="500"><br>  <br><br></center>
+
+<p>이 상황을 조금 더 쉽게 풀어보자면, 송신 측은 이미 <code>SEQ 2</code> 데이터를 보낸 상황인데 수신 측이 계속 <code>야, 이번에 2번 보내줄 차례야</code>라고 말하는 상황인 것이다. 그럼 송신 측은 자신이 보낸 2번 데이터에 뭔가 문제가 발생했음을 알 수 있다.</p>
+<p>단, 패킷 기반 전송을 하는 TCP의 특성 상 각 패킷의 도착 순서가 무조건 보장되는 것이 아니기 때문에 위 예시처럼 중복된 ACK를 한 두번 받았다고 해서 바로 에러라고 판별하지는 않고, 보통 3회 정도 받았을 때 에러라고 판별하게 된다.</p>
+<h3 id="Stop-and-Wait-1"><a href="#Stop-and-Wait-1" class="headerlink" title="Stop and Wait"></a>Stop and Wait</h3><p><code>Stop and Wait</code>는 흐름 제어 때 한번 살펴보았던, 한번 데이터를 보내면 <code>제대로 받았다</code>라는 응답이 올 때까지 대기하고 있다가 다음 데이터를 보내는 방식이다.</p>
+<p>이 친구가 오류 제어에서 다시 나오는 이유는 그냥 이렇게만 해도 기본적인 오류 제어가 가능하기 때문이다. 일석이조랄까. 애초에 제대로 받았다는 응답이 오지 않는다면 제대로 받을 때까지 계속 데이터를 재전송하는 방법이니까 흐름 제어도 되지만 오류 제어도 가능하다.</p>
+<center><br>  <img src="/2019/11/22/tcp-flow-control-error-control/stop-and-wait-error.png" width="300"><br>  <br><br></center>
+
+<p>그러나 위에서 살펴본 <code>슬라이딩 윈도우</code>를 사용하여 흐름 제어를 하는 경우에는 윈도우 안에 있는 데이터를 <code>연속적</code>으로 보내야 하기 때문에, 오류 제어에 Stop and Wait를 사용해버리면 슬라이딩 윈도우를 쓰는 이점을 잃어버린다.</p>
+<p>그런 이유로 일반적으로는 이런 단순한 방법보다 조금 더 효율적이고 똑똑한 ARQ를 사용하게 된다.</p>
+<h3 id="Go-Back-N"><a href="#Go-Back-N" class="headerlink" title="Go Back N"></a>Go Back N</h3><p><code>Go Bank N</code> 방법은 데이터를 연속적으로 보내다가 그 중 <code>어느 데이터부터 오류가 발생했는지</code>를 검사하는 방식이다.</p>
+<p>위에서 이야기했듯이 오류를 판별하는 방법에는 ACK의 이상 징후를 파악하는 방법을 더 많이 사용하기는 하지만, NACK를 사용하고 있다고 가정하는 것이 다이어그램을 이해하기가 편하므로 오류 제어 기법을 설명할 때는 수신 측이 NACK를 사용하고 있다고 가정할 것이다.</p>
+<p>이 섹션에서는 오류 제어 기법을 설명하는 것이 목적이니, 오류를 어떻게 판별하는지보다는 오류를 어떻게 제어하는지에 대해서만 집중해보도록 하자.</p>
+<p>Go Back N 방식을 사용하면 데이터를 연속적으로 보낸 후 한 개의 ACK나 NACK만을 사용하여 수신 측의 처리 상황을 파악할 수 있으므로, 연속적으로 데이터를 보낼 수 있는 흐름 제어 방식인 슬라이딩 윈도우와 아주 잘 들어맞는다고 할 수 있다.</p>
+<center><br>  <img src="/2019/11/22/tcp-flow-control-error-control/go-back-n.png" width="300"><br>  <br><br></center>
+
+<p>위 그림을 보면 수신 측이 4번 데이터부터 에러가 발생함을 감지하고 송신 측에게 <code>4번부터 다시 보내줘</code>라고 하고 있다.</p>
+<p>Go back N 방식에서 수신 측이 4번 데이터에서 에러가 발생했음을 감지하면, 4번 데이터 이후 자신이 받았던 모든 데이터를 폐기하고 송신 측에게 NACK를 보내게 된다. </p>
+<center><br>  <img src="/2019/11/22/tcp-flow-control-error-control/go-back-n-example.png" width="500"><br>  <small>에러가 발생하면 그 뒤에 있던 멀쩡한 데이터도 같이 날려버리는 쏘쿨한 방식이다</small><br>  <br><br></center>
+
+<p>즉, 송신 측은 수신 측으로 NACK를 받고나면 오류가 발생한 4번 데이터와 그 이후 전송했던 모든 데이터를 다시 전송해줘야 한다는 말이 된다. 이때 송신 측은 비록 5번까지 전송했지만 오류가 발생하면, 오류가 발생한 4번 데이터로 되돌아가서 다시 전송해야하므로 <code>Go Back N</code>이라고 부르는 것이다.</p>
+<h3 id="Selective-Repeat"><a href="#Selective-Repeat" class="headerlink" title="Selective Repeat"></a>Selective Repeat</h3><p><code>Selective Repeat</code>은 말 그대로 <code>선택적인 재전송</code>을 의미한다. Go Back N 방법도 Stop and Wait에 비하면 많이 효율적인 방법이지만, 에러가 발생하면 그 이후에 정상적으로 전송되었던 데이터까지 모두 폐기 처분되어 다시 전송해야한다는 비효율이 아직 존재한다.</p>
+<p>그래서 나온 방식이 <code>에러난 데이터만 재전송해줘</code> 방식인 것이다.</p>
+<center><br>  <img src="/2019/11/22/tcp-flow-control-error-control/selective-repeat.png" width="300"><br>  <br><br></center>
+
+<p>얼핏 보면 이 방식이 굉장히 효율적이고 좋기만 한 것 같지만 Stop and Wait와 Go Back N 방식과 다르게, 이 방식을 사용하는 수신 측의 버퍼에 쌓인 데이터가 연속적이지 않다는 단점이 존재한다.</p>
+<p>위 예시만 봐도 수신 측의 버퍼에는 <code>0, 1, 2, 3, 4, 5</code>가 순차적으로 들어있는 것이 아니라, 중간에 폐기 처분된 4를 제외한 <code>0, 1, 2, 3, 5</code>만 버퍼에 존재할 것이기 때문이다. 이때 송신 측이 4를 재전송하게되면 수신 측은 이 데이터를 버퍼 중간 어딘가에 끼워넣어서 데이터를 정렬해야한다.</p>
+<p>이때 같은 버퍼 안에서 데이터를 정렬할 수는 없으니, 별도의 버퍼가 필요하게 된다.</p>
+<p>결국 재전송이라는 과정이 빠진 대신 재정렬이라는 과정이 추가된 것인데, 이 둘 중에 재전송이 좀 더 이득인 상황에서는 Go Bank N 방식을, 재정렬이 좀 더 이득인 상황에서는 Selective Repeat 방식을 사용하면된다.</p>
+<p>만약 TCP 통신에서 Selective Repeat 방식을 사용하고 싶다면, TCP의 옵션 중 <code>SACK</code> 옵션을 1로 설정하면 된다…만 사실 기본적으로 켜져 있는 경우가 많다.</p>
+<figure class="highlight bash hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ sysctl net.inet.tcp | grep sack:</span><br><span class="line">net.inet.tcp.sack: 1</span><br></pre></td></tr></tbody></table></figure>
+<p>OSX 같은 경우, <code>sysctl</code> 명령어를 사용하여 TCP와 관련된 커널 변수들을 확인해보면 그 중 <code>net.inet.tcp.sack</code> 값이 1로 잡혀있는 것을 확인할 수 있다.</p>
+<p>아무래도 대부분의 경우에는 정글이나 다름 없는 네트워크를 다시 사용하는 쪽보다는 그냥 수신 측이 재정렬을 하는 것이 이득인 경우가 많다보니 기본적으로 Selective Repeat을 사용하는 것이 아닌가싶다.</p>
+<h2 id="마치며"><a href="#마치며" class="headerlink" title="마치며"></a>마치며</h2><p>필자가 최근에 TCP에 대해 공부하면서 가장 어려운 점은, TCP라는 주제 안에 굉장히 다양한 개념들이 서로 얶혀있다는 점이다.</p>
+<p>아무래도 개발된 지 50년이 다 되어가는 할배 프로토콜이다보니 초반에 개발된 버전에 비해서 개선사항도 굉장히 많고 옵션 또한 다양하다. 그래서 TCP의 어떤 동작 하나를 파헤쳐보려고해도 무슨 줄줄이 소세지처럼 이것저것 전부 엮여나온다.</p>
+<p>예를 들어 슬라이딩 윈도우 기법을 설명할 때 나왔던 <code>윈도우 크기</code>의 경우, 단순히 수신 측이 보내준 윈도우 크기를 사용하는 것이 아니라 RTT, MTU, MSS 등 네트워크의 상황과 관련된 다양한 변수를 종합적으로 고려하여 결정된다. 정확히 말하면 수신 측이 보내준 윈도우 크기와 송신 측이 네트워크 혼잡도를 고려해서 정한 윈도우 크기 중 더 작은 값이 송신 측의 최종 윈도우 크기가 되는 식이다.</p>
+<p>또한 오류 제어 섹션에서 이야기했던 오류 판별 기법은 사실 혼잡 제어에서도 중요한 부분으로 설명되며, 이후 방금 말한 로직을 통해 송신 윈도우 크기를 재설정하고 송수신 측이 합의본 오류 제어 기법을 사용하여 패킷을 재전송하는 과정으로 진행된다.</p>
+<p>결국 이 포스팅에서는 다루지 않았지만 흐름 제어라는 주제 안에 혼잡 제어와 관련된 내용도 섞여있는 것이다.</p>
+<p>개인적으로 흐름, 혼잡, 오류와 같이 주제를 나눠놓아서 오히려 더 헷갈리는 것도 있는 것 같다. 그래서 이런 구분없이 따로 정리해서 포스팅을 작성하려고도 했었지만, 아무래도 이런 구분이 모두에게 익숙한 상황이니 그냥 필자도 거기에 편승하기로 했다.</p>
+<p>사실 이런 점 때문에 혼잡 제어도 함께 포스팅에 작성하려고 했지만 포스팅 라인 수가 500줄이 넘어가는 것을 보고 그냥 분리했다. 글이 너무 길어지면 읽는 사람도 힘들다.</p>
+<p>다음 포스팅에서는 마지막으로 TCP의 혼잡제어에 대한 이야기를 한 번 해보려고 한다.</p>
+<p>이상으로 패킷의 흐름과 오류를 제어하는 TCP 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/11/10/header-of-tcp/" title="TCP의 헤더에는 어떤 정보들이 담겨있는걸까?" rel="bookmark">TCP의 헤더에는 어떤 정보들이 담겨있는걸까?</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/11/17/tcp-handshake/" title="TCP가 연결을 생성하고 종료하는 방법, 핸드쉐이크" rel="bookmark">TCP가 연결을 생성하고 종료하는 방법, 핸드쉐이크</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/11/26/tcp-congestion-control/" title="사이 좋게 네트워크를 나눠 쓰는 방법, TCP의 혼잡 제어" rel="bookmark">사이 좋게 네트워크를 나눠 쓰는 방법, TCP의 혼잡 제어</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/10/08/what-is-http3/" title="HTTP/3는 왜 UDP를 선택한 것일까?" rel="bookmark">HTTP/3는 왜 UDP를 선택한 것일까?</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/error-control/">Error Control</a><a class="tag -link" href="/tags/flow-control/">Flow Control</a><a class="tag -link" href="/tags/go-back-n/">Go bacK N</a><a class="tag -link" href="/tags/selective-repeat/">Selective Repeat</a><a class="tag -link" href="/tags/sliding-window/">Sliding Window</a><a class="tag -link" href="/tags/stop-and-wait/">Stop and Wait</a><a class="tag -link" href="/tags/tcp/">TCP</a><a class="tag -link" href="/tags/슬라이딩-윈도우/">슬라이딩 윈도우</a><a class="tag -link" href="/tags/오류-제어/">오류 제어</a><a class="tag -link" href="/tags/흐름-제어/">흐름 제어</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2019/11/26/tcp-congestion-control/">
+                <i class="fas fa-chevron-left"></i> 사이 좋게 네트워크를 나눠 쓰는 방법, TCP의 혼잡 제어
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2019/11/17/tcp-handshake/">
+                TCP가 연결을 생성하고 종료하는 방법, 핸드쉐이크 <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#TCP의-흐름-제어" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>TCP의 흐름 제어</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#Stop-and-Wait" data-link-name="toc">
+        <span class="has-mr-6">1.1</span>
+        <span>Stop and Wait</span>
+        </a></li><li>
+        <a class="is-flex" href="#Sliding-Window" data-link-name="toc">
+        <span class="has-mr-6">1.2</span>
+        <span>Sliding Window</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#TCP의-오류-제어" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>TCP의 오류 제어</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#오류가-발생했다는-것은-어떻게-알-수-있나요" data-link-name="toc">
+        <span class="has-mr-6">2.1</span>
+        <span>오류가 발생했다는 것은 어떻게 알 수 있나요?</span>
+        </a></li><li>
+        <a class="is-flex" href="#Stop-and-Wait-1" data-link-name="toc">
+        <span class="has-mr-6">2.2</span>
+        <span>Stop and Wait</span>
+        </a></li><li>
+        <a class="is-flex" href="#Go-Back-N" data-link-name="toc">
+        <span class="has-mr-6">2.3</span>
+        <span>Go Back N</span>
+        </a></li><li>
+        <a class="is-flex" href="#Selective-Repeat" data-link-name="toc">
+        <span class="has-mr-6">2.4</span>
+        <span>Selective Repeat</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#마치며" data-link-name="toc">
+        <span class="has-mr-6">3</span>
+        <span>마치며</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="패킷의 흐름과 오류를 제어하는 TCP" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

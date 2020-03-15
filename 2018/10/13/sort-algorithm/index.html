@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>정렬 알고리즘 정리 (Bubble, Selection, Insertion, Merge, Quick) - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="이번 포스팅에서는 대표적인 정렬알고리즘 5가지와 대략적인 빅오표기법에 대해서 정리하려고 한다.먼저, 그 5가지 정렬알고리즘은 다음과 같다.">
+<meta name="keywords" content="정렬 알고리즘,Sort Algorithms,Algorithm,알고리즘">
+<meta property="og:type" content="article">
+<meta property="og:title" content="정렬 알고리즘 정리 (Bubble, Selection, Insertion, Merge, Quick)">
+<meta property="og:url" content="https://evan-moon.github.io/2018/10/13/sort-algorithm/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="이번 포스팅에서는 대표적인 정렬알고리즘 5가지와 대략적인 빅오표기법에 대해서 정리하려고 한다.먼저, 그 5가지 정렬알고리즘은 다음과 같다.">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2018/10/13/sort-algorithm/thumbnail.jpg">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.070Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="정렬 알고리즘 정리 (Bubble, Selection, Insertion, Merge, Quick)">
+<meta name="twitter:description" content="이번 포스팅에서는 대표적인 정렬알고리즘 5가지와 대략적인 빅오표기법에 대해서 정리하려고 한다.먼저, 그 5가지 정렬알고리즘은 다음과 같다.">
+<meta name="twitter:image" content="https://evan-moon.github.io/2018/10/13/sort-algorithm/thumbnail.jpg">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2018/10/13/sort-algorithm/">
+
+
+<link rel="alternative" href="/feed.xml" title="정렬 알고리즘 정리 (Bubble, Selection, Insertion, Merge, Quick)" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="정렬 알고리즘 정리 (Bubble, Selection, Insertion, Merge, Quick)" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2018/10/13/sort-algorithm/thumbnail.jpg" alt="정렬 알고리즘 정리 (Bubble, Selection, Insertion, Merge, Quick)">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2018-10-13T12:25:54.000Z">2018-10-13</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/programming/">Programming</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/programming/algorithm/">Algorithm</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                정렬 알고리즘 정리 (Bubble, Selection, Insertion, Merge, Quick)
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>이번 포스팅에서는 대표적인 정렬알고리즘 5가지와 대략적인 <code>빅오표기법</code>에 대해서 정리하려고 한다.<br>먼저, 그 5가지 정렬알고리즘은 다음과 같다.<br><a id="more"></a></p>
+<hr>
+<ol>
+<li>버블정렬(Bubble sort)</li>
+<li>선택정렬(Selection sort)</li>
+<li>삽입정렬(Insertion sort)</li>
+<li>병합정렬(Merge sort)</li>
+<li>퀵정렬(Quick sort)</li>
+</ol>
+<hr>
+<p>그리고 이 알고리즘들의 성능은 <code>빅오표기법</code>으로 표현하므로, 빅오표기법에 대한 설명도 간단히 하고 넘어가려한다.</p>
+<h2 id="Big-O-표기법과-시간복잡도"><a href="#Big-O-표기법과-시간복잡도" class="headerlink" title="Big O 표기법과 시간복잡도"></a>Big O 표기법과 시간복잡도</h2><p>알고리즘들의 성능을 판단하는 지표로는 <code>시간 복잡도(Time Complexity)</code>와 <code>공간 복잡도(Time Complexity)</code>가 있다. <code>시간 복잡도</code>는 알고리즘의 수행시간을 의미하는 지표이며, <code>공간 복잡도</code>는 알고리즘의 메모리 사용량을 의미한다.</p>
+<p>보통 알고리즘에 대해서 공부하다보면 <code>이 알고리즘의 시간복잡도는 O n입니다</code> 혹은 <code>O의 n제곱입니다</code> 이런 식으로 이야기하거나 $O(n)$ 이런 식으로 작성되어있는 것을 볼 수 있었을 것이다.</p>
+<p>이게 바로 <code>빅오(Big O) 표기법</code>이다. 말로 풀어보자면 $O(n)$의 의미는 다음과 같다.</p>
+<blockquote>
+<p>이 함수는 n만큼의 데이터가 주어졌을 때, “최악”의 경우 n만큼의 리소스를 소모한다</p>
+</blockquote>
+<p>이때 위에서 말한 <code>리소스</code>는 시간복잡도라면 <code>시간</code>이고 공간복잡도라면 <code>메모리공간</code>이 될 것이다.<br>하지만 보통 정렬알고리즘을 평가할때는 주로 <code>시간복잡도</code>에 집중하므로 여기서는 시간복잡도만 살펴보도록 하겠다.</p>
+<p>먼저 시간복잡도에 대한 이해를 더 하기위해 <code>이진탐색</code> 알고리즘의 시간복잡도를 살펴보자. 혹시 <code>이진탐색</code>을 잘모르는 사람은 술게임인 <code>업다운</code>을 생각해보자. 다들 잘 알겠지만 <code>업다운</code>은 다른 사람이 생각한 임의의 숫자를 맞춰야하는 게임이다.</p>
+<p>이때, 가장 질문을 최소화할 수 있는 방법은 무엇일까? 바로 첫 질문에 중간 값인 <code>50</code>을 부르는 것이다. <code>50</code>을 부르고 상대방이 <code>업</code> 또는 <code>다운</code>을 하게되면 우리는 반대쪽에 있는 50개의 수는 버리고 나머지 50개만 다시 생각하면 되는 것이다.</p>
+<center><br>  <img src="/2018/10/13/sort-algorithm/drink.jpg"><br>  <sub>만약 운좋게 상대방이 생각한 수가 50이라면 바로 게임이 끝나고 상대방은 벌주를 먹게 된다.</sub><br>  <br><br></center>
+
+<p>어쨌든 이 게임에서 최악의 경우는 계속 <code>업&다운</code>을 반복하다가 $O({\log}N)$번만에 끝나는 것이고 최선의 경우는 찾고자 하는 값을 첫 번째 추측으로 맞춰버린 상황. 즉, 시간복잡도는 $O(1)$이 된다.</p>
+<p>보는 바와 같이 최선의 결과와 최악의 결과 간 차이는 늘 있을 수 밖에 없기 때문에 보통 알고리즘을 평가할 때는 주로 <strong>최악</strong> 의 경우를 생각한다.<br>그리고 이런 <strong>최악</strong> 의 경우를 표현할 때 바로 <code>빅오 표기법</code>을 사용하는 것이다.</p>
+<p>자주 나오는 것들은 보통 $O(1)$, $O(n)$, $O(n^2)$, $O({\log}N)$ 정도가 있는데 알기 쉽게 2차원 그래프로 그려보면 다음과 같이 나타난다.</p>
+<center><img src="/2018/10/13/sort-algorithm/big_o.png" width="500"></center>
+
+<p><code>빅오 표기법</code>의 계산방법과 같은 더 자세한 내용은 다른 포스팅에서 다시 설명하도록 하겠다.</p>
+<h2 id="정렬알고리즘"><a href="#정렬알고리즘" class="headerlink" title="정렬알고리즘"></a>정렬알고리즘</h2><center><img src="/2018/10/13/sort-algorithm/sorts.gif"></center>
+
+<p><code>정렬알고리즘</code>은 컴퓨터 공학에서 중요시되는 문제 중 하나로, 어떤 데이터셋이 주어졌을 때 이를 정해진 순서대로 나열하여 재배치하는 문제이다.<br>실제 개발을 하다보면 불규칙한 데이터들을 정렬 후 탐색해야하는 경우가 꽤나 많이 발생하게 되는데 이때 상황에 맞는 알고리즘을 사용하여 효과적으로 문제를 해결할 수 있느냐가 핵심이라고 볼 수 있다.</p>
+<p>예를 들어 1부터 10까지 적혀있는 공이 불규칙하게 들어있는 주머니에서 공을 하나씩 꺼내어 작은 수부터 큰 수의 순서로 공을 나열한다고 생각해보자.<br>보통 이런 경우 사람도 어렵지 않게 쓱쓱 정렬해낸다. 하지만 컴퓨터가 주로 다루는 데이터는 <code>10,000</code>개일수도 <code>10,000,000</code>개일수도 있다. 그리고 데이터베이스 같은 경우는 이론상 무한 개의 데이터를 다룰 수 있어야 한다.</p>
+<p>이때 데이터가 정렬되어 있지 않다면 순차적으로 하나씩 데이터를 봐가면서 탐색해야하지만, 데이터가 이미 정렬되어있다면 위에서 예시로 들었던 <code>이진탐색(Binary Search)</code>와 같은 강력한 알고리즘을 사용할 수도 있다.<small>(사실 이게 제일 큰 이유이다)</small></p>
+<p>자 그럼 대표적인 정렬알고리즘인 <code>버블정렬</code>, <code>선택정렬</code>, <code>삽입정렬</code>, <code>병합정렬</code>, <code>퀵정렬</code>을 한번 살펴보도록 하자.</p>
+<h3 id="버블정렬-Bubble-sort"><a href="#버블정렬-Bubble-sort" class="headerlink" title="버블정렬(Bubble sort)"></a>버블정렬(Bubble sort)</h3><center><img src="/2018/10/13/sort-algorithm/bubble_sort.gif"></center>
+
+<p><code>버블정렬</code>은 거의 모든 상황에서 최악의 성능을 보여주지만, 이미 정렬된 자료에서는 1번만 순회하면 되기 때문에 최선의 성능을 보여주는 알고리즘이다. 이미 정렬되어 있는 데이터를 왜 정렬하냐는 의문이 들 수 있지만, 정렬알고리즘 자체는 데이터가 정렬되어 있는지 아닌지 모르고 작동하는 것이기 때문에 의미는 있다.</p>
+<p><code>버블정렬</code>은 다음과 같은 순서로 작동한다.</p>
+<hr>
+<ol>
+<li>0번째 원소와 1번째 원소를 비교 후 정렬</li>
+<li>1번째 원소와 2번째 원소를 비교 후 정렬<br>…</li>
+<li>n-1번째 원소와 n번째 원소를 비교 후 정렬</li>
+</ol>
+<hr>
+<p>한번 순회할 때마다 마지막 하나가 정렬되므로 원소들이 거품이 올라오는 것처럼 보여서 <code>버블정렬</code>이라고 부른다. 원리도 직관적이라서 구현하기 편하긴 하지만 꽤나 비효율적인 정렬 방식이다. 그래서 보통 처음 배울 때 한번 짜보고 나면 실무에서 쓰는 경우는 거의 못 봤다.<small>(물논 시간이 없다면 쓸 수도 있다…)</small></p>
+<p><code>버블정렬</code>의 구현코드는 다음과 같다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">bubbleSort</span> (<span class="hljs-params">input</span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">const</span> len = input.length;</span><br><span class="line">  <span class="hljs-keyword">let</span> tmp = <span class="hljs-literal">null</span>;</span><br><span class="line">  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i < len; i++) {</span><br><span class="line">    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> j = <span class="hljs-number">0</span>; j < len; j++) {</span><br><span class="line">      <span class="hljs-keyword">if</span> (input[j] > input[j + <span class="hljs-number">1</span>]) {</span><br><span class="line">        <span class="hljs-comment">// Swap</span></span><br><span class="line">        tmp = input[j];</span><br><span class="line">        input[j] = input[j + <span class="hljs-number">1</span>];</span><br><span class="line">        input[j + <span class="hljs-number">1</span>] = tmp;</span><br><span class="line">        tmp = <span class="hljs-literal">null</span>;</span><br><span class="line">      }</span><br><span class="line">    }</span><br><span class="line">  }</span><br><span class="line">  <span class="hljs-keyword">return</span> input;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="선택정렬-Selection-sort"><a href="#선택정렬-Selection-sort" class="headerlink" title="선택정렬(Selection sort)"></a>선택정렬(Selection sort)</h3><center><img src="/2018/10/13/sort-algorithm/selection_sort.gif"></center>
+
+<p><code>선택정렬</code>은 주어진 자료들 중에 현재 위치에 맞는 자료를 찾아 선택하여 위치를 교환하는 정렬 알고리즘이다.<br>한번 순회를 돌게되면 알고리즘 상 전체 자료 중 가장 작은 값의 자료가 0번째 인덱스에 위치하게 되므로 그 다음 순회부터는 1번 인덱스부터 순회를 돌며 반복하면 된다.</p>
+<p><code>선택정렬</code>은 다음과 같은 순서로 작동한다.</p>
+<hr>
+<ol>
+<li>0번 인덱스 ~ n번 인덱스 중 가장 작은 값을 찾아 0번째 인덱스와 swap한다</li>
+<li>1번 인덱스 ~ n번 인덱스 중 가장 작은 값을 찾아 1번째 인덱스와 swap한다<br>…</li>
+<li>n-1번 인덱스 ~ n번 인덱스 중 가장 작은 값을 찾아 n번째 인덱스와 swap한다</li>
+</ol>
+<hr>
+<p><code>선택정렬</code>은 현재 자료가 정렬이 되어있던말던 무조건 전체 리스트를 순회해가며 검사하기 때문에 최선의 경우든 최악의 경우든 한결같이 $O(n^2)$의 시간복잡도를 가지고 있다.<br><code>선택정렬</code>의 구현코드는 다음과 같다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">selectionSort</span> (<span class="hljs-params">input</span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">const</span> len = input.length;</span><br><span class="line">  <span class="hljs-keyword">let</span> tmp = <span class="hljs-literal">null</span>;</span><br><span class="line">  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">0</span>; i < len; i++) {</span><br><span class="line">    <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> j = <span class="hljs-number">0</span>; j < len; j++) {</span><br><span class="line">      <span class="hljs-keyword">if</span> (input[i] < input[j]) {</span><br><span class="line">        <span class="hljs-comment">// Swap</span></span><br><span class="line">        tmp = input[j];</span><br><span class="line">        input[j] = input[i];</span><br><span class="line">        input[i] = tmp;</span><br><span class="line">        tmp = <span class="hljs-literal">null</span>;</span><br><span class="line">      }</span><br><span class="line">    }</span><br><span class="line">  }</span><br><span class="line">  <span class="hljs-keyword">return</span> input;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="삽입정렬-Insertion-sort"><a href="#삽입정렬-Insertion-sort" class="headerlink" title="삽입정렬(Insertion sort)"></a>삽입정렬(Insertion sort)</h3><center><img src="/2018/10/13/sort-algorithm/insertion_sort.gif"></center>
+
+<p><code>삽입정렬</code>은 주어진 자료의 모든 요소를 앞에서부터 차례대로 정렬된 자료 부분과 비교하여 자신의 위치를 찾아 삽입하는 정렬이다. 사실 인간이 직접 정렬하는 순서와 제일 흡사하다고 할 수 있는 정렬인데, 직접 손안에 있는 카드를 정렬한다고 생각해보자. 대충 다음과 같은 순서로 행동할 것이다.</p>
+<hr>
+<ol>
+<li>카드를 하나 고른다.</li>
+<li>내가 가지고 있는 카드를 쭉 살펴본다.</li>
+<li>현재 카드가 들어가야할 순서에 카드를 껴넣는다.</li>
+</ol>
+<hr>
+<p><code>삽입정렬</code>은 이 순서와 비슷하게 작동한다.</p>
+<hr>
+<ol>
+<li>0번 인덱스는 건너뛴다.</li>
+<li>0~1번 인덱스 중 1번 인덱스 값이 들어가야할 위치를 찾아서 넣는다</li>
+<li>0~2번 인덱스 중 2번 인덱스 값이 들어가야할 위치를 찾아서 넣는다<br>…</li>
+<li>0~n번 인덱스 중 n번 인덱스 값이 들어가야할 위치를 찾아서 넣는다</li>
+</ol>
+<hr>
+<p>삽입정렬은 최선의 경우 전체 자료를 한번만 순회하면 되기때문에 $O(n)$의 시간복잡도를 가지지만 최악의 경우 $O(n^2)$의 시간복잡도를 가진다.</p>
+<p><code>선택정렬</code>의 구현코드는 다음과 같다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">insertionSort</span> (<span class="hljs-params">input</span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">const</span> len = input.length;</span><br><span class="line">  <span class="hljs-keyword">for</span> (<span class="hljs-keyword">let</span> i = <span class="hljs-number">1</span>; i < len; i++) { <span class="hljs-comment">// 두번째 카드부터 시작</span></span><br><span class="line">    <span class="hljs-keyword">const</span> value = input[i]; <span class="hljs-comment">// 카드를 잡는다</span></span><br><span class="line">    <span class="hljs-keyword">let</span> j = i<span class="hljs-number">-1</span>;</span><br><span class="line">    <span class="hljs-keyword">for</span> (;j > <span class="hljs-number">-1</span> && input[j] > value; j--) {</span><br><span class="line">      <span class="hljs-comment">// 이미 정렬된 카드들을 뒤에서부터 살펴보다가</span></span><br><span class="line">      <span class="hljs-comment">// 살펴본 카드가 현재 카드보다 크다면</span></span><br><span class="line">      <span class="hljs-comment">// 살펴본 카드를 뒤로 한칸 보낸다</span></span><br><span class="line">      input[j+<span class="hljs-number">1</span>] = input[j];</span><br><span class="line">    }</span><br><span class="line">    <span class="hljs-comment">// 뒤로 보내는 행위가 끝나면</span></span><br><span class="line">    <span class="hljs-comment">// 현재 카드보다 작은 카드의 한칸 뒤에</span></span><br><span class="line">    <span class="hljs-comment">// 현재 카드를 위치시킨다</span></span><br><span class="line">    input[j+<span class="hljs-number">1</span>] = value;</span><br><span class="line">  }</span><br><span class="line">  <span class="hljs-keyword">return</span> input;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="병합정렬-Merge-sort"><a href="#병합정렬-Merge-sort" class="headerlink" title="병합정렬(Merge sort)"></a>병합정렬(Merge sort)</h3><center><img src="/2018/10/13/sort-algorithm/merge_sort.gif"></center>
+
+<p><code>병합정렬</code>은 일종의 <code>분할 정복법</code> 중 하나로 큰 문제를 작은 여러 개의 문제로 쪼개서 각각을 해결한 후 결과를 모아서 원래의 문제를 해결하는 방법이다.<br><code>병합정렬</code>이라는 이름 그대로 주어진 자료를 잘게 쪼갠 뒤 합치는 과정에서 정렬을 하는 알고리즘이다. 순서를 살펴보면 다음과 같다.</p>
+<hr>
+<ol>
+<li>[5, 0, 4, 1]라는 자료를 받았다</li>
+<li>length가 1이 될때까지 자료 리스트를 반으로 쪼갠다</li>
+<li>[5, 0] [4, 1]가 된다.</li>
+<li>[5] [0] [4] [1]가 된다</li>
+<li>각 리스트의 길이가 1이 되었으므로 병합을 시작한다</li>
+<li><strong>왼쪽의 0번 인덱스와 오른쪽의 0번 인덱스를 비교하여 적은 값을 먼저 병합.</strong> [5]와 [0] 중 0이 더 작으므로 새로운 리스트에 0을 먼저 병합한다</li>
+<li>[0, 5] 생성</li>
+<li><strong>왼쪽의 0번 인덱스와 오른쪽의 0번 인덱스를 비교하여 적은 값을 먼저 병합.</strong> [4]와 [1] 중 1이 더 작으므로 새로운 리스트에 1을 먼저 병합</li>
+<li>[1, 4] 생성</li>
+<li>이제 [0, 5]와 [1, 4]를 병합한다. 이 리스트들은 정렬되었기 때문에 작은 인덱스일 수록 작은 값을 가진다는 것이 보장되어있다.</li>
+<li><strong>왼쪽의 0번 인덱스와 오른쪽의 0번 인덱스를 비교하여 적은 값을 먼저 병합</strong></li>
+<li>[0] 생성. [5]와 [1, 4]가 남았다</li>
+<li><strong>왼쪽의 0번 인덱스와 오른쪽의 0번 인덱스를 비교하여 적은 값을 먼저 병합</strong></li>
+<li>[0, 1] 생성. [5]와 [4]가 남았다</li>
+<li><strong>왼쪽의 0번 인덱스와 오른쪽의 0번 인덱스를 비교하여 적은 값을 병합</strong></li>
+<li>[0, 1, 4] 생성. [5]가 남았다</li>
+<li>값이 남았으므로 그냥 병합해준다.</li>
+<li>[0, 1, 4, 5] 정렬완료</li>
+</ol>
+<hr>
+<p><strong>볼드</strong> 처리된 <strong>왼쪽의 0번 인덱스와 오른쪽의 0번 인덱스를 비교하여 적은 값을 먼저 병합</strong> 을 보자.<br>같은 방식으로 계속 반복하여 병합하고 있기 때문에 보통 <code>병합정렬</code>은 재귀함수로 구현한다. 또한 <code>병합정렬</code>은 항상 $O({n\log}n)$의 시간복잡도를 가지기 때문에 효율적이다. 그러나 원소의 개수만큼 리스트를 쪼개고 따로 저장하고 있어야하기 때문에 $O(n)$의 공간복잡도를 가진다. 한마디로 메모리를 팔아 수행속도를 얻는 경우라고 할 수 있다.</p>
+<p><code>병합정렬</code>의 구현코드는 다음과 같다</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">merge</span> (<span class="hljs-params">left, right</span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">const</span> result = [];</span><br><span class="line">  <span class="hljs-keyword">while</span> (left.length && right.length) {</span><br><span class="line">    <span class="hljs-keyword">if</span> (left[<span class="hljs-number">0</span>] <= right[<span class="hljs-number">0</=></span>]) {<br><span class="line">      result.push(left.shift());</span><br><span class="line">    }</span><br><span class="line">    <span class="hljs-keyword">else</span> {</span><br><span class="line">      result.push(right.shift());</span><br><span class="line">    }</span><br><span class="line">  }</span><br><span class="line">  <span class="hljs-keyword">while</span> (left.length) {</span><br><span class="line">    result.push(left.shift());</span><br><span class="line">  }</span><br><span class="line">  <span class="hljs-keyword">while</span>(right.length) {</span><br><span class="line">    result.push(right.shift());</span><br><span class="line">  }</span><br><span class="line">  <span class="hljs-keyword">return</span> result;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">mergeSort</span> (<span class="hljs-params">input</span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">if</span> (input.length < <span class="hljs-number">2</span>) {</span><br><span class="line">    <span class="hljs-keyword">return</span> input;</span><br><span class="line">  }</span><br><span class="line">  <span class="hljs-keyword">const</span> middle = <span class="hljs-built_in">parseInt</span>(input.length / <span class="hljs-number">2</span>);</span><br><span class="line">  <span class="hljs-keyword">const</span> left = input.slice(<span class="hljs-number">0</span>, middle);</span><br><span class="line">  <span class="hljs-keyword">const</span> right = input.slice(middle, input.length);</span><br><span class="line">  <span class="hljs-keyword">return</span> merge(mergeSort(left), mergeSort(right));</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<h3 id="퀵정렬-Quick-sort"><a href="#퀵정렬-Quick-sort" class="headerlink" title="퀵정렬(Quick sort)"></a>퀵정렬(Quick sort)</h3><center><img src="/2018/10/13/sort-algorithm/quick_sort.gif"></center>
+
+<p><code>퀵정렬</code>도 <code>병합정렬</code>과 마찬가지로 분할정복을 통한 정렬방법이다. <code>병합정렬</code>과의 차이점은 <code>병합정렬</code>은 분할 단계에서는 아무것도 하지않고 <code>병합</code>하는 단계에서 정렬을 수행하지만, <code>퀵정렬</code>은 분할 단계에서 중요한 작업들을 수행하고 <code>병합</code>시에는 아무것도 하지않는다는 점이다.<br><code>퀵정렬</code>의 수행 순서는 다음과 같다.</p>
+<hr>
+<ol>
+<li>입력된 자료 리스트에서 하나의 원소를 고른다. 이 원소를 <code>피벗</code>이라고 부른다.</li>
+<li><code>피벗</code>을 기준으로 리스트를 둘로 분할한다.</li>
+<li><code>피벗</code>을 기준으로 <code>피벗</code>보다 작은 원소들은 모두 <code>피벗</code>의 왼쪽으로 옮긴다</li>
+<li><code>피벗</code>을 기준으로 <code>피벗</code>보다 큰 원소들은 모두 <code>피벗</code>의 오른쪽으로 옮긴다</li>
+</ol>
+<hr>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">quickSort</span>(<span class="hljs-params">arr, left, right</span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">if</span> (left < right) {</span><br><span class="line">    <span class="hljs-comment">//기준점을 찾고 기준점을 중심으로 더 작은수, 더 큰수 분류</span></span><br><span class="line">    <span class="hljs-keyword">const</span> i =  position(arr, left, right);</span><br><span class="line">    <span class="hljs-comment">//기준점 기준 좌측 정렬</span></span><br><span class="line">    quicksort(arr, left, i - <span class="hljs-number">1</span>);</span><br><span class="line">    <span class="hljs-comment">//기준점 기준 우측 정렬</span></span><br><span class="line">    quicksort(arr, i + <span class="hljs-number">1</span>, right);</span><br><span class="line">  }</span><br><span class="line">  <span class="hljs-keyword">return</span> arr;</span><br><span class="line">}</span><br><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">position</span> (<span class="hljs-params">arr, left, right</span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">let</span> i = left;</span><br><span class="line">  <span class="hljs-keyword">let</span> j = right;</span><br><span class="line">  <span class="hljs-keyword">const</span> pivot = arr[left];</span><br><span class="line"></span><br><span class="line">  <span class="hljs-comment">//제자리 더 큰수/더 작은 수 좌우 배치.</span></span><br><span class="line">  <span class="hljs-keyword">while</span> (i < j) {</span><br><span class="line">    <span class="hljs-keyword">while</span> (arr[j] > pivot) j--;</span><br><span class="line">    <span class="hljs-keyword">while</span> (i < j && arr[i] <= pivot) i++;< span><br><span class="line"></span><br><span class="line">    tmp = arr[i];</span><br><span class="line">    arr[i] = arr[j];</span><br><span class="line">    arr[j] = tmp;</span><br><span class="line">  }</span><br><span class="line">  arr[left] = arr[j];</span><br><span class="line">  arr[j] = pivot;</span><br><span class="line"></span><br><span class="line">  <span class="hljs-keyword">return</span> j;</span><br><span class="line">}</span><br></=></span></pre></td></tr></tbody></table></figure>
+<p>이상으로 정렬 알고리즘 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/08/11/average-filter/" title="실시간 데이터의 평균을 효율적으로 구하기" rel="bookmark">실시간 데이터의 평균을 효율적으로 구하기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/07/14/what-is-random/" title="컴퓨터가 만드는 랜덤은 정말로 랜덤할까?" rel="bookmark">컴퓨터가 만드는 랜덤은 정말로 랜덤할까?</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/07/17/programmer-with-math/" title="프로그래머는 수학을 잘해야할까?" rel="bookmark">프로그래머는 수학을 잘해야할까?</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/10/30/make-simple-with-math/" title="수학과 함께 복잡한 문제를 단순하게 만들자!" rel="bookmark">수학과 함께 복잡한 문제를 단순하게 만들자!</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/algorithm/">Algorithm</a><a class="tag -link" href="/tags/sort-algorithms/">Sort Algorithms</a><a class="tag -link" href="/tags/알고리즘/">알고리즘</a><a class="tag -link" href="/tags/정렬-알고리즘/">정렬 알고리즘</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2019/02/26/simple-ann/">
+                <i class="fas fa-chevron-left"></i> TypeScript를 사용하여 간단한 인공 신경망 개발 삽질기
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2018/09/25/vue-ssr/">
+                Vue Server Side Rendering <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#Big-O-표기법과-시간복잡도" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>Big O 표기법과 시간복잡도</span>
+        </a></li><li>
+        <a class="is-flex" href="#정렬알고리즘" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>정렬알고리즘</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#버블정렬-Bubble-sort" data-link-name="toc">
+        <span class="has-mr-6">2.1</span>
+        <span>버블정렬(Bubble sort)</span>
+        </a></li><li>
+        <a class="is-flex" href="#선택정렬-Selection-sort" data-link-name="toc">
+        <span class="has-mr-6">2.2</span>
+        <span>선택정렬(Selection sort)</span>
+        </a></li><li>
+        <a class="is-flex" href="#삽입정렬-Insertion-sort" data-link-name="toc">
+        <span class="has-mr-6">2.3</span>
+        <span>삽입정렬(Insertion sort)</span>
+        </a></li><li>
+        <a class="is-flex" href="#병합정렬-Merge-sort" data-link-name="toc">
+        <span class="has-mr-6">2.4</span>
+        <span>병합정렬(Merge sort)</span>
+        </a></li><li>
+        <a class="is-flex" href="#퀵정렬-Quick-sort" data-link-name="toc">
+        <span class="has-mr-6">2.5</span>
+        <span>퀵정렬(Quick sort)</span>
+        </a></li></ul></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="정렬 알고리즘 정리 (Bubble, Selection, Insertion, Merge, Quick)" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

@@ -1,0 +1,829 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>PWA 하루 만에 도입하기(삽질기) - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="이번 포스팅에서는 필자가 회사에서 2019년 7월 5일 금요일 하루 동안 기존 어플리케이션에 PWA(Progressive Web Application) 기능을 붙힌 삽질기를 기록하려고 한다. PWA는 지원하지 않는 브라우저에 대한 예외처리만 꼼꼼하게 해주면 UX, 성능, SEO 등에서 무조건 플러스 요인이기 때문에 예전부터 계속 해보고 싶었다.">
+<meta name="keywords" content="JavaScript,Vue,Web Push,Notification API,PWA,Progressive Web Application">
+<meta property="og:type" content="article">
+<meta property="og:title" content="PWA 하루 만에 도입하기(삽질기)">
+<meta property="og:url" content="https://evan-moon.github.io/2019/07/06/pwa-with-notification/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="이번 포스팅에서는 필자가 회사에서 2019년 7월 5일 금요일 하루 동안 기존 어플리케이션에 PWA(Progressive Web Application) 기능을 붙힌 삽질기를 기록하려고 한다. PWA는 지원하지 않는 브라우저에 대한 예외처리만 꼼꼼하게 해주면 UX, 성능, SEO 등에서 무조건 플러스 요인이기 때문에 예전부터 계속 해보고 싶었다.">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2019/07/06/pwa-with-notification/thumbnail.png">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.143Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="PWA 하루 만에 도입하기(삽질기)">
+<meta name="twitter:description" content="이번 포스팅에서는 필자가 회사에서 2019년 7월 5일 금요일 하루 동안 기존 어플리케이션에 PWA(Progressive Web Application) 기능을 붙힌 삽질기를 기록하려고 한다. PWA는 지원하지 않는 브라우저에 대한 예외처리만 꼼꼼하게 해주면 UX, 성능, SEO 등에서 무조건 플러스 요인이기 때문에 예전부터 계속 해보고 싶었다.">
+<meta name="twitter:image" content="https://evan-moon.github.io/2019/07/06/pwa-with-notification/thumbnail.png">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2019/07/06/pwa-with-notification/">
+
+
+<link rel="alternative" href="/feed.xml" title="PWA 하루 만에 도입하기(삽질기)" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="PWA 하루 만에 도입하기(삽질기)" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2019/07/06/pwa-with-notification/thumbnail.png" alt="PWA 하루 만에 도입하기(삽질기)">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-07-06T12:06:37.000Z">2019-07-06</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/programming/">Programming</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/programming/web/">Web</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                PWA 하루 만에 도입하기(삽질기)
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>이번 포스팅에서는 필자가 회사에서 <code>2019년 7월 5일 금요일</code> 하루 동안 기존 어플리케이션에 <code>PWA(Progressive Web Application)</code> 기능을 붙힌 삽질기를 기록하려고 한다. <code>PWA</code>는 지원하지 않는 브라우저에 대한 예외처리만 꼼꼼하게 해주면 <code>UX</code>, <code>성능</code>, <code>SEO</code> 등에서 무조건 플러스 요인이기 때문에 예전부터 계속 해보고 싶었다.<br><a id="more"></a></p>
+<p>하지만 시간이 없어서 계속 미루고 있었는데 마침 어제 간만에 필자에게 여유 시간이 주어졌다.<br>필자가 지금 작업하고 있는 프로젝트가 회사의 비즈니스 모델과 밀접한 관련이 있는 프로젝트이고, 또 워낙 이 기능에 관련된 사내 <code>이해관계자(Stakeholder)</code>들이 많아서 <code>PO</code>가 테스트를 좀 더 꼼꼼히 하고 싶다고 했기 때문이다.</p>
+<p>그래서 금요일 하루, 정확히 말하면 오전에는 버그 터진거 하나 핫픽스하고 점심먹고나서 자료 조사도 한시간 쯤 해본 다음에 <code>15시 30분</code> 쯤부터 시작해서 <code>22시 55분</code>까지 달렸다. 원래 필자는 근무시간에 열심히 하고 다른 시간은 나에게 투자하자는 주의라 야근은 왠만하면 안하는데, 필자에게 주어진 시간이 하루 밖에 없어서 그 안에 무조건 끝내야 했던 것도 있지만 사실 제일 큰 이유는…</p>
+<center><br> <img src="/2019/07/06/pwa-with-notification/tyson.jpg" width="400"><br> <br><br></center>
+
+<blockquote>
+<p>네, 쉽게 보고 덤볐다가 쳐맞았습니다.</p>
+</blockquote>
+<p>필자는 사실 <code>PWA</code>를 구현해본 경험이 없다. 구글에서 제공해주는 데모는 몇번 돌려본 적이 있지만 나머지는 그냥 다른 굇수분들의 블로그를 보고 <code>오...나도 해보고 싶군</code> 정도로만 생각했었다.<br>근데 다른 사람들이 구현한 걸 보면 뭐 코드가 복잡한 것도 아니고 <code>서비스 워커(Service Worker)</code>도 작동 원리가 그렇게 생소한 느낌은 아니기에 사실 얕보고 있었다.</p>
+<h2 id="원래-필자의-계획"><a href="#원래-필자의-계획" class="headerlink" title="원래 필자의 계획"></a>원래 필자의 계획</h2><p>원래 필자도 <code>PWA</code>에게 쳐맞기 전까진 그럴싸한 계획이 있었다. 물론 필자는 자세히 공부를 하고 덤비는 타입이 아니라 그냥 대충 알아본 다음에 나머지는 직접 맞아가면서 배우는 타입이라 더 그랬던 것도 있다. 어쨌든 어제 점심을 먹고 와서 필자가 사무실에 앉아서 가만히 생각을 해본 결과, <code>PWA나 해볼까...? Manifest 넣고 서비스 워커 붙히면 뭐 나머지는 문서보고 해도 대충 될 거 같은데...?</code>로 결론이 나왔다.</p>
+<p>그래도 <code>PWA</code>의 모든 기능을 다 구현하는 것은 퇴근 시간인 <code>19시</code>까지는 힘들 것 같아서 작업에 대한 스코프를 잡았다.</p>
+<blockquote><ol>
+<li>기능을 전부 구현하는 건 힘들 것 같으니 일단 기반을 잡아놓는다고 생각하자.</li>
+<li>서비스 워커 설치.</li>
+<li>Manifest.json 추가. 이건 남들 다하는 거니까 우리도 기본적으로 해야함.</li>
+<li>Pusher SDK와 PushManager를 사용해서 브라우저가 꺼져있더라도 사용자에게 푸시 메세지를 보여주자.</li>
+<li>시간 되면 모바일에서 홈스크린에 어플리케이션을 추가하는 것까진 해보고 싶다.(우선순위 낮음)</li>
+<li>오프라인 캐싱은 다음 시간에…(나름 스코프 조절)</li>
+</ol>
+<footer><strong>문에반</strong><cite>프로 계획러</cite></footer></blockquote>
+<p>자 이제 계획이 잡혔으니 PO와 테스터에게 <code>프로젝트 테스트 하시는 동안 저는 저만의 놀이터에서 놀다 오겠습니다</code>라고 협의<small><del>(라고 쓰고 통보라고 읽는다.)</del></small>를 한 뒤 마스터에서 브랜치를 하나 땄다. 브랜치 이름도 필자의 의지가 돋보이는 <code>feature/service-worker-web-push</code>로 딱 지어놓고 <code>15시 30분</code> 쯤 부터 작업을 시작했다. 그래도 이정도면 한 <code>4~5시간</code> 안에 충분히 가능하겠다 싶었는데…</p>
+<center><br>  <img src="/2019/07/06/pwa-with-notification/babo.jpg"><br>  <small>코딩하는 내내 필자의 정신상태</small><br>  <br><br></center>
+
+<p>결과적으로 저 중에서 달성한 제대로 달성한 목표는 <code>1, 2, 3</code>번 뿐이이다. <code>4</code>번 목표인 푸시 메시지의 경우, Background 메세징은 삽질만 하다가 시간이 너무 많이 가서 실패하고 <code>Notification API</code>를 사용하여 Foreground에서만 노출되도록 구현했다.</p>
+<p>처음에는 숨고 모바일 앱에서 이미 사용하고 있는 <code>FCM(Firebase Cloud Messaging)</code>을 사용하려고 했는데 그러면 웹 클라리언트의 푸시 채널이 이원화되기 때문에 일단 테스트도 해볼 겸 <code>FCM</code>없이 서비스 워커의 <code>PushManager</code>만 사용해서 구현하려고 했다.</p>
+<p>이제 필자가 이것들을 작업하면서 어떤 문제에 봉착했고, 어떻게 해결했는지 한번 설명해보겠다.</p>
+<h2 id="제-1-관문-Manifest-json"><a href="#제-1-관문-Manifest-json" class="headerlink" title="제 1 관문, Manifest.json"></a>제 1 관문, Manifest.json</h2><p>제일 처음 한 일은 <code>manifest.json</code>을 생성하는 것이다. 이건 그냥 말 그대로 생성하면 된다. 또한 <code>manifest.json</code>은 어차피 정적인 파일이기도 하고 업데이트도 잦지 않은 파일이기 때문에 굳이 <code>Express</code>에서 응답하지 않아도 된다. 그래서 프로젝트 내부의 <code>static</code> 디렉토리에 <code>manifest.json</code>을 생성하고 <code>nginx</code>가 바로 응답해주는 방식으로 작성했다.</p>
+<figure class="highlight json hljs"><figcaption><span>static/manifest.json</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">{</span><br><span class="line">  <span class="hljs-attr">"name"</span>: <span class="hljs-string">"숨고"</span>,</span><br><span class="line">  <span class="hljs-attr">"short_name"</span>: <span class="hljs-string">"숨고"</span>,</span><br><span class="line">  <span class="hljs-attr">"icons"</span>: [{</span><br><span class="line">    <span class="hljs-attr">"src"</span>: <span class="hljs-string">"https://d1hhkexwnh74v.cloudfront.net/app_icons/1x.png"</span>,</span><br><span class="line">    <span class="hljs-attr">"type"</span>: <span class="hljs-string">"image/png"</span>,</span><br><span class="line">    <span class="hljs-attr">"sizes"</span>: <span class="hljs-string">"48x48"</span></span><br><span class="line">  }, {</span><br><span class="line">    <span class="hljs-attr">"src"</span>: <span class="hljs-string">"https://d1hhkexwnh74v.cloudfront.net/app_icons/2x.png"</span>,</span><br><span class="line">    <span class="hljs-attr">"type"</span>: <span class="hljs-string">"image/png"</span>,</span><br><span class="line">    <span class="hljs-attr">"sizes"</span>: <span class="hljs-string">"64x64"</span></span><br><span class="line">  }, {</span><br><span class="line">    <span class="hljs-attr">"src"</span>: <span class="hljs-string">"https://d1hhkexwnh74v.cloudfront.net/app_icons/3x.png"</span>,</span><br><span class="line">    <span class="hljs-attr">"type"</span>: <span class="hljs-string">"image/png"</span>,</span><br><span class="line">    <span class="hljs-attr">"sizes"</span>: <span class="hljs-string">"128x128"</span></span><br><span class="line">  }, {</span><br><span class="line">    <span class="hljs-attr">"src"</span>: <span class="hljs-string">"https://d1hhkexwnh74v.cloudfront.net/app_icons/3x.png"</span>,</span><br><span class="line">    <span class="hljs-attr">"type"</span>: <span class="hljs-string">"image/png"</span>,</span><br><span class="line">    <span class="hljs-attr">"sizes"</span>: <span class="hljs-string">"144x144"</span></span><br><span class="line">  }],</span><br><span class="line">  <span class="hljs-attr">"start_url"</span>: <span class="hljs-string">"/?pwa=true"</span>,</span><br><span class="line">  <span class="hljs-attr">"display"</span>: <span class="hljs-string">"fullscreen"</span>,</span><br><span class="line">  <span class="hljs-attr">"background_color"</span>: <span class="hljs-string">"#FFFFFF"</span>,</span><br><span class="line">  <span class="hljs-attr">"theme_color"</span>: <span class="hljs-string">"#00C7AE"</span>,</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p><code>manifest.json</code>에 대한 자세한 내용은 Google Web Developer 문서의 <a href="https://developers.google.com/web/fundamentals/web-app-manifest/" target="_blank" rel="external nofollow noopener noreferrer">The Web App Manifest</a>를 참고해서 작성했다.</p>
+<p>그리고 저 아이콘은 지금 숨고 앱에서 사용하고 있는 아이콘들이다. 굳이 모바일 앱과 다른 아이콘을 사용할 이유도 없고, 디자이너 분들도 바빠서 멘탈나간 상황이기 때문에 필자의 기술적인 욕심 때문에 아이콘을 만들어 달라고 하기엔 너무 미안했다.</p>
+<p>또한 앱과 웹이 같은 아이콘을 사용해야 브랜딩 측면에서도 좋을 거라 생각해서 모바일 앱 레파지토리를 클론받아서 몰래 훔쳐왔다. 그리고 저 이미지들은 굳이 프로젝트 내에 저장할 필요가 없으므로 회사에서 사용하는 <code>S3</code> 버킷에 업로드하고 <code>CloudFront</code>로 딜리버리했다.</p>
+<p>위에서 설명했듯이 필자는 <code>manifest.json</code>에 대한 요청을 <code>Express</code>가 처리하는 것이 아니라 서버 엔진인 <code>nginx</code>가 처리하는 방식을 선택했는데, 이렇게 <code>nginx</code>가 서버 어플리케이션까지 요청을 토스해주지 않고 그냥 알아서 서빙하도록 하고 싶다면 간단한 설정을 추가하면 된다.</p>
+<figure class="highlight nginx hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-section">server</span> {</span><br><span class="line">  ...</span><br><span class="line">  <span class="hljs-attribute">location</span> <span class="hljs-regexp">~ ^/static</span> {</span><br><span class="line">    <span class="hljs-attribute">root</span> /your/project/location;</span><br><span class="line">  }</span><br><span class="line">  ...</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>이런 식으로 설정하면 바로 프로젝트 내의 <code>static</code> 디렉토리에 접근할 수 있다. <code>/static으로 시작하는 요청이 들어오면 /your/project/location 경로에서 니가 알아서 찾아줘~</code>라는 의미이다. 하지만 로컬에서 개발 서버를 사용할 때에는 nginx를 사용하지 않고 NodeJS를 사용하여 바로 개발용 서버를 띄우므로 로컬 환경에서는 <code>Express</code>가 직접 파일을 서빙할 수 있도록 해줘야 한다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">if</span> (process.env.NODE_ENV === <span class="hljs-string">'local'</span>) {</span><br><span class="line">    app.use(<span class="hljs-string">'/static'</span>, serve(<span class="hljs-string">'./static'</span>));</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>이제 브라우저에게 <code>나의 Manifest 파일이 여기 있으니 가져가시오</code>라고 알려줄 수 있는 <code>link</code> 태그를 하나 넣어주면 끝이다.</p>
+<figure class="highlight js hljs"><figcaption><span>constants/meta.constant.js</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> {</span><br><span class="line">  <span class="hljs-comment">// ...</span></span><br><span class="line">  link: [{</span><br><span class="line">      rel: <span class="hljs-string">'manifest'</span>,</span><br><span class="line">      href: <span class="hljs-string">'/static/manifest.json'</span>,</span><br><span class="line">  }],</span><br><span class="line">  <span class="hljs-comment">// ...</span></span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight html hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-tag"><<span class="hljs-name">link</span> <span class="hljs-attr">rel</span>=<span class="hljs-string">"manifest"</span> <span class="hljs-attr">href</span>=<span class="hljs-string">"/static/manifest.json"</span> <span class="hljs-attr">data-vue-meta</span>=<span class="hljs-string">"true"</span>></span></span><br></pre></td></tr></tbody></table></figure>
+<p>필자는 <code>vue-meta</code> 라이브러리를 사용하고 있기 때문에 이렇게 <code>Object</code>형 객체를 리턴하는 방식을 사용하면 렌더링 때 <code><head><meta name="generator" content="Hexo 3.9.0"></head></code> 내부에 알아서 넣어준다.<br>그 후 브라우저가 <code>manifest.json</code>을 제대로 가져가는지는 크롬 개발자 도구의 <code>Application > Manifest</code>에서 확인할 수 있다.</p>
+<center><br>  <img src="/2019/07/06/pwa-with-notification/has-manifest.png" width="300"><br>  <br><br></center>
+
+<p>자, 여기까지 하는데 거의 <code>10분</code> 정도 걸렸던 것 같다. 아직까지는 필자의 계획대로 순탄히 흘러가고 있었다.<br>하지만 문제는 이제부터 생기기 시작한다…</p>
+<h2 id="제-2-관문-Service-Worker"><a href="#제-2-관문-Service-Worker" class="headerlink" title="제 2 관문, Service Worker"></a>제 2 관문, Service Worker</h2><p>기분 좋게 커피 한잔 때리고 와서 이제 <code>서비스 워커</code>를 적용하는 작업을 시작했다. 서비스 워커는 브라우저에 설치하고 나면 백그라운드에서 실행되는 프로세스로, 웹 어플리케이션의 메인 로직과는 전혀 별개로 작동한다.</p>
+<p>서비스 워커와 웹앱의 메인 로직은 서로 <code>메세지</code>를 주고 받는 방식으로 작동한다. <code>postMessage</code>로 보내면 <code>onMessage</code>로 받는 방식인데, <code>WebView</code>나 <code>Chrome Extension</code>과 같은 방식이기 때문에 이미 우리에겐 익숙한 방식이다.</p>
+<p>단, 아직까지 모든 브라우저에서 지원되는 것이 아니기 때문에 반드시 <code>navigator</code> 전역 객체 내부에 <code>serviceWorker</code> 객체가 존재하는 지 확인한 후 초기화를 진행해야한다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">if</span> (<span class="hljs-string">'serviceWorker'</span> <span class="hljs-keyword">in</span> navigator) { <span class="hljs-comment">/* ... */</span> }</span><br></pre></td></tr></tbody></table></figure>
+<p>뭐 이 정도 쯤이야 필자같은 프론트엔드 개발자들에게는 굉장히 익숙한 상황이기 때문에 그냥 웃고 넘길 수 있지만 이것보다 더 귀찮은 게 있었다. 바로 서비스 워커의 개발환경 세팅이다.</p>
+<h3 id="개발환경-세팅"><a href="#개발환경-세팅" class="headerlink" title="개발환경 세팅"></a>개발환경 세팅</h3><p>서비스 워커는 일반적인 웹 어플리케이션보다 많은 기능에 접근할 수 있기 때문에 보안이 굉장히 중요하다. 그래서 서비스 워커는 제한적인 환경에서만 작동할 수 있도록 만들어졌는데 그 조건은 딱 두가지이다.</p>
+<ol>
+<li>웹 어플리케이션의 호스트가 <code>localhost</code>이거나</li>
+<li><code>HTTPS</code> 프로토콜을 사용하고 있을 것</li>
+</ol>
+<p>불행히도 필자는 이 두가지 모두 다 해당이 안된다. 필자의 회사는 로컬에서 <code>http://local.soomgo.com</code>이라는 오리진을 사용하고 있기 때문에 서비스 워커 객체가 활성화 되지 않는다.<br>그럼 해결 방법은 2가지로 줄어든다. 내가 <code>localhost</code>로 접속하거나 로컬에 <code>HTTPS</code>를 붙히거나.</p>
+<p>사실 필자는 이걸 놓쳐서 <code>아 서비스 워커 어디갔어? 왜 안돼? 죽을래?</code>로 컴퓨터랑 실랑이하느라 한 30분 날려먹었다. 공식 문서에 버젓이 <code>한국어</code>로 적혀있는 내용이므로 항상 공식 문서를 꼼꼼히 읽자…</p>
+<h4 id="개발-서버를-HTTPS로-띄우자"><a href="#개발-서버를-HTTPS로-띄우자" class="headerlink" title="개발 서버를 HTTPS로 띄우자!"></a>개발 서버를 HTTPS로 띄우자!</h4><p>근데 또 필자가 <code>localhost</code>로 맞추기에는 왠지 컴퓨터 따위에게 지는 기분이라 그냥 개발 환경에 <code>HTTPS</code>를 붙히기로 했다.<br><code>Express</code>는 내장 객체로 <code>https</code> 객체를 지원해주고 있기 때문에 간단하게 셋업할 수 있다. 먼저 <code>HTTPS</code>를 사용하기 위해서는 SSH 키쌍이 필요하므로 <code>openssl</code>을 사용하여 키를 만들어 주었다.</p>
+<figure class="highlight bash hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ openssl genrsa 1024 > private.pem <span class="hljs-comment"># 비공개키 생성</span></span><br><span class="line">...</span><br><span class="line">$ openssl req -x509 -new -key private.pem > public.pem <span class="hljs-comment"># 공개키 생성</span></span><br></pre></td></tr></tbody></table></figure>
+<p>그 다음 이 키를 프로젝트의 적당한 곳에 저장한 다음 그냥 사용하면 되는데 여기서 주의 사항.</p>
+<blockquote><p>> 생성한 ssh키는 로컬 개발환경에서만 사용되어야합니다.<br>> 이 디렉토리 내의 *.pem 파일은 gitignore에 추가되어있습니다.</p>
+<footer><strong>/keys/README.md</strong></footer></blockquote>
+<p><strong>절대 리모트 저장소에 SSH 키를 업로드하지 말자.</strong> 보안 터진다. 물론 이 키로 뭔가 실질적인 인증을 하는 것이 아니라 로컬 개발 서버에서만 사용하기 때문에 뭔가 중요한 걸 털릴 염려는 없지만 그래도 습관이 중요하다. SSH 키는 폭탄 다루듯이 다루자.</p>
+<p>대신 필자는 다른 개발자들이 쉽게 <code>HTTPS</code> 환경을 세팅할 수 있도록 프로젝트 내에 키를 저장하는 디렉토리 내부에 <code>README.md</code>를 작성해놓고 이 키가 어떤 용도로 사용될 것인지 주의 사항은 무엇인지 상세하게 적어놓았다.<br>그리고 개발할 때는 <code>HTTPS</code>가 아니라 <code>HTTP</code>로 서버를 띄울 일도 생길 수 있으므로 개발 서버를 띄울 때 옵션을 사용하여 프로토콜을 선택할 수 있도록 해주었다.</p>
+<figure class="highlight json hljs"><figcaption><span>package.json</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">{</span><br><span class="line">  <span class="hljs-attr">"scripts"</span>: {</span><br><span class="line">    <span class="hljs-attr">"serve"</span>: <span class="hljs-string">"cross-env NODE_ENV=local node server"</span>,</span><br><span class="line">    <span class="hljs-attr">"serve:https"</span>: <span class="hljs-string">"cross-env NODE_ENV=local node server --https"</span>,</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><figcaption><span>server.js</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> express = <span class="hljs-built_in">require</span>(<span class="hljs-string">'express'</span>);</span><br><span class="line"><span class="hljs-keyword">const</span> https = <span class="hljs-built_in">require</span>(<span class="hljs-string">'https'</span>);</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// node의 옵션들은 배열 형태로 process.argv에 담겨있다.</span></span><br><span class="line"><span class="hljs-keyword">const</span> useHttps = process.argv.some(<span class="hljs-function"><span class="hljs-params">val</span> =></span> val === <span class="hljs-string">'--https'</span>);</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">const</span> app = express();</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// ...</span></span><br><span class="line"><span class="hljs-keyword">if</span> (isLocal) {</span><br><span class="line">  <span class="hljs-keyword">let</span> localApp = app;</span><br><span class="line">  <span class="hljs-keyword">if</span> (useHttps) {</span><br><span class="line">    localApp = https.createServer({</span><br><span class="line">      <span class="hljs-comment">// 아까 생성한 키는 여기서 사용한다!</span></span><br><span class="line">      key: fs.readFileSync(<span class="hljs-string">'./keys/private.pem'</span>),</span><br><span class="line">      cert: fs.readFileSync(<span class="hljs-string">'./keys/public.pem'</span>),</span><br><span class="line">    }, app);</span><br><span class="line">  }</span><br><span class="line">  localApp.listen(port, host, () => {</span><br><span class="line">    debug(<span class="hljs-string">`<span class="hljs-subst">${isHttps ? <span class="hljs-string">'https://'</span> : <span class="hljs-string">'http://'</span>}</span><span class="hljs-subst">${host}</span>:<span class="hljs-subst">${port}</span>로 가즈아!!!!`</span>);</span><br><span class="line">  });</span><br><span class="line">}</span><br><span class="line"><span class="hljs-comment">// ...</span></span><br></pre></td></tr></tbody></table></figure>
+<p>이런 식으로 작성해놓으면 개발 서버를 올릴 때 원하는 프로토콜을 자유자재로 변경할 수 있기 때문에, 혹시 내가 개발 서버를 <code>HTTPS</code>로 바꿔놔서 다른 개발자 컴퓨터에서 개발 서버가 안 올라가도 일단 시간을 벌어놓고 버그를 수정할 수 있다.</p>
+<p>원래 진짜 고수는 맞기 전에 맞을 곳을 예상해서 미리 힘을 주고 있는 법이다.<small>(많이 맞아본 1인)</small></p>
+<p>개발 서버를 <code>HTTPS</code>로 띄우면 이제 <code>navigator</code> 객체 내부에 이쁘게 들어가있는 <code>serviceWorker</code> 객체를 확인할 수 있다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">> navigator.serviceWorker</span><br><span class="line">< ServiceWorkerContainer {<span class="hljs-attr">ready</span>: <span class="hljs-built_in">Promise</span>, <span class="hljs-attr">controller</span>: <span class="hljs-literal">null</span>, <span class="hljs-attr">oncontrollerchange</span>: <span class="hljs-literal">null</span>, <span class="hljs-attr">onmessage</span>: <span class="hljs-literal">null</span>}</span><br></pre></td></tr></tbody></table></figure>
+<h4 id="HTTPS를-쓰지-않고-문제-회피하기"><a href="#HTTPS를-쓰지-않고-문제-회피하기" class="headerlink" title="HTTPS를 쓰지 않고 문제 회피하기"></a>HTTPS를 쓰지 않고 문제 회피하기</h4><p>사실 필자도 처음에는 로컬에 <code>HTTPS</code> 붙히기가 귀찮아서 리서치하다가 찾은 얌생이인데, 로컬 서버에서도 <code>HTTPS</code>를 사용하지 않고도 서비스 워커를 사용할 수 있는 방법이 있다.</p>
+<p><code>chrome://flags/#unsafely-treat-insecure-origin-as-secure</code>에 들어가서 해당 기능을 활성화하고 텍스트 필드에 원하는 호스트를 입력해놓으면 해당 호스트는 안전하다고 판단하여 서비스 워커를 사용할 수 있게 해준다.</p>
+<center><br>  <img src="/2019/07/06/pwa-with-notification/secure-hack.png"><br>  <br><br></center>
+
+<p>이렇게 등록한 뒤 하단의 <code>Relaunch Now</code> 버튼을 클릭하면 크롬이 재시작되면서 설정이 변경된다. 하지만 이 방법은 스스로 보안 취약점을 만들어 내는 것이기 찜찜해서 결국 사용하지는 않았다.</p>
+<h3 id="Service-Worker-작성"><a href="#Service-Worker-작성" class="headerlink" title="Service Worker 작성"></a>Service Worker 작성</h3><p>이제 개발환경 세팅이 다 끝났다면 이제부터는 딱히 귀찮은 건 없다. 그냥 문서보면서 쭉쭉 작성하면 된다. 일단 서비스 워커의 기능을 구현하기 전에 잘 작동하는 지 부터 확인해야 하므로 아무 내용이 없는 서비스 워커부터 만들었다.</p>
+<p>근데 이것도 <code>manifest.json</code>처럼 그냥 웹 어플리케이션과 완전 분리된 <code>static/service-worker.js</code>로 따로 작성하면 만들 때는 편하긴 한데, 나중에 서비스 워커에서 웹 어플리케이션에서 사용하고 있는 모듈이나 데이터에 접근하고 싶을 때 굉장히 애매해질 것 같아서 그냥 <code>Webpack</code>을 사용해서 같이 빌드하기로 결정했다.</p>
+<h4 id="일단-service-worker-js-파일을-만들자"><a href="#일단-service-worker-js-파일을-만들자" class="headerlink" title="일단 service-worker.js 파일을 만들자!"></a>일단 service-worker.js 파일을 만들자!</h4><p><code>Webpack</code>으로 빌드한다고 해도 이 친구가 무에서 유를 창조하는 친구는 아니기 때문에 당연히 소스 파일은 있어야 한다. 일단 서비스 워커가 작동하는 것을 보는 것이 목적이므로 심플하게 작성해주었다.</p>
+<figure class="highlight js hljs"><figcaption><span>src/service-worker.js</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">self.addEventListener(<span class="hljs-string">'message'</span>, event => {</span><br><span class="line">  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'저 쪽 테이블에서 보내신 겁니다 -> '</span>, event);</span><br><span class="line">});</span><br></pre></td></tr></tbody></table></figure>
+<h4 id="Service-Worker-Webpack-Plugin-사용하기"><a href="#Service-Worker-Webpack-Plugin-사용하기" class="headerlink" title="Service Worker Webpack Plugin 사용하기"></a>Service Worker Webpack Plugin 사용하기</h4><p><code>ServiceWorkerWebpackPlugin</code>은 구글에 <code>Service Worker Webpack</code>을 검색하면 가장 상단에 나오는 플러그인이다. <a href="https://github.com/oliviertassinari/serviceworker-webpack-plugin" target="_blank" rel="external nofollow noopener noreferrer">깃허브 레파지토리</a>에 가서 다들 구경 한번 해보자.</p>
+<p><code>README</code>를 읽어보니 사용법이 초간단 그 자체다. 그냥 <code>Webpack</code> 설정에 넣어주면 끝이다.</p>
+<figure class="highlight js hljs"><figcaption><span>build/webpack.client.config.js</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-built_in">module</span>.exports = merge(baseConfig, {</span><br><span class="line">  plugins: [</span><br><span class="line">    <span class="hljs-comment">// ...</span></span><br><span class="line">    <span class="hljs-keyword">new</span> ServiceWorkerWebpackPlugin({</span><br><span class="line">        entry: path.resolve(__dirname, <span class="hljs-string">'../src/service-worker.js'</span>),</span><br><span class="line">    }),</span><br><span class="line">    <span class="hljs-comment">// ...</span></span><br><span class="line">  ]</span><br><span class="line">})</span><br></pre></td></tr></tbody></table></figure>
+<p>서비스 워커 파일 경로를 찍어주고 <code>ServiceWorkerWebpackPlugin</code> 객체를 생성할 때 초기 인자로 넘겨주면 <code>Webpack</code> 설정의 <code>output</code>에 정의된 경로에 <code>sw.js</code> 파일을 생성해준다. 물론 이 파일 이름은 변경할 수 있으니 모두 각자의 취향대로 애정을 듬뿍 담은 이쁜 이름을 지어주자. 필자는 귀찮으니까 그냥 <code>sw</code>로 가기로 했다.</p>
+<center><br>  <img src="/2019/07/06/pwa-with-notification/sw.png"><br>  <small>이쁘게 태어난 sw.js</small><br>  <br><br></center>
+
+<p>근데 이 방법의 단점이 있는데, 일반적인 서비스 워커보다 파일의 크기가 커진다는 것이다. 아무래도 <code>Webpack</code>으로 빌드하다보니 서비스 워커의 외부에 있는 모듈이나 라이브러리를 끌어오기 때문이다.<br>뭐 이건 애초에 필자가 조금 편하게 쓰려고 선택한 상황이니 어쩔 수 없긴하다. 어쨌든 이런 단점이 있으니, 서비스 워커의 크기를 줄이고자 하시는 독자분들은 직접 작성하시는 게 더 좋을 수도 있다.</p>
+<p>이제 서비스 워커의 본체를 만들었으니 이걸 웹 어플리케이션이 초기화될 때 브라우저에 <code>나 서비스 워커 가지고 있어!</code>라고 알려주는 일만 남았다.</p>
+<h3 id="Service-Worker-설치"><a href="#Service-Worker-설치" class="headerlink" title="Service Worker 설치"></a>Service Worker 설치</h3><p>서비스 워커를 설치하는 방법은 간단하다. 이 브라우저에 <code>serviceWorker</code> 객체가 지원되는 지 확인한 후 설치하면 된다.<br>일반적인 서비스 워커의 설치 방법은 구글의 <a href="https://developers.google.com/web/fundamentals/primers/service-workers/?hl=ko" target="_blank" rel="external nofollow noopener noreferrer">서비스 워커:소개</a> 문서를 보고 따라하면 된다.  필자는 <code>ServiceWorkerWebpackPlugin</code>을 사용했기 때문에 해당 플러그인의 문서를 참조하여 작성했다.</p>
+<p>어차피 어떤 방법을 사용하든 설치 자체는 그렇게 어렵지 않다.</p>
+<figure class="highlight ts hljs"><figcaption><span>settings/service-worker.setting.js</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">export</span> <span class="hljs-keyword">default</span> () => {</span><br><span class="line">  <span class="hljs-keyword">const</span> isSupported = process.browser && <span class="hljs-string">'serviceWorker'</span> <span class="hljs-keyword">in</span> navigator;</span><br><span class="line"></span><br><span class="line">  <span class="hljs-keyword">if</span> (!isSupported) {</span><br><span class="line">    <span class="hljs-keyword">return</span>;</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'서비스 워커가 지원되는 브라우저 입니다.'</span>);</span><br><span class="line"></span><br><span class="line">  <span class="hljs-keyword">const</span> runtime = <span class="hljs-built_in">require</span>(<span class="hljs-string">'serviceworker-webpack-plugin/lib/runtime'</span>);</span><br><span class="line"></span><br><span class="line">  runtime.register().then(<span class="hljs-function"><span class="hljs-params">res</span> =></span> {</span><br><span class="line">    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'서비스 워커 설치 성공 ->'</span>, res);</span><br><span class="line">  }).catch(<span class="hljs-function"><span class="hljs-params">e</span> =></span> {</span><br><span class="line">    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">'서비스 워커 설치 실패 ㅜㅜ -> '</span>, e);</span><br><span class="line">  });</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p><code>isSupported</code> 변수에 <code>process.browser</code> 값을 검사하는 이유는, 숨고의 어플리케이션은 <code>Next.js</code>나 <code>Nuxt.js</code> 처럼 유니버셜 SSR 환경에서 실행되기 때문이다.<br>유니버셜 SSR이 뭔지 궁금하신 분은 이전에 작성한 포스팅인 <a href="/2018/09/25/universal-ssr/" title="Universal Server Side Rendering이란?">Universal Server Side Rendering이란?</a>을 한번 읽어보자.</p>
+<p>해당 모듈은 물론 클라이언트 사이드에서만 호출되지만 그래도 혹시 모르니 왠만하면 현재 실행 컨텍스트가 클라이언트인지 서버인지는 체크해주는 것이 좋다.<br>서버 사이드 렌더링 사이클 때 브라우저 API인 <code>navigator</code>에 접근하려고 하면 당연히 에러가 발생한다.</p>
+<p>서비스 워커의 설치가 성공했다면 <code>chrome://inspect/#service-workers</code> 또는 <code>chrome://serviceworker-internals</code>에 여러분의 서비스 워커가 노출될 것이다. 서비스 워커를 적용하는 방법은 사실 굉장히 심플한 편이다.</p>
+<p>근데 사실 필자가 가장 시간을 많이 잡아먹은 부분이 바로 이 서비스 워커였는데, 그 이유는 서비스 워커 공식 문서에 적혀있다.</p>
+<blockquote><p><strong>설치 실패 알림 기능 부족</strong></p>
+<p>서비스 워커가 등록되더라도 <code>chrome://inspect/#service-workers</code> 또는 <code>chrome://serviceworker-internals</code>에 표시되지 않는 경우 오류가 발생했거나 <code>event.waitUntil()</code>에 거부된 프라미스를 전달했기 때문에 설치하지 못했을 수 있습니다.</p>
+<p>이 문제를 해결하려면 <code>chrome://serviceworker-internals</code>로 이동하여 ‘Open DevTools window and pause JavaScript execution on service worker startup for debugging’을 선택하고 설치 이벤트의 시작 위치에 디버거 문을 추가합니다. 이 옵션을 <a href="https://developers.google.com/web/tools/chrome-devtools/javascript/breakpoints?hl=ko" target="_blank" rel="external nofollow noopener noreferrer">확인할 수 없는 예외 시 일시 중지</a>와 함께 사용하면 문제를 찾을 수 있습니다.</p>
+<footer><strong>Matt Gaunt</strong><cite>contributor to WebFundamentals</cite></footer></blockquote>
+<p>아니 이게 디버깅이 진짜 힘들다. 서비스 워커의 설치가 실패했으면 어디서 에러가 났는지, 왜 났는지 보여줘야 하는데 <code>Uncaught DomException</code> 하나만 딸랑 보여주고 끝낸다. 그래서 뭐가 잘못되었는지 하나하나 코드 라인에 <code>debugger</code> 찍고 추리해가면서 수정해야하는데 이게 진짜 힘들다. 근데 이걸 또 공식 문서에 디버깅 힘들다고 버젓이 적어놔서 괜히 더 힘든 거 같다.</p>
+<center><br>  <img src="/2019/07/06/pwa-with-notification/conan.png" width="300"><br>  <small>도와줘요 명탐정… 범인말고 내 버그도 찾아줘…</small><br>  <br><br></center>
+
+<h2 id="제-3-관문-PushManager"><a href="#제-3-관문-PushManager" class="headerlink" title="제 3 관문, PushManager"></a>제 3 관문, PushManager</h2><p>이제 서비스 워커도 설치했으니 서비스 워커의 <code>PushManager</code>만 연동해주면 모든 것이 끝난다! 라고 생각했지만 이 놈도 복병이었다.<br><code>PushManager</code> 또한 아직 표준이 아니라서 모든 브라우저에서 지원되는 기능이 아니기 때문에 서비스 워커 설치 시 <code>PushManager</code>의 존재 여부도 함께 검사해주어야한다.</p>
+<figure class="highlight js hljs"><figcaption><span>settings/service-worker.setting.js</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> isSupported = process.browser && <span class="hljs-string">'serviceWorker'</span> <span class="hljs-keyword">in</span> navigator && <span class="hljs-string">'PushManager'</span> <span class="hljs-keyword">in</span> <span class="hljs-built_in">window</span>;</span><br><span class="line"><span class="hljs-comment">// ...</span></span><br></pre></td></tr></tbody></table></figure>
+<p>조건의 가독성이 조금 떨어진 것이 마음에 안들지만 일단은 구동 테스트를 하는 것이므로 그냥 넘어갔다. 딱 여기까지 하고나서 다음 스텝을 봤더니…</p>
+<h3 id="재앙의-시작"><a href="#재앙의-시작" class="headerlink" title="재앙의 시작"></a>재앙의 시작</h3><blockquote><p><strong>애플리케이션 서버 키 가져오기</strong></p>
+<p>이 코드랩으로 작업하려면 애플리케이션 서버 키를 몇 개 생성할 필요가 있는데, 도우미 사이트인 <a href="https://web-push-codelab.glitch.me/에서" target="_blank" rel="external nofollow noopener noreferrer">https://web-push-codelab.glitch.me/에서</a> 생성할 수 있습니다.<br>여기서 공개 키 쌍과 비공개 키 쌍을 생성할 수 있습니다.<br>다음과 같이 <code>scripts/main.js</code>로 공개 키를 복사하여 <code><your public key></your></code> 값을 바꾸세요.</p>
+<p><code>const applicationServerPublicKey = '<your public key>';</your></code></p>
+<p>참고: 절대로 비공개 키를 웹 앱에 두면 안 됩니다!</p>
+<footer><strong>Matt Gaunt</strong><cite><a href="https://developers.google.com/web/fundamentals/codelabs/push-notifications/?hl=ko" target="_blank" rel="external nofollow noopener noreferrer">웹 앱에 푸시 알림 추가</a></cite></footer></blockquote>
+<p>응…? SSH 키가 필요하다고…? 예상 못하긴 했지만 <code>HTTPS</code> 환경에서 서버와 클라이언트 통신 채널이 하나 더 생기는 것이므로 SSH 키가 필요한 건 맞는 것 같아서 빠르게 인정했다.</p>
+<p>Google의 공식 문서에서 PushManager로 푸시 채널을 구독하는 예제를 살펴봤더니 확실히 SSH 키가 필요하긴 했다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">subscribeUser</span>(<span class="hljs-params"></span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">const</span> applicationServerKey = urlB64ToUint8Array(applicationServerPublicKey);</span><br><span class="line">  swRegistration.pushManager.subscribe({</span><br><span class="line">    userVisibleOnly: <span class="hljs-literal">true</span>,</span><br><span class="line">    applicationServerKey: applicationServerKey</span><br><span class="line">  })</span><br><span class="line">  <span class="hljs-comment">// ...</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>음 예상은 못했지만 이 정도는 괜찮다. 어차피 <code>Pusher</code>라는 푸시 솔루션을 이미 사용하고 있고 이것도 결국 같은 원리로 작동하기 때문에 내부적으로는 SSH 키쌍을 사용한 인증을 사용했을 것이다.</p>
+<h3 id="빠른-손절"><a href="#빠른-손절" class="headerlink" title="빠른 손절"></a>빠른 손절</h3><p>그렇게 <code>Pusher</code>에서 사용되는 SSH 키가 어디 있는지 찾기를 어언 20분… 결국 못 찾았다. <code>Pusher</code> 내부적으로 서버에서 사용하는 <code>secret</code>값과 클라이언트에서 사용하는 <code>key</code>를 사용하여 인증을 하는데, 이건 SSH 키쌍이 아니라 그냥 임의의 문자열이었다. 어차피 SSH 키를 만든다고 해도 웹 푸시에 대한 컨트롤은 백엔드가 가지고 있으므로 필자 혼자 이것저것 건드리면서 테스트 해보기에는 조금 무리가 있다. 게다가 퇴근 시간은 이미 한참 지났기 때문에 백엔드 분들은 퇴근하셨다.<small>(사실 금요일 저녁에 이런 거 하고 있는 사람이 이상한거다.)</small></p>
+<p>이때 이미 필자의 멘탈은 조금 나가있었기 때문에 월요일에 출근해서 모바일 앱에서는 어떻게 <code>Pusher</code>와 <code>FCM</code>을 연동해서 사용하고 있는 지 물어본 후 진행해야겠다고 결론을 내리고 방향을 바꿨다.</p>
+<p>커밋 로그를 보니 이때 시간이 대략 <code>21시 40분</code> 쯤… 아니 그래도 퇴근은 해야하니까… 집에는 가야지…</p>
+<center><br>  <img src="/2019/07/06/pwa-with-notification/giveup.png" width="400"><br>  <small>역시 아니다 싶으면 빠른 손절이 답이다…</small><br>  <br><br></center>
+
+<h2 id="제-4-관문-Notification-API"><a href="#제-4-관문-Notification-API" class="headerlink" title="제 4 관문, Notification API"></a>제 4 관문, Notification API</h2><p>그래서 바꾼 방향은 <code>Background 푸시 메세지는 포기하고 Foreground 푸시 메세지라도 제대로 받게 하자</code>였다.<br>이렇게 되면 필자가 처음 생각했던 <code>브라우저가 꺼져있더라도 푸시 메세지를 보여주고 싶다</code>는 달성하지 못하지만 브라우저가 켜져있고 <code>soomgo.com</code>에 접속되어 있다면 창을 내려놓든 다른 일을 하고 있든 사용자에게 푸시 메세지는 보여줄 수 있으므로 어느 정도 목적 달성은 된다.</p>
+<p>방향을 바꾸고 나니까 기존의 웹 어플리케이션에 구현되어있던 푸시 로직에 노티피케이션을 보여주는 코드만 추가하면 끝나는 간단한 일이 되었다. 어차피 <a href="https://pusher.com/" target="_blank" rel="external nofollow noopener noreferrer">Pusher</a> 솔루션을 사용하여 인증, 이벤트 구독 등의 로직은 예전에 채팅 기능 개발할 때 다 만들어 놨기 때문이다.</p>
+<h3 id="기존-기능에-Notification-끼워넣기"><a href="#기존-기능에-Notification-끼워넣기" class="headerlink" title="기존 기능에 Notification 끼워넣기"></a>기존 기능에 Notification 끼워넣기</h3><p>예전에 채팅 기능을 개발할 때 <code>Pusher SDK</code>를 한번 래핑한 헬퍼 클래스도 만들어 놨었기 때문에 나름 구조도 탄탄하다. 이제 여기에 메소드만 몇개 추가하고 웹 푸시 이벤트가 발생했을 때 알림만 보여주면 된다.<br>우선 이 브라우저가 <code>Notification API</code>를 지원하는 지 확인하는 메소드가 필요하다.</p>
+<figure class="highlight js hljs"><figcaption><span>src/helpers/Pusher.js</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">isSupportNotification () {</span><br><span class="line">  <span class="hljs-keyword">return</span> process.browser && <span class="hljs-built_in">window</span> && <span class="hljs-string">'Notification'</span> <span class="hljs-keyword">in</span> <span class="hljs-built_in">window</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>그 다음 사용자에게 <code>알림</code>에 대한 허가를 받는 메소드를 작성한다. <code>Notification</code>은 내부에 <code>permission</code> 속성을 가지고 있고 이 속성은 <code>granted</code>, <code>denied</code>, <code>default</code>로 나누어 진다.</p>
+<figure class="highlight js hljs"><figcaption><span>src/helpers/Pusher.js</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">getNotificationPermission () {</span><br><span class="line">  <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.isSupportNotification()) {</span><br><span class="line">    <span class="hljs-keyword">this</span>.isAllowNotification = <span class="hljs-literal">false</span>;</span><br><span class="line">    <span class="hljs-keyword">return</span> <span class="hljs-built_in">Promise</span>.reject(<span class="hljs-keyword">new</span> <span class="hljs-built_in">Error</span>(<span class="hljs-string">'not_supported'</span>));</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  <span class="hljs-keyword">if</span> (Notification.permission === <span class="hljs-string">'granted'</span>) {</span><br><span class="line">    <span class="hljs-keyword">this</span>.isAllowNotification = <span class="hljs-literal">true</span>;</span><br><span class="line">    <span class="hljs-keyword">return</span> <span class="hljs-built_in">Promise</span>.resolve();</span><br><span class="line">  }</span><br><span class="line">  <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (Notification.permission !== <span class="hljs-string">'denied'</span> || Notification.permission === <span class="hljs-string">'default'</span>) {</span><br><span class="line">    <span class="hljs-keyword">return</span> Notification.requestPermission().then(<span class="hljs-function"><span class="hljs-params">result</span> =></span> {</span><br><span class="line">      <span class="hljs-keyword">if</span> (result === <span class="hljs-string">'granted'</span>) {</span><br><span class="line">        <span class="hljs-keyword">this</span>.isAllowNotification = <span class="hljs-literal">true</span>;</span><br><span class="line">      }</span><br><span class="line">    });</span><br><span class="line">  }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p><code>granted</code>는 사용자가 이미 알림을 허용한 상태, <code>denied</code>는 거부한 상태, <code>default</code>는 아직 알림에 대한 퍼미션을 줄지말지 사용자가 결정을 하지 않은 상태이다. 따라서 우리는 퍼미션이 <code>default</code> 상태일 때 <code>Notification.requestPermission</code> 메소드를 사용하여 사용자에게 알림 노출에 대한 허가를 받아야 한다.</p>
+<p>이제 실제로 알림창을 띄워줄 메소드를 작성해보자. <code>Notification API</code> 자체가 워낙 심플하다보니 그닥 어렵지 않다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">createForegroundNotification (title, { body, icon, link }) {</span><br><span class="line">  <span class="hljs-keyword">const</span> notification = <span class="hljs-keyword">new</span> Notification(title, {</span><br><span class="line">    body,</span><br><span class="line">    icon: icon || <span class="hljs-string">`<span class="hljs-subst">${AssetsCloudFrontHost}</span>/app_icons/1x.png`</span>,</span><br><span class="line">  });</span><br><span class="line"></span><br><span class="line">  notification.onshow = <span class="hljs-function"><span class="hljs-params">()</span> =></span> {</span><br><span class="line">    setTimeout(<span class="hljs-function"><span class="hljs-params">()</span> =></span> notification.close(), <span class="hljs-number">5000</span>);</span><br><span class="line">  };</span><br><span class="line">  notification.onerror = <span class="hljs-function"><span class="hljs-params">e</span> =></span> {</span><br><span class="line">    <span class="hljs-built_in">console</span>.error(e);</span><br><span class="line">  };</span><br><span class="line">  notification.onclick = <span class="hljs-function"><span class="hljs-params">event</span> =></span> {</span><br><span class="line">    event.preventDefault();</span><br><span class="line">    <span class="hljs-keyword">if</span> (link) {</span><br><span class="line">        <span class="hljs-built_in">window</span>.open(link, <span class="hljs-string">'_blank'</span>);</span><br><span class="line">    }</span><br><span class="line">  };</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p><code>new</code> 키워드를 사용하여 <code>Notification</code> 객체를 생성하면 그 즉시 <code>OSX</code>는 화면 우측 상단에, <code>Windows</code>는 우측 하단에 알림 메세지가 노출된다. 그 다음 생성한 <code>Notification</code>객체의 <code>onshow</code>, <code>onclick</code> 등의 이벤트 리스너에 핸들러를 등록해주면 된다.</p>
+<p>메소드 명은 <code>Background</code> 메세징을 실현하지 못한 필자의 슬픔을 담아 <code>createForegroundNotification</code>으로 결정했다. 굳이 <code>Foreground</code>를 강조한 이유는 언젠가 <code>createBackgroundNotification</code> 메소드를 만들겠다는 필자의 야망을 담았다.</p>
+<p>이제 필요한 모든 것을 만들었으니 <code>Pusher SDK</code>에서 Web Socket을 통해 푸시를 보낼 때마다 알림이 작동하도록 연결만 해주면 된다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">async</span> subscribeNotification () {</span><br><span class="line">  <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.isSupportNotification()) {</span><br><span class="line">    <span class="hljs-keyword">return</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line">  <span class="hljs-keyword">await</span> <span class="hljs-keyword">this</span>.getNotificationPermission();</span><br><span class="line">  <span class="hljs-keyword">if</span> (!<span class="hljs-keyword">this</span>.isAllowNotification) {</span><br><span class="line">    <span class="hljs-keyword">return</span>;</span><br><span class="line">  }</span><br><span class="line"></span><br><span class="line">  <span class="hljs-keyword">const</span> channel = <span class="hljs-keyword">await</span> <span class="hljs-keyword">this</span>.getPrivateUserChannel();</span><br><span class="line">  channel.bind(<span class="hljs-string">'message'</span>, response => {</span><br><span class="line">    <span class="hljs-keyword">if</span> (response.sender.id === <span class="hljs-keyword">this</span>.myUserId) {</span><br><span class="line">      <span class="hljs-keyword">return</span>;</span><br><span class="line">    }</span><br><span class="line"></span><br><span class="line">    <span class="hljs-keyword">const</span> targetChatRoute = !!response.sender.provider ? <span class="hljs-string">'chats'</span> : <span class="hljs-string">'pro/chats'</span>;</span><br><span class="line">    <span class="hljs-keyword">this</span>.createForegroundNotification(<span class="hljs-string">`<span class="hljs-subst">${response.sender.name}</span>님이 메세지를 보냈어요.`</span>, {</span><br><span class="line">      body: response.message,</span><br><span class="line">      icon: response.sender.profile_image,</span><br><span class="line">      link: <span class="hljs-string">`<span class="hljs-subst">${location.origin}</span>/<span class="hljs-subst">${targetChatRoute}</span>/<span class="hljs-subst">${response.chat.id}</span>`</span>,</span><br><span class="line">    });</span><br><span class="line">  });</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p><code>Pusher SDK</code>는 푸시 채널에 이벤트 핸들러를 바인딩할 수 있는 기능을 제공해준다. <code>message</code> 이벤트는 사용자가 채팅 메세지를 받았을 때 호출되는 이벤트이다. 단 자기 자신이 보낸 메세지에도 여과없이 이벤트가 호출되므로 <code>response.sender.id === this.myUserId</code> 조건을 통해 자신이 보낸 메세지에는 알림을 보여주지 않도록 처리하였다.</p>
+<p>그 다음은 이제 사용자가 작은 알림 메세지만 보고도 어떤 상황이 벌어지는 것인지 쉽게 알 수 있도록 <code>OOO님이 메세지를 보냈어요</code>라는 형식의 제목과 메세지의 내용, 상대방의 프로필 사진을 사용하여 <code>Notification</code> 객체를 생성하면 끝이다.</p>
+<center><br>  <img src="/2019/07/06/pwa-with-notification/push.png" width="500"><br>  <small>필자의 멘탈 상태를 여과없이 보여주는 메세지 내용. 잉잉…</small><br>  <br><br></center>
+
+<p>어쨌든 이렇게 해서 브라우저에 <code>soomgo.com</code>이 열려있다면 사용자들은 다른 일을 하다가 계속 페이지를 확인하거나 핸드폰을 확인할 필요없이 데스크탑 내에서 새로운 채팅 메세지를 바로 확인할 수 있게 되었다.</p>
+<p>아직도 <code>Background</code> 상태에서 푸시 메세지를 바로 보여주지 못했다는 게 아쉽긴 하다. 하지만 이 정도만 해도 사용자들 입장에서는 꽤나 편할 것이라고 생각한다.</p>
+<h2 id="마치며"><a href="#마치며" class="headerlink" title="마치며"></a>마치며</h2><p>사실 처음 목표했던 걸 다 이루진 못해서 찝찝했지만 너무 피곤했기 때문에 다음을 기약하기로 했다.<br>이제 월요일에 출근해서 <code>PO</code>한테 이걸 보여주고 혹시 뭐 추가하고 싶은 거 없는지 물어보고 몇가지 테스트를 좀 해본 후 배포할 예정이다.</p>
+<p>서비스 워커에 <code>fetch</code> 이벤트 핸들러를 추가하면 <code>Add to Homescreen</code> 기능도 사용할 수 있지만 사실 숨고의 프론트엔드 챕터 공식 입장은 사용자들이 모바일 웹보다는 모바일 앱을 많이 사용했으면 하는 것이기 때문에 이건 할까말까 고민 중이다.<small><del>(인앱 브라우저 크로스브라우징 하기 싫…)</del></small></p>
+<p>일단 처음 스코프를 너무 크게 잡은 것 같기도 하다. 하나하나 좀 자세히 알아보고 작업을 했으면 좋았을 것 같은데 월요일부터는 바로 또 하던 프로젝트 작업을 다시 해야해서 마음이 급했던 것도 있다. 그리고 회사에 프론트엔드 개발자가 부족하기 때문에 이런 기술적인 기능을 붙히는 건 우선 순위가 낮은 편이라서 <code>지금 아니면 앞으로 언제 할 수 있을 지 모른다</code>라는 마음도 컸던 것 같다.</p>
+<p>막간을 이용해, 필자와 함께 일해주실 <a href="https://www.wanted.co.kr/wd/14044" target="_blank" rel="external nofollow noopener noreferrer">프론트엔드 개발자 분을 모신다는 JD</a>를 뿌리면서 포스팅을 마무리 하겠다.<br>PWA 외에도 다른 하고 싶은 건 많은데 프론트엔드 개발자가 모자라서 못하고 있기 때문에 경력 여하와 상관없이 그냥 재밌는 거 좋아하시는 분이면 된다.<small>(하고 싶은 개발 다 하실 수 있도록 이 한몸 불살라 보필하겠습니다.)</small></p>
+<p>이상으로 PWA 하루 만에 도입하기 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/10/27/inheritance-with-prototype/" title="[JS 프로토타입] 프로토타입을 사용하여 상속하기" rel="bookmark">[JS 프로토타입] 프로토타입을 사용하여 상속하기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/03/calculate-orbit-1/" title="[JavaScript로 천체 구현하기] 케플러 6요소 알아보기" rel="bookmark">[JavaScript로 천체 구현하기] 케플러 6요소 알아보기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/06/gravity-via-js-1/" title="[JavaScript로 중력 구현하기] 1. 중력이란 무엇일까?" rel="bookmark">[JavaScript로 중력 구현하기] 1. 중력이란 무엇일까?</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/06/gravity-via-js-2/" title="[JavaScript로 중력 구현하기] 2. 코딩하기" rel="bookmark">[JavaScript로 중력 구현하기] 2. 코딩하기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/06/15/diving-into-js-array/" title="JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기" rel="bookmark">JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/javascript/">JavaScript</a><a class="tag -link" href="/tags/notification-api/">Notification API</a><a class="tag -link" href="/tags/pwa/">PWA</a><a class="tag -link" href="/tags/progressive-web-application/">Progressive Web Application</a><a class="tag -link" href="/tags/vue/">Vue</a><a class="tag -link" href="/tags/web-push/">Web Push</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2019/07/10/javascript-audio-waveform/">
+                <i class="fas fa-chevron-left"></i> 컴퓨터는 어떻게 소리를 들을까?
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2019/07/04/danger-of-data-driven/">
+                데이터 기반 의사결정, 과연 완벽한 걸까? <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#원래-필자의-계획" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>원래 필자의 계획</span>
+        </a></li><li>
+        <a class="is-flex" href="#제-1-관문-Manifest-json" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>제 1 관문, Manifest.json</span>
+        </a></li><li>
+        <a class="is-flex" href="#제-2-관문-Service-Worker" data-link-name="toc">
+        <span class="has-mr-6">3</span>
+        <span>제 2 관문, Service Worker</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#개발환경-세팅" data-link-name="toc">
+        <span class="has-mr-6">3.1</span>
+        <span>개발환경 세팅</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#개발-서버를-HTTPS로-띄우자" data-link-name="toc">
+        <span class="has-mr-6">3.1.1</span>
+        <span>개발 서버를 HTTPS로 띄우자!</span>
+        </a></li><li>
+        <a class="is-flex" href="#HTTPS를-쓰지-않고-문제-회피하기" data-link-name="toc">
+        <span class="has-mr-6">3.1.2</span>
+        <span>HTTPS를 쓰지 않고 문제 회피하기</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#Service-Worker-작성" data-link-name="toc">
+        <span class="has-mr-6">3.2</span>
+        <span>Service Worker 작성</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#일단-service-worker-js-파일을-만들자" data-link-name="toc">
+        <span class="has-mr-6">3.2.1</span>
+        <span>일단 service-worker.js 파일을 만들자!</span>
+        </a></li><li>
+        <a class="is-flex" href="#Service-Worker-Webpack-Plugin-사용하기" data-link-name="toc">
+        <span class="has-mr-6">3.2.2</span>
+        <span>Service Worker Webpack Plugin 사용하기</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#Service-Worker-설치" data-link-name="toc">
+        <span class="has-mr-6">3.3</span>
+        <span>Service Worker 설치</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#제-3-관문-PushManager" data-link-name="toc">
+        <span class="has-mr-6">4</span>
+        <span>제 3 관문, PushManager</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#재앙의-시작" data-link-name="toc">
+        <span class="has-mr-6">4.1</span>
+        <span>재앙의 시작</span>
+        </a></li><li>
+        <a class="is-flex" href="#빠른-손절" data-link-name="toc">
+        <span class="has-mr-6">4.2</span>
+        <span>빠른 손절</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#제-4-관문-Notification-API" data-link-name="toc">
+        <span class="has-mr-6">5</span>
+        <span>제 4 관문, Notification API</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#기존-기능에-Notification-끼워넣기" data-link-name="toc">
+        <span class="has-mr-6">5.1</span>
+        <span>기존 기능에 Notification 끼워넣기</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#마치며" data-link-name="toc">
+        <span class="has-mr-6">6</span>
+        <span>마치며</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="PWA 하루 만에 도입하기(삽질기)" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

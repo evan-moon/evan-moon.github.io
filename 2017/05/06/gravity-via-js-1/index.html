@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>[JavaScript로 중력 구현하기] 1. 중력이란 무엇일까? - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="이번 포스팅에서는 만유인력의 법칙을 이용하여 중력을 구현해보려고 한다.지표면 상에서 한 방향으로 작용하는 중력이 아니라 랜덤한 질량을 가진 여러 개의 물체를 랜덤한 좌표에 뿌려놓고 서로의 운동에 어떻게 간섭하는 지를 살펴볼 수 있는 시뮬레이션을 만들어 볼 예정이다.">
+<meta name="keywords" content="JavaScript,중력 구현하기,중력,Gravity">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[JavaScript로 중력 구현하기] 1. 중력이란 무엇일까?">
+<meta property="og:url" content="https://evan-moon.github.io/2017/05/06/gravity-via-js-1/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="이번 포스팅에서는 만유인력의 법칙을 이용하여 중력을 구현해보려고 한다.지표면 상에서 한 방향으로 작용하는 중력이 아니라 랜덤한 질량을 가진 여러 개의 물체를 랜덤한 좌표에 뿌려놓고 서로의 운동에 어떻게 간섭하는 지를 살펴볼 수 있는 시뮬레이션을 만들어 볼 예정이다.">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2017/05/06/gravity-via-js-1/thumbnail.jpg">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.044Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[JavaScript로 중력 구현하기] 1. 중력이란 무엇일까?">
+<meta name="twitter:description" content="이번 포스팅에서는 만유인력의 법칙을 이용하여 중력을 구현해보려고 한다.지표면 상에서 한 방향으로 작용하는 중력이 아니라 랜덤한 질량을 가진 여러 개의 물체를 랜덤한 좌표에 뿌려놓고 서로의 운동에 어떻게 간섭하는 지를 살펴볼 수 있는 시뮬레이션을 만들어 볼 예정이다.">
+<meta name="twitter:image" content="https://evan-moon.github.io/2017/05/06/gravity-via-js-1/thumbnail.jpg">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2017/05/06/gravity-via-js-1/">
+
+
+<link rel="alternative" href="/feed.xml" title="[JavaScript로 중력 구현하기] 1. 중력이란 무엇일까?" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="[JavaScript로 중력 구현하기] 1. 중력이란 무엇일까?" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2017/05/06/gravity-via-js-1/thumbnail.jpg" alt="[JavaScript로 중력 구현하기] 1. 중력이란 무엇일까?">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2017-05-06T03:32:50.000Z">2017-05-06</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/programming/">Programming</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/programming/graphics/">Graphics</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                [JavaScript로 중력 구현하기] 1. 중력이란 무엇일까?
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>이번 포스팅에서는 만유인력의 법칙을 이용하여 중력을 구현해보려고 한다.<br>지표면 상에서 한 방향으로 작용하는 중력이 아니라 랜덤한 질량을 가진 여러 개의 물체를 랜덤한 좌표에 뿌려놓고 서로의 운동에 어떻게 간섭하는 지를 살펴볼 수 있는 시뮬레이션을 만들어 볼 예정이다.<br><a id="more"></a></p>
+<h2 id="중력이란"><a href="#중력이란" class="headerlink" title="중력이란?"></a>중력이란?</h2><p>먼저 이 포스팅은 물리학도가 아닌 필자같은 <strong>수학을 잘 못하는 사람</strong>을 대상으로 한 포스팅이기에 먼저 중력의 개념부터 제대로 짚고 넘어가려고 한다.</p>
+<p>뉴턴께서 가라사대, 중력이란 두 개의 질량을 가진 물체가 서로 끌어당기는 힘이라고 했다.<br>사실 뉴턴은 만유인력의 법칙이라는 공식을 만들면서 <strong>어떻게</strong> 중력이 작용하는가?는 알아냈지만 <strong>왜</strong> 중력이 생기는 것인지는 몰랐다. 아무래도 신께서만 아실 일이지…하고 넘어간 듯 싶다.<br>그리고 뉴턴은 질량을 가진 물체가 중력을 가진다고 했었는데 이는 빛은 질량이 없기 때문에 중력에 영향을 전혀 받지않는다는 얘기가 된다.</p>
+<p>하지만 현대에 와서 밝혀진 사실에 의하면 빛도 중력에 영향을 받는다.<br>영화 인터스텔라에서도 보지 않았던가?(100% 확실한 시각화 묘사라고는 할 수 없지만 이론물리학자인 킵 손이 일반상대성이론을 계산해서 3D로 시각화했다고 한다.)<br>블랙홀 같이 중력이 어마어마한 곳에서는 이 현상이 눈에 띄게 관찰되는데, 이를 중력렌즈효과라고 부른다.</p>
+<center><br>  <img src="/2017/05/06/gravity-via-js-1/gravity-lens.gif" title="gravity-lens"><br>  <sub>블랙홀 뒤를 지나는 빛의 휘어짐</sub><br></center>
+
+<p>중력은 1915년 아인슈타인의 일반상대성이론에서 <code>에너지에 의한 시공간의 휨</code>으로 정의되게 된다.<br>그래서 시공간 상의 물체의 질량이 급격하게 증가하거나 감소할 때 시공간에 파동이 생기게 되는데 이것이 바로 작년 초에 발견된 <code>중력파</code>이다.<br>이렇게 발생된 중력파는 빛과 같은 속도로 움직인다고 한다. 그래서 갑자기 태양계에서 태양이 뿅!하고 사라지게 되면 태양 주위를 공전하던 행성들이 바로 궤도를 이탈해서 날아가는 게 아니다.<br>예를 들어서 지구같은 경우에는 태양에서 나온 빛이 지구까지 약 <code>8분 20초</code> 정도 걸리니까 태양이 갑자기 사라져도 8분정도는 없어진 태양이 있던 위치를 그대로 공전하는 것이다.<br>그러다가 8분 후 마지막에 태양에서 나온 빛이 지구에 도달하는 순간 지구는 궤도를 이탈할 것이다.</p>
+<center><br>  <img src="/2017/05/06/gravity-via-js-1/gravity.jpeg" title="gravity"><br>  <sub>큰 질량을 가진 물체일수록 시공간을 더 많이 휘게 만든다</sub><br></center>
+
+<p>그렇다고 만유인력의 법칙이 틀렸다는 것이 아니라, 상대성이론은 만유인력의 법칙이 놓친 점을 보완해준 것에 더 가깝다.<br>사실 중력이 아주 큰 공간(아주 많이 휘어진 공간)이 아니라면 만유인력의 법칙으로도 충분히 설명이 가능하다.</p>
+<p>예를 들어 지구는 전체적으로 보면 커다란 구이지만 지구에 사는 우리가 주변을 돌아보면 이게 구인지 평면인지 알수가 없다.<br>이와 같이 휘어진 정도가 아주아주 작아 유클리드 공간과 거의 유사한 공간을 유사-유클리드 공간이라고 한다.<br>그리고 이런 유사-유클리드 공간에서는 만유인력의 법칙만 적용해도 충분하다. 아폴로 우주선을 달에 보낼때도 만유인력의 법칙만으로 충분했다고 한다.</p>
+<p>그래서 결론적으로 <code>중력을 구하는 것 = 시공간의 곡률</code>을 구하는 것으로 볼 수 있지만,<br>필자는 어렵고 복잡한 일반상대성이론까진 안쓸 것이고 쓰지도 못하고…<br>그리고 만유인력의 법칙만으로도 간단한 시뮬레이션은 구현하기에 충분하다.</p>
+<h2 id="그래서-구현은-어떻게"><a href="#그래서-구현은-어떻게" class="headerlink" title="그래서 구현은 어떻게?"></a>그래서 구현은 어떻게?</h2><p>일단 설명을 쉽게 하기 위해 랜덤한 질량을 가진 2개의 물체를 랜덤한 좌표에 랜덤한 방향과 속도를 가지게 설정한 후 그냥 공간 상에 뿌린다고 가정하자.<br>이 물체 2개의 중력의 영향을 계산하는 것은 그다지 어렵지 않다. 여기서 만유인력의 법칙이 등장한다.</p>
+<center><span class="katex"><span class="katex-mathml"><math><semantics><mrow><msub><mi>F</mi><mrow><mn>1</mn><mn>2</mn></mrow></msub><mo>=</mo><mo>−</mo><mi>G</mi><mrow><mfrac><mrow><msub><mi>m</mi><mn>1</mn></msub><msub><mi>m</mi><mn>2</mn></msub></mrow><mrow><mi mathvariant="normal">∣</mi><msup><mrow><msub><mi>r</mi><mrow><mn>1</mn><mn>2</mn></mrow></msub><mi mathvariant="normal">∣</mi></mrow><mn>2</mn></msup></mrow></mfrac></mrow><mover accent="true"><mrow><msub><mi>r</mi><mrow><mn>1</mn><mn>2</mn></mrow></msub></mrow><mo>^</mo></mover></mrow><annotation encoding="application/x-tex">F_{12} = -G{\frac{m_1 m_2}{\vert{r_{12}\vert}^2}}\hat{r_{12}}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.7163919999999999em;"></span><span class="strut bottom" style="height:1.2784119999999999em;vertical-align:-0.56202em;"></span><span class="base textstyle uncramped"><span class="mord"><span class="mord mathit" style="margin-right:0.13889em;">F</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:-0.13889em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord mathrm">1</span><span class="mord mathrm">2</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mrel">=</span><span class="mord">−</span><span class="mord mathit">G</span><span class="mord textstyle uncramped"><span class="mord reset-textstyle textstyle uncramped"><span class="sizing reset-size5 size5 reset-textstyle textstyle uncramped nulldelimiter"></span><span class="mfrac"><span class="vlist"><span style="top:0.38702em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord mathrm">∣</span><span class="mord"><span class="mord scriptstyle cramped"><span class="mord"><span class="mord mathit" style="margin-right:0.02778em;">r</span><span class="vlist"><span style="top:0.15em;margin-right:0.07142857142857144em;margin-left:-0.02778em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-scriptstyle scriptscriptstyle cramped"><span class="mord scriptscriptstyle cramped"><span class="mord mathrm">1</span><span class="mord mathrm">2</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mord mathrm">∣</span></span><span class="vlist"><span style="top:-0.364em;margin-right:0.07142857142857144em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-scriptstyle scriptscriptstyle cramped"><span class="mord mathrm">2</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span><span style="top:-0.22999999999999998em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle textstyle uncramped frac-line"></span></span><span style="top:-0.4149999999999999em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle uncramped"><span class="mord scriptstyle uncramped"><span class="mord"><span class="mord mathit">m</span><span class="vlist"><span style="top:0.15em;margin-right:0.07142857142857144em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-scriptstyle scriptscriptstyle cramped"><span class="mord mathrm">1</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mord"><span class="mord mathit">m</span><span class="vlist"><span style="top:0.15em;margin-right:0.07142857142857144em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-scriptstyle scriptscriptstyle cramped"><span class="mord mathrm">2</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="sizing reset-size5 size5 reset-textstyle textstyle uncramped nulldelimiter"></span></span></span><span class="mord accent"><span class="vlist"><span style="top:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="mord textstyle cramped"><span class="mord"><span class="mord mathit" style="margin-right:0.02778em;">r</span><span class="vlist"><span style="top:0.15em;margin-right:0.05em;margin-left:-0.02778em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord mathrm">1</span><span class="mord mathrm">2</span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span><span style="top:5.551115123125783e-17em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="accent-body"><span>^</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span></center>
+
+<p>이 공식은 <code>물체1</code>이 <code>물체2</code>에게 가하는 중력 <code>F</code>를 구하는 공식이다. <code>G</code>는 <a href="https://ko.wikipedia.org/wiki/%EC%A4%91%EB%A0%A5_%EC%83%81%EC%88%98" target="_blank" rel="external nofollow noopener noreferrer">중력상수</a>를 의미하고,<br>이 중력상수는 <code>6.67384 * 10^-11</code>이다. 그리고 분자의 <code>m</code>은 각 물체의 질량이고 분모인 <code>r</code>은 <code>물체1</code>과 <code>물체2</code>의 <a href="https://ko.wikipedia.org/wiki/%EC%9C%A0%ED%81%B4%EB%A6%AC%EB%93%9C_%EA%B1%B0%EB%A6%AC" target="_blank" rel="external nofollow noopener noreferrer">유클리드거리</a>를 의미한다.<br>그리고 마지막에 곱해주는 <code>r</code>은 <code>물체1</code>에서 <code>물체2</code>를 바라보고 있는 단위벡터를 의미한다.</p>
+<p>그리고 중간에 있는 식을 보면 분모에 거리가 들어가있고 분자에 질량이 들어가있다.<br>이는 두 물체간의 거리가 멀어질수록 분모가 커지니까 값은 작게 나오고, 두 물체의 질량이 커질수록 분자가 커지니까 값은 크게 나온다는 것을 의미하며,<br>간단하게 말해서 중력은 <code>두 물체 간 거리에 반비례하고 두 물체 간 질량의 곱에 비례한다</code>라고 할 수 있다.</p>
+<p>혹시 선형대수학을 안배우신 분들이 있을 지 모르니 간단하게 설명하면,<br>벡터라는 놈은 공간 상에서의 방향을 의미한다는 정도만 알아두셔도 좋을 것 같다.<br>지금 우리가 계산하려고 하는 공간은 3차원 공간이기 때문에 벡터는 <code>(x, y, z)</code> 3개의 좌표값을 가지게 된다.</p>
+<p>우리가 어릴 때 배웠던 만유인력의 법칙은</p>
+<center><span class="katex"><span class="katex-mathml"><math><semantics><mrow><mi>F</mi><mo>=</mo><mi>G</mi><mfrac><mrow><msub><mi>m</mi><mn>1</mn></msub><msub><mi>m</mi><mn>2</mn></msub></mrow><mrow><msup><mi>r</mi><mn>2</mn></msup></mrow></mfrac></mrow><annotation encoding="application/x-tex">F = G\frac{m_1 m_2}{r^2}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="strut" style="height:0.7163919999999999em;"></span><span class="strut bottom" style="height:1.061392em;vertical-align:-0.345em;"></span><span class="base textstyle uncramped"><span class="mord mathit" style="margin-right:0.13889em;">F</span><span class="mrel">=</span><span class="mord mathit">G</span><span class="mord reset-textstyle textstyle uncramped"><span class="sizing reset-size5 size5 reset-textstyle textstyle uncramped nulldelimiter"></span><span class="mfrac"><span class="vlist"><span style="top:0.345em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle cramped"><span class="mord scriptstyle cramped"><span class="mord"><span class="mord mathit" style="margin-right:0.02778em;">r</span><span class="vlist"><span style="top:-0.289em;margin-right:0.07142857142857144em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-scriptstyle scriptscriptstyle cramped"><span class="mord mathrm">2</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span><span style="top:-0.22999999999999998em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle textstyle uncramped frac-line"></span></span><span style="top:-0.4149999999999999em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-textstyle scriptstyle uncramped"><span class="mord scriptstyle uncramped"><span class="mord"><span class="mord mathit">m</span><span class="vlist"><span style="top:0.15em;margin-right:0.07142857142857144em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-scriptstyle scriptscriptstyle cramped"><span class="mord mathrm">1</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="mord"><span class="mord mathit">m</span><span class="vlist"><span style="top:0.15em;margin-right:0.07142857142857144em;margin-left:0em;"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span><span class="reset-scriptstyle scriptscriptstyle cramped"><span class="mord mathrm">2</span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span></span></span></span><span class="baseline-fix"><span class="fontsize-ensurer reset-size5 size5"><span style="font-size:0em;">​</span></span>​</span></span></span><span class="sizing reset-size5 size5 reset-textstyle textstyle uncramped nulldelimiter"></span></span></span></span></span></center>
+
+<p>의 꼴을 가지는데 이 공식의 결과는 <code>1</code> <code>5.2</code> <code>1204</code>같은 스칼라 값을 가지게 된다. 스칼라는 어떠한 물리량만을 의미하는 것이기 때문에<br>중력이 <code>얼마나 센지</code>는 알 수 있어도 중력이 <code>어느 방향으로 센지</code>는 알 수가 없다.</p>
+<p>그래서 힘의 방향을 표현해줘야 우리가 이 공식을 제대로 사용할 수 있고, 그렇기 때문에 마지막에 벡터를 곱해주는 것이다.</p>
+<p>그리고 공식 맨 앞에 <code>-1</code>이 붙어있는 이유는 벡터의 방향 때문이다. 마지막에 우리가 곱한 벡터는 <code>물체1 -> 물체2</code>의 방향이다.<br>하지만 중력은 내 쪽으로 끌어당기는 힘이지 밀어내는 힘이 아니기 때문에 따라서 힘의 방향을 <code>물체1 <- 물체2< code>와 같이 반대로 바꿔줘야 하기 때문에 <code>-1</code>을 곱해주는 것이다.</-></code></p>
+<p>조금 복잡해보이지만 막상 코드로 구현하면 간단하다. 필자는 <a href="https://threejs.org/" target="_blank" rel="external nofollow noopener noreferrer">ThreeJS</a>를 사용하여 벡터 계산을 진행하였다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">import</span> { Vector3 } <span class="hljs-keyword">from</span> <span class="hljs-string">'three'</span>;</span><br><span class="line"></span><br><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">calcGravity</span>(<span class="hljs-params">o1, o2, G</span>) </span>{</span><br><span class="line">  <span class="hljs-comment">// o1의 위치벡터와 o2의 위치벡터의 차를 구해 o1 -> o2를 바라보는 벡터를 구한다.</span></span><br><span class="line">  <span class="hljs-keyword">let</span> force = <span class="hljs-keyword">new</span> Vector3().subVectors(o1.location, o2.location);</span><br><span class="line">  </span><br><span class="line">  <span class="hljs-comment">// 위에서 구한 방향벡터의 길이를 구한 후 절대값으로 변환해준다.</span></span><br><span class="line">  <span class="hljs-keyword">const</span> distance = <span class="hljs-built_in">Math</span>.sqrt(force.length() ** <span class="hljs-number">2</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="hljs-comment">// 위에서 구한 방향벡터를 단위벡터로 바꿔준다.</span></span><br><span class="line">  force = force.normalize();</span><br><span class="line">  </span><br><span class="line">  <span class="hljs-comment">// 중력 스칼라 구하기</span></span><br><span class="line">  <span class="hljs-keyword">const</span> strength = -(G * o1.mass * o2.mass) / (distance ** <span class="hljs-number">2</span>);</span><br><span class="line">  </span><br><span class="line">  <span class="hljs-comment">// 방향벡터에 위에서 구한 중력 스칼라를 곱해준다</span></span><br><span class="line">  force = force.multiplyScalar(strength);</span><br><span class="line">  </span><br><span class="line">  <span class="hljs-keyword">return</span> force;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>이제 여기서 나온 값을 계산 대상이 되는 현재 물체의 위치값에 계속 더해주면 물체는 그 방향으로 운동하게 될 것이다.<br>근데 문제는 실질적으로 우리는 2개만 뿌릴 것이 아니라는 것이다.<br>저 만유인력의 법칙은 2개의 물체 간의 중력 만을 생각하고 계산하고 있다. 근데 우리는 여러 개의 물체에 동시에(!) 받는 중력을 계산하고 싶은데?</p>
+<p>아쉽게도 이런 <a href="https://ko.wikipedia.org/wiki/%EB%8B%A4%EC%B2%B4_%EB%AC%B8%EC%A0%9C" target="_blank" rel="external nofollow noopener noreferrer">다체문제</a>는 수리물리학분야에서 손꼽히는 난제이며,<br>1887년에 앙리 푸엥카레가 삼체 이상 문제의 일반해를 구하는 것이 불가능하다라고 했단다.<br>그래서 우리는 저 위에 있는 이체문제의 만유인력의 법칙을 사용해서 중력을 근사적으로 구하는 수 밖에 없다.<br>다음 포스팅에서는 직접 JavaScript코드로 시뮬레이션을 구현해보도록 하겠다.</p>
+<p><a href="/2017/05/06/gravity-via-js-2/" title="다음 포스팅">다음 포스팅</a>에서는 간단한 중력 모델 샘플을 코드로 구현해볼 예정이다.<br>이상으로 JavaScript로 중력 구현하기 첫번째 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/06/gravity-via-js-2/" title="[JavaScript로 중력 구현하기] 2. 코딩하기" rel="bookmark">[JavaScript로 중력 구현하기] 2. 코딩하기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/10/27/inheritance-with-prototype/" title="[JS 프로토타입] 프로토타입을 사용하여 상속하기" rel="bookmark">[JS 프로토타입] 프로토타입을 사용하여 상속하기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/03/calculate-orbit-1/" title="[JavaScript로 천체 구현하기] 케플러 6요소 알아보기" rel="bookmark">[JavaScript로 천체 구현하기] 케플러 6요소 알아보기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/06/15/diving-into-js-array/" title="JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기" rel="bookmark">JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/08/08/fix-webpack-dev-memory-leak/" title="Webpack Watch의 메모리 누수 고치기" rel="bookmark">Webpack Watch의 메모리 누수 고치기</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/gravity/">Gravity</a><a class="tag -link" href="/tags/javascript/">JavaScript</a><a class="tag -link" href="/tags/중력/">중력</a><a class="tag -link" href="/tags/중력-구현하기/">중력 구현하기</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2017/05/06/gravity-via-js-2/">
+                <i class="fas fa-chevron-left"></i> [JavaScript로 중력 구현하기] 2. 코딩하기
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2017/05/03/calculate-orbit-2/">
+                [JavaScript로 천체 구현하기] 행성의 움직임을 구현해보자 <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#중력이란" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>중력이란?</span>
+        </a></li><li>
+        <a class="is-flex" href="#그래서-구현은-어떻게" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>그래서 구현은 어떻게?</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="[JavaScript로 중력 구현하기] 1. 중력이란 무엇일까?" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

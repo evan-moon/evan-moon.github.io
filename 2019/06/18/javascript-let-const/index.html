@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>JavaScript의 let과 const, 그리고 TDZ - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="이번 포스팅에서는 JavaScript ES6에서 추가되었던 let과 const 키워드에 대해서 자세히 포스팅하려고 한다. 부끄럽지만 지금까지 필자는 let과 const는 호이스팅이 되지 않는다고 생각하고 있었다. 하지만 얼마 전 친구와 대화하던 중에 let과 const도 호이스팅 대상체이지만 TDZ라는 특수한 영역을 사용하여 참조를 방어하는 것임을 알게 되">
+<meta name="keywords" content="JavaScript,Temporal Dead Zone,TDZ,호이스팅,Hoisting,V8">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JavaScript의 let과 const, 그리고 TDZ">
+<meta property="og:url" content="https://evan-moon.github.io/2019/06/18/javascript-let-const/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="이번 포스팅에서는 JavaScript ES6에서 추가되었던 let과 const 키워드에 대해서 자세히 포스팅하려고 한다. 부끄럽지만 지금까지 필자는 let과 const는 호이스팅이 되지 않는다고 생각하고 있었다. 하지만 얼마 전 친구와 대화하던 중에 let과 const도 호이스팅 대상체이지만 TDZ라는 특수한 영역을 사용하여 참조를 방어하는 것임을 알게 되">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2019/06/18/javascript-let-const/js.001.png">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.118Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="JavaScript의 let과 const, 그리고 TDZ">
+<meta name="twitter:description" content="이번 포스팅에서는 JavaScript ES6에서 추가되었던 let과 const 키워드에 대해서 자세히 포스팅하려고 한다. 부끄럽지만 지금까지 필자는 let과 const는 호이스팅이 되지 않는다고 생각하고 있었다. 하지만 얼마 전 친구와 대화하던 중에 let과 const도 호이스팅 대상체이지만 TDZ라는 특수한 영역을 사용하여 참조를 방어하는 것임을 알게 되">
+<meta name="twitter:image" content="https://evan-moon.github.io/2019/06/18/javascript-let-const/js.001.png">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2019/06/18/javascript-let-const/">
+
+
+<link rel="alternative" href="/feed.xml" title="JavaScript의 let과 const, 그리고 TDZ" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="JavaScript의 let과 const, 그리고 TDZ" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2019/06/18/javascript-let-const/js.001.png" alt="JavaScript의 let과 const, 그리고 TDZ">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-06-18T06:19:49.000Z">2019-06-18</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/programming/">Programming</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/programming/javascript/">JavaScript</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                JavaScript의 let과 const, 그리고 TDZ
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>이번 포스팅에서는 JavaScript ES6에서 추가되었던 <code>let</code>과 <code>const</code> 키워드에 대해서 자세히 포스팅하려고 한다. 부끄럽지만 지금까지 필자는 <code>let</code>과 <code>const</code>는 호이스팅이 되지 않는다고 생각하고 있었다. 하지만 얼마 전 친구와 대화하던 중에 <code>let</code>과 <code>const</code>도 호이스팅 대상체이지만 <code>TDZ</code>라는 특수한 영역을 사용하여 참조를 <strong>방어</strong>하는 것임을 알게 되었다.<br><a id="more"></a></p>
+<hr>
+<p><strong>다른 분</strong>: 근데 <code>var</code>와 다르게 <code>let</code>이랑 <code>const</code>는 왜 참조 에러가 발생하는 건가요?<br><strong>필자</strong>: <code>let</code>이랑 <code>const</code>는 호이스팅 안될 거에요.<br><strong>친구</strong>: <code>let</code>이랑 <code>const</code>도 호이스팅 되는데…? TDZ에 들어가 있어서 참조 에러 나는거야<br><strong>필자</strong>: 된다고??? TDZ는 또 뭐여?</p>
+<hr>
+<center><br>  <img src="/2019/06/18/javascript-let-const/no-yes.jpg" width="350"><br>  <sub>호…호이스팅이 된다고…?</sub><br>  <br><br></center>
+
+<p>이런 부끄러운 일을 겪고 이번 기회에 변수 선언 키워드들에 대해 제대로 공부도 할겸 이번 포스팅을 작성하게 되었다.</p>
+<h2 id="var-키워드"><a href="#var-키워드" class="headerlink" title="var 키워드"></a>var 키워드</h2><p><code>var</code>키워드는 JavaScript ES5까지 변수를 선언할 수 있는 키워드로 사용되었다. <code>var</code> 키워드는 다른 언어랑 조금 다른 방식으로 작동했기에 다른 언어를 사용하다가 JavaScript로 처음 입문한 개발자들의 멘탈을 털어버리는 데 혁혁한 공을 세웠다. <code>var</code> 키워드의 특징은 다음과 같다.</p>
+<h3 id="변수의-중복-선언이-가능하다"><a href="#변수의-중복-선언이-가능하다" class="headerlink" title="변수의 중복 선언이 가능하다."></a>변수의 중복 선언이 가능하다.</h3><figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">var</span> name = <span class="hljs-string">'Evan'</span>;</span><br><span class="line"><span class="hljs-keyword">var</span> name = <span class="hljs-string">'Evan2'</span>;</span><br><span class="line"><span class="hljs-built_in">console</span>.log(name) <span class="hljs-comment">// Evan2</span></span><br></pre></td></tr></tbody></table></figure>
+<p>이 코드는 변수 선언부가 가까이 붙어있으니 한눈에 <code>아 name이 두번 선언되었구나</code>라고 한눈에 알 수 있지만 첫번째 선언부와 두번째 선언부 사이에 500줄의 코드가 있다면 이제 문제가 심각해진다. 이런 변수의 중복 선언 허용은 의도하지 않은 변수의 변경이 일어날 가능성이 충분하다.</p>
+<h3 id="호이스팅-당한다"><a href="#호이스팅-당한다" class="headerlink" title="호이스팅 당한다."></a>호이스팅 당한다.</h3><p>호이스팅은 쉽게 얘기해서 <code>스코프 안에 있는 선언들을 모두 스코프의 최상단으로 끌어올리는 것</code>을 의미한다. 호이스팅은 JavaScript 인터프리터가 코드를 해석할 때 <code>변수 및 함수의 선언 처리</code>, <code>실제 코드 실행</code>의 두단계로 나눠서 처리하기 때문에 발생하는 현상인데 이게 또 굉장히 사람 헷갈리게 만든다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-built_in">console</span>.log(name); <span class="hljs-comment">// undeinfed</span></span><br><span class="line"><span class="hljs-keyword">var</span> name = <span class="hljs-string">'Evan'</span>;</span><br></pre></td></tr></tbody></table></figure>
+<p>필자도 처음 JavaScript를 시작했을 때 <code>아니 이게 왜 참조 에러가 안나지?</code>라고 생각했었다. 사실 호이스팅이 발생하면서 이 코드는 아래와 같은 방식으로 동작한다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">var</span> name; <span class="hljs-comment">// 선언부를 제일 위로 끌어올린다.</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.log(name);</span><br><span class="line">name = <span class="hljs-string">'Evan'</span>;</span><br></pre></td></tr></tbody></table></figure>
+<p>물론 이건 JavaScript 인터프리터가 내부적으로 코드를 이런 방식으로 처리한다는 거지 실제 코드 라인이 변경되거나 하는건 아니다.<br>어쨌든 이 호이스팅을 당하게 되면<small><strike>(호이스팅은 왠지 “당한다”는 표현이 잘 어울린다. 나도 여러번 당했기 때문에…)</strike></small> 인터프리터 언어임에도 불구하고 개발자가 코드를 읽는 순서와 코드가 실행되는 순서가 달라지게 되는 것이기 때문에 JavaScript에 입문할 때 헷갈리게 만드는 요인 중 하나다.</p>
+<h3 id="함수-레벨-스코프"><a href="#함수-레벨-스코프" class="headerlink" title="함수 레벨 스코프"></a>함수 레벨 스코프</h3><p>대부분의 프로그래밍 언어는 블록 레벨 스코프를 사용하지만 JavaScript는 역시 다르다. <code>var</code> 키워드로 선언된 변수는 함수 레벨 스코프 내에서만 인정된다. 이건 사실 JavaScript에 익숙한 개발자들이라면 큰 문제가 되지는 않지만 역시 늅늅이 시절에는 굉장히 헷갈린다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">(<span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{</span><br><span class="line">  <span class="hljs-keyword">var</span> local = <span class="hljs-number">1</span>;</span><br><span class="line">})();</span><br><span class="line"><span class="hljs-built_in">console</span>.log(local); <span class="hljs-comment">// Uncaught ReferenceError: local is not defined</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">for</span> (<span class="hljs-keyword">var</span> i = <span class="hljs-number">0</span>; i < <span class="hljs-number">10</span>; i++) {}</span><br><span class="line"><span class="hljs-built_in">console</span>.log(i); <span class="hljs-comment">// 10</span></span><br></pre></td></tr></tbody></table></figure>
+<p>함수 스코프만 인정되기 때문에 심지어 <code>for</code> 문 내부에서 선언한 변수 <code>i</code>도 외부에서 참조 가능하다.</p>
+<h3 id="var-키워드-생략-가능"><a href="#var-키워드-생략-가능" class="headerlink" title="var 키워드 생략 가능"></a>var 키워드 생략 가능</h3><p>변수를 선언할 때 <code>var</code> 키워드를 붙혀도 되고 안붙혀도 된다. 역시 자유의 상징 JavaScript 답다. 너무 자유로워서 개발자가 한시도 긴장의 끈을 놓을 수 없게 만든다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">var</span> globalVariable = <span class="hljs-string">'global!'</span>;</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">if</span> (globalVariable === <span class="hljs-string">'global!'</span>) {</span><br><span class="line">  globlVariable = <span class="hljs-string">'global?'</span> <span class="hljs-comment">// 오타 냄</span></span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.log(globalVariable) <span class="hljs-comment">// global!</span></span><br><span class="line"><span class="hljs-built_in">console</span>.log(globlVariable) <span class="hljs-comment">// global?</span></span><br></pre></td></tr></tbody></table></figure>
+<p>실수로 <code>globalVariable</code> 변수를 <code>globlVariable</code> 변수로 오타를 냈다. 순진한 개발자는 <code>globalVariable</code> 변수의 값이 <code>global?</code>로 변경되었으리라 기대를 하겠지만 아쉽게도 그 값은 오타낸 변수명인 <code>globlVariable</code>이 가져갔다.</p>
+<p>이런 경우도 간단한 코드에서는 디버깅이 쉽지만 조금만 코드가 복잡해져도 눈물이 흐르는 케이스이다.</p>
+<center><br>  <img src="/2019/06/18/javascript-let-const/off-work.jpg" width="500"><br>  <sub>이런 것들에게 한번 걸리면 얄짤없이 11시까지 일하고 택시타고 집에 가야한다</sub><br>  <br><br></center>
+
+<h2 id="let과-const-키워드의-등장"><a href="#let과-const-키워드의-등장" class="headerlink" title="let과 const 키워드의 등장"></a>let과 const 키워드의 등장</h2><p><code>var</code> 키워드의 경우 전역 변수를 남발하기가 쉽고 또 로컬 변수라고 해도 변수의 스코프가 너무 넓기 때문에 변수의 선언부와 호출부가 너무 멀리 떨어져 있거나 값이 의도하지 않게 바뀌는 경우를 추적하기 힘들다.<br>그래서 2015년에 발표된 JavaScript ES6에는 새로운 변수 선언 키워드로 <code>let</code>과 <code>const</code>가 추가되었다.</p>
+<p><code>let</code> 키워드는 <code>var</code>와 마찬가지로 변수를 선언할 때 사용하는 키워드이고 <code>const</code> 키워드는 상수를 선언할 때 사용하는 키워드이다.<br>즉 <code>const</code> 키워드는 리터럴 값의 재할당이 불가능하다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> callEvan = <span class="hljs-string">'Hello, Evan!'</span>;</span><br><span class="line">callEvan = <span class="hljs-string">'Bye, Evan!'</span>; <span class="hljs-comment">// Uncaught TypeError: Assignment to constant variable.</span></span><br></pre></td></tr></tbody></table></figure>
+<p>그럼 이 친구들이 기존의 <code>var</code> 키워드와 다른 점은 무엇일까? 위에서 설명했던 <code>var</code> 키워드의 특징은</p>
+<ul>
+<li>변수의 중복 선언이 가능하다.</li>
+<li>호이스팅 당한다.</li>
+<li>블록 레벨 스코프가 아닌 함수 레벨 스코프를 사용한다</li>
+<li>var 키워드는 생략이 가능하다.</li>
+</ul>
+<p>이상 4개 였다. 여기에 대조되는 <code>let</code>과 <code>const</code> 키워드의 특징부터 먼저 살펴보자.</p>
+<h2 id="let과-const-키워드의-특징"><a href="#let과-const-키워드의-특징" class="headerlink" title="let과 const 키워드의 특징"></a>let과 const 키워드의 특징</h2><p>우선 위에서 설명한 <code>var</code> 키워드의 특징과 대조되는 점 부터 살펴보자.</p>
+<h3 id="변수의-중복-선언이-불가능하다"><a href="#변수의-중복-선언이-불가능하다" class="headerlink" title="변수의 중복 선언이 불가능하다."></a>변수의 중복 선언이 불가능하다.</h3><p>이 친구들은 <code>var</code> 키워드와는 다르게 한번 키워드를 사용해서 선언한 변수는 재선언이 불가능하다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">var</span> name = <span class="hljs-string">'Evan'</span>;</span><br><span class="line"><span class="hljs-keyword">var</span> name = <span class="hljs-string">'Evan2'</span>; <span class="hljs-comment">// 아무 일도 일어나지 않았다...</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">let</span> name = <span class="hljs-string">'Evan'</span>;</span><br><span class="line"><span class="hljs-keyword">let</span> name = <span class="hljs-string">'Evan2'</span>; <span class="hljs-comment">// Uncaught SyntaxError: Identifier 'name' has already been declared</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">const</span> name = <span class="hljs-string">'Evan'</span>;</span><br><span class="line"><span class="hljs-keyword">const</span> name = <span class="hljs-string">'Evan2'</span>; <span class="hljs-comment">// Uncaught SyntaxError: Identifier 'name' has already been declared</span></span><br></pre></td></tr></tbody></table></figure>
+<p>이로써 나도 모르게 변수를 두번 선언해서 값이 변경되어 야근하게 되는 일을 방어할 수 있게 되었다.</p>
+<h3 id="호이스팅-당한다-1"><a href="#호이스팅-당한다-1" class="headerlink" title="호이스팅 당한다?"></a>호이스팅 당한다?</h3><p>이게 바로 필자가 이 포스팅을 작성하게 된 이유이다. 필자는 <code>let</code>이나 <code>const</code> 키워드가 호이스팅 되지 않는 줄 알았다.<br>그러나 위에서 설명했듯이 호이스팅은 JavaScript 인터프리터가 코드를 해석하는 과정에서 발생하는 일이기 때문에 <code>let</code>이나 <code>const</code>라고 한들 피해갈 수 있을리가 없다. 그렇다면 이 문제를 어떻게 해결했을까?</p>
+<h4 id="변수-선언-키워드에-따라-다른-에러가-발생한다"><a href="#변수-선언-키워드에-따라-다른-에러가-발생한다" class="headerlink" title="변수 선언 키워드에 따라 다른 에러가 발생한다"></a>변수 선언 키워드에 따라 다른 에러가 발생한다</h4><figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-built_in">console</span>.log(name); <span class="hljs-comment">// undefined</span></span><br><span class="line"><span class="hljs-keyword">var</span> name = <span class="hljs-string">'Evan'</span>;</span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.log(aaa) <span class="hljs-comment">// Uncaught ReferenceError: aaa is not defined</span></span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.log(name); <span class="hljs-comment">// Uncaught ReferenceError: Cannot access 'name' before initialization</span></span><br><span class="line"><span class="hljs-keyword">let</span> name = <span class="hljs-string">'Evan'</span>;</span><br></pre></td></tr></tbody></table></figure>
+<p>첫번째는 호이스팅 당한 <code>var</code> 키워드를 사용하여 선언한 변수를 호출한 모습이다. 당연히 참조 에러따윈 나지 않고 깔끔하게 <code>undefined</code>가 출력된다.<br>두번째는 아예 선언한 적이 없는 변수를 호출하는 모습이다. <code>Uncaught ReferenceError</code>가 발생하고 메세지는 <code>aaa is not defined</code>라고 한다.<br>세번째는 <code>let</code> 키워드를 사용하여 선언한 변수를 선언부 이전에 호출한 모습이다. 두번째와 마찬가지로 <code>Uncaught ReferenceError</code>가 발생했지만 에러 메세지는 <code>Cannot access 'name' before initialization</code>라고 나온다.</p>
+<h4 id="V8-엔진을-뜯어보자"><a href="#V8-엔진을-뜯어보자" class="headerlink" title="V8 엔진을 뜯어보자"></a>V8 엔진을 뜯어보자</h4><p>이 두개의 에러는 전혀 다른 에러로, V8 엔진 내부에서 사용하는 <code>MESSAGE_TEMPLATE</code>에도 엄밀히 구분되어 있고 실제 호출되는 케이스도 다르다.</p>
+<figure class="highlight cpp hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">T(NotDefined, <span class="hljs-string">"% is not defined"</span>)</span><br><span class="line">T(AccessedUninitializedVariable, <span class="hljs-string">"Cannot access '%' before initialization"</span>)</span><br></pre></td></tr></tbody></table></figure>
+<p><a href="https://github.com/v8/v8" target="_blank" rel="external nofollow noopener noreferrer">V8 엔진의 깃허브 레파지토리</a>을 클론받아서 살펴본 결과 내부적으로 <code>var</code> 키워드로 선언된 JS 객체와 <code>let</code>과 <code>const</code>로 선언된 JS 객체를 분기로 갈라놓은 코드가 굉장히 많았다. 코드를 계속 분석해보면서 <code>var</code>, <code>let</code>, <code>const</code> 중 어떤 키워드를 사용하여 값을 선언하든 호이스팅은 항상 이루어진다는 것을 알 수 있었다. V8 엔진 내부의 호이스팅 플래그인 <code>should_hoist</code> 값을 JavaScript 객체에 할당할 때 변수 선언 키워드에 대한 구분을 하지않고 무조건 <code>true</code>를 할당한다.</p>
+<p>그렇다면 <code>var</code> 키워드와 <code>let</code>, <code>const</code> 키워드의 차이는 어디서 오는 것일까? 변수를 선언할 때, 즉 V8이 변수 객체를 생성할 때는 전부 동일하게 처리하지만 변수를 위해 메모리에 공간을 확보하는 초기화 단계에서는 이 키워드들을 다르게 처리한다.</p>
+<figure class="highlight cpp hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">static</span> InitializationFlag <span class="hljs-title">DefaultInitializationFlag</span><span class="hljs-params">(VariableMode mode)</span> </span>{</span><br><span class="line">  DCHECK(IsDeclaredVariableMode(mode));</span><br><span class="line">  <span class="hljs-keyword">return</span> mode == VariableMode::kVar ? kCreatedInitialized</span><br><span class="line">                                    : kNeedsInitialization;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>그러나 이후 진행 로직을 보면 <code>DefaultInitializationFlag</code>라는 함수를 통해 V8 엔진 내부에서 사용되는 <code>VariableKind</code>라는 타입을 반환하는데, 이때 <code>var</code> 키워드를 사용하여 선언한 변수는 <code>kCreatedInitialized</code> 값을, 그 외의 키워드인 <code>let</code>과 <code>const</code>로 선언한 변수는 <code>kNeedsInitialization</code> 키워드를 반환하고 있다.</p>
+<blockquote>
+<p>즉 let, const 키워드로 선언한 리터럴 값은 호이스팅은 되나 특별한 이유로 인해 “초기화가 필요한 상태”로 관리되고 있다.</p>
+</blockquote>
+<p>라고 말할 수 있다.</p>
+<h4 id="초기화가-필요한-상태는-무엇을-의미할까"><a href="#초기화가-필요한-상태는-무엇을-의미할까" class="headerlink" title="초기화가 필요한 상태는 무엇을 의미할까?"></a>초기화가 필요한 상태는 무엇을 의미할까?</h4><p>JavaScript 인터프리터 내부에서 변수는 총 3단계에 걸쳐 생성된다.</p>
+<ul>
+<li><code>선언 (Declaration)</code>: 스코프와 변수 객체가 생성되고 스코프가 변수 객체를 참조한다.</li>
+<li><code>초기화(Initalization)</code>: 변수 객체가 가질 값을 위해 메모리에 공간을 할당한다. 이때 초기화되는 값은 <code>undefined</code>이다.</li>
+<li><code>할당(Assignment)</code>: 변수 객체에 값을 할당한다.</li>
+</ul>
+<p><code>var</code> 키워드를 사용하여 선언한 객체의 경우 <code>선언</code>과 <code>초기화</code>가 동시에 이루어진다. 선언이 되자마자 <code>undefined</code>로 값이 초기화 된다는 것이다.</p>
+<figure class="highlight cpp hljs"><figcaption><span>v8/src/parsing/parser.cc</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// Var 모드로 변수 선언 시</span></span><br><span class="line"><span class="hljs-keyword">auto</span> var = scope->DeclareParameter(name, VariableMode::kVar, is_optional,</span><br><span class="line">                                         is_rest, ast_value_factory(), beg_pos);</span><br><span class="line">var->AllocateTo(VariableLocation::PARAMETER, <span class="hljs-number">0</span>);</span><br></pre></td></tr></tbody></table></figure>
+<p>V8 엔진의 코드를 보면 <code>kVar</code> 모드로 변수 객체를 생성한 후 바로 <code>AllocateTo</code> 메소드를 통해 메모리에 공간을 할당하는 모습을 볼 수 있다.<br>그러나 <code>let</code>이나 <code>const</code> 키워드로 생성한 변수 객체는 다르다.</p>
+<figure class="highlight cpp hljs"><figcaption><span>v8/src/parsing/parser.cc</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// kLet 모드로 변수 선언 시</span></span><br><span class="line">VariableProxy* proxy =</span><br><span class="line">      DeclareBoundVariable(variable_name, VariableMode::kLet, class_token_pos);</span><br><span class="line">proxy->var()->set_initializer_position(end_pos);</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// Const 모드로 변수 선언 시</span></span><br><span class="line">VariableProxy* proxy =</span><br><span class="line">          DeclareBoundVariable(local_name, VariableMode::kConst, pos);</span><br><span class="line">proxy->var()->set_initializer_position(position());</span><br></pre></td></tr></tbody></table></figure>
+<p><code>kLet</code> 모드나 <code>kConst</code> 모드로 생성한 변수 객체들은 <code>AllocateTo</code> 메소드가 바로 호출되지 않았고 대신 소스 코드 상에서 해당 코드의 위치를 의미하는 <code>position</code>값만 정해주는 것을 볼 수 있다.</p>
+<p>바로 이 타이밍에 <code>let</code> 키워드나 <code>const</code> 키워드로 생성된 변수들이 <code>TDZ(Temporal Dead Zone)</code> 구간에 들어가는 것이다. 즉, <code>TDZ</code> 구간에 있는 변수 객체는</p>
+<blockquote>
+<p>선언은 되어있지만 아직 초기화가 되지않아 변수에 담길 값을 위한 공간이 메모리에 할당되지 않은 상태</p>
+</blockquote>
+<p>라고 할 수 있는 것이다. 이때 해당 변수에 접근을 시도하면 얄짤없이 <code>Cannot access '%' before initialization</code> 에러 메세지를 만나게 되는 것이다.</p>
+<h3 id="블록-레벨-스코프를-사용한다"><a href="#블록-레벨-스코프를-사용한다" class="headerlink" title="블록 레벨 스코프를 사용한다"></a>블록 레벨 스코프를 사용한다</h3><p>함수 레벨 스코프를 사용하는 <code>var</code> 키워드와 다르게 <code>let</code>과 <code>const</code>는 블록 레벨 스코프를 사용한다. 블록 레벨 스코프를 사용하지 않기 때문에 블록 내부에서 선언한 변수 또한 전역 변수로 취급된다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">var</span> globalVariable = <span class="hljs-string">'I am global'</span>;</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">if</span> (globalVariable === <span class="hljs-string">'I am global'</span>) {</span><br><span class="line">  <span class="hljs-keyword">var</span> globalVariable = <span class="hljs-string">'am I local?'</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.log(globalVariable); <span class="hljs-comment">// am I local?</span></span><br></pre></td></tr></tbody></table></figure>
+<p>그러나 <code>let</code>과 <code>const</code> 키워드의 경우에는 블록 내부에서 선언한 변수는 지역 변수로 취급된다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">let</span> globalVariable = <span class="hljs-string">'I am global'</span>;</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">if</span> (globalVariable === <span class="hljs-string">'I am global'</span>) {</span><br><span class="line">  <span class="hljs-keyword">let</span> globalVariable = <span class="hljs-string">'am I local?'</span>;</span><br><span class="line">  <span class="hljs-keyword">let</span> localVariable = <span class="hljs-string">'I am local'</span>;</span><br><span class="line">}</span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.log(globalVariable); <span class="hljs-comment">// I am global</span></span><br><span class="line"><span class="hljs-built_in">console</span>.log(localVariable); <span class="hljs-comment">// Uncaught ReferenceError: localVariable is not defined</span></span><br></pre></td></tr></tbody></table></figure>
+<p>이 경우 블록 내부에서 선언된 <code>localVariable</code>은 지역 변수로 취급되어 전역 스코프에서는 참조가 불가능하다. 참고로 <code>let</code>과 <code>const</code>는 호이스팅도 블록 단위로 발생한다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">let</span> name = <span class="hljs-string">'Global Evan'</span>;</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">if</span> (name === <span class="hljs-string">'Global Evan'</span>) {</span><br><span class="line">  <span class="hljs-built_in">console</span>.log(name); <span class="hljs-comment">// Uncaught ReferenceError: Cannot access 'name' before initialization</span></span><br><span class="line">  <span class="hljs-keyword">let</span> name = <span class="hljs-string">'Local Evan'</span>;</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>이 경우 <code>if</code>문 내부에서도 전역 변수로 선언한 <code>name</code> 변수의 값인 <code>Global Evan</code>이 출력될 것이라고 생각할 수 있지만 <code>if</code>문의 블록 내부에서도 호이스팅이 발생하여 지역 변수인 <code>name</code>의 선언부가 블록의 최상단으로 끌어올려졌기 때문에 참조 에러가 발생한다.</p>
+<h3 id="let-const-키워드는-생략이-불가능하다"><a href="#let-const-키워드는-생략이-불가능하다" class="headerlink" title="let, const 키워드는 생략이 불가능하다."></a>let, const 키워드는 생략이 불가능하다.</h3><figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">name = <span class="hljs-string">'Evan'</span></span><br><span class="line"><span class="hljs-comment">// 상기 코드는</span></span><br><span class="line"><span class="hljs-keyword">var</span> name = <span class="hljs-string">'Evan'</span></span><br><span class="line"><span class="hljs-comment">// 과 같다</span></span><br></pre></td></tr></tbody></table></figure>
+<p>변수 선언 키워드를 사용하지 않으면 <code>var</code> 키워드를 사용한 것으로 취급되기 때문에 무조건 써줘야 한다.</p>
+<h2 id="const-키워드의-특징"><a href="#const-키워드의-특징" class="headerlink" title="const 키워드의 특징"></a>const 키워드의 특징</h2><p><code>let</code> 키워드의 경우 위에서 설명한 이유들을 제외하면 <code>변수</code>를 선언할 때 사용한다는 점에서 <code>var</code> 키워드와 동일한 역할을 한다고 할 수 있다.<br>그러면 기존의 <code>var</code> 키워드와 다른 역할을 하는 <code>const</code>에 대해서 조금 더 알아보자.</p>
+<h3 id="상수를-선언할-때-사용한다"><a href="#상수를-선언할-때-사용한다" class="headerlink" title="상수를 선언할 때 사용한다"></a>상수를 선언할 때 사용한다</h3><p>위에서 설명했듯이 <code>const</code>는 <code>상수</code>를 선언할 때 사용하는 키워드이다. <code>상수</code>는 어떠한 불변 값을 의미한다. 즉, 한번 <code>const</code> 키워드를 사용하여 선언한 값은 두번 다시 변경할 수 없다는 뜻이다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> maxCount = <span class="hljs-number">30</span>;</span><br><span class="line">maxCount = <span class="hljs-number">40</span>; <span class="hljs-comment">// Uncaught TypeError: Assignment to constant variable.</span></span><br></pre></td></tr></tbody></table></figure>
+<p>만약 <code>const</code> 키워드로 선언한 값을 재할당하려고 시도하면 친절한 에러메세지와 함께 불가능하다고 알려준다.</p>
+<p>하지만 여기에 중요한 점이 있다. 바로 <code>Call by reference</code> 호출 방식을 사용하는 타입을 <code>const</code> 키워드로 선언 했을 때다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> obj = { <span class="hljs-attr">name</span>: <span class="hljs-string">'Evan'</span> }</span><br><span class="line">obj = { <span class="hljs-attr">name</span>: <span class="hljs-string">'John'</span> } <span class="hljs-comment">// Uncaught TypeError: Assignment to constant variable.</span></span><br></pre></td></tr></tbody></table></figure>
+<p>이 경우 당연히 <code>obj</code> 변수가 바라보는 값 자체의 참조를 변경하려고 했기 때문에 에러가 발생한다. 그러나 객체 내부의 프로퍼티들은 <code>const</code> 키워드의 영향을 받지 않는다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> obj = { <span class="hljs-attr">name</span>: <span class="hljs-string">'Evan'</span> }</span><br><span class="line">obj.name = <span class="hljs-string">'John'</span></span><br><span class="line"><span class="hljs-built_in">console</span>.log(obj) <span class="hljs-comment">// { name: 'John' }</span></span><br></pre></td></tr></tbody></table></figure>
+<p>이건 <code>Call by reference</code> 호출 방식을 사용하는 다른 타입인 <code>Array</code>도 마찬가지다. <code>const</code> 키워드를 사용하여 선언했더라도 <code>push</code>나 <code>splice</code> 등으로 배열 내부의 원소를 변경하는 행위에는 아무런 제약이 없다.</p>
+<h3 id="반드시-선언과-동시에-초기화-해줘야-한다"><a href="#반드시-선언과-동시에-초기화-해줘야-한다" class="headerlink" title="반드시 선언과 동시에 초기화 해줘야 한다"></a>반드시 선언과 동시에 초기화 해줘야 한다</h3><p><code>let</code> 키워드의 경우 명시적으로 선언만 했더라도 인터프리터가 해당 코드 라인을 해석함과 동시에 묵시적으로는 <code>undefined</code>가 할당되며 초기화된다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">let</span> hi;</span><br><span class="line"><span class="hljs-built_in">console</span>.log(hi); <span class="hljs-comment">// undefined</span></span><br></pre></td></tr></tbody></table></figure>
+<p>그러나 <code>const</code> 키워드를 사용하는 경우 반드시 선언과 동시에 값을 할당해줘야 한다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> hi; <span class="hljs-comment">// Uncaught SyntaxError: Missing initializer in const declaration</span></span><br></pre></td></tr></tbody></table></figure>
+<h2 id="결론"><a href="#결론" class="headerlink" title="결론"></a>결론</h2><p>반드시 JavaScript ES5로 코드를 작성해야하는 안습한 경우를 제외한다면 <code>var</code> 키워드는 이제 더이상 사용하지 않는 것을 추천한다. </p>
+<p>그렇다면 남은 것은 <code>let</code>과 <code>const</code>인데 <code>이 친구들을 어떻게 사용하는 것이 좋을까?</code> 라는 고민이 생긴다<br>사실 <code>var</code> 키워드만 쓰다보니까 생각도 안해본 사실인데, 생각보다 프로그램 내부에서 <code>반드시 변수에 값을 재할당 해야하는 경우</code>는 많지 않다. 필자도 별다른 생각없이 코딩하다가 어느 날 작성했던 소스코드를 봤는데 대부분 <code>const</code> 키워드를 사용하여 변수를 선언했고 <code>let</code> 키워드는 몇군데 사용하지 않은 것을 알 수 있었다.</p>
+<p>만약 <code>let</code> 키워드를 사용해야한다면 절대 전역 스코프에서는 사용하지말고 가능하면 블록 스코프를 작게 만들고 그 내부에서 사용하는 것을 추천한다.</p>
+<p>그리고 <code>const</code> 키워드의 경우 값을 재할당하려고 하면 바로 에러를 뿜뿜 해주기 때문에 개발자가 의도하지 않게 변수의 값이 재할당되는 슬픈 상황을 방지할 수 있다. 그렇기에 <code>const</code> 키워드를 잘 활용하여 안전한 코딩 라이프를 즐기고 다들 야근하지말고 칼퇴하시길 바란다.</p>
+<center><br>  <img src="/2019/06/18/javascript-let-const/off-work2.jpg"><br>  <sub>빨리 집에 가서 밥먹고 넷플릭스봐야지!</sub><br>  <br><br></center>
+
+<p>이상으로 JavaScript의 let과 const, 그리고 TDZ 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/06/28/v8-analysis/" title="V8 엔진은 어떻게 내 코드를 실행하는 걸까?" rel="bookmark">V8 엔진은 어떻게 내 코드를 실행하는 걸까?</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/10/27/inheritance-with-prototype/" title="[JS 프로토타입] 프로토타입을 사용하여 상속하기" rel="bookmark">[JS 프로토타입] 프로토타입을 사용하여 상속하기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/06/gravity-via-js-1/" title="[JavaScript로 중력 구현하기] 1. 중력이란 무엇일까?" rel="bookmark">[JavaScript로 중력 구현하기] 1. 중력이란 무엇일까?</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/06/gravity-via-js-2/" title="[JavaScript로 중력 구현하기] 2. 코딩하기" rel="bookmark">[JavaScript로 중력 구현하기] 2. 코딩하기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/06/15/diving-into-js-array/" title="JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기" rel="bookmark">JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/hoisting/">Hoisting</a><a class="tag -link" href="/tags/javascript/">JavaScript</a><a class="tag -link" href="/tags/tdz/">TDZ</a><a class="tag -link" href="/tags/temporal-dead-zone/">Temporal Dead Zone</a><a class="tag -link" href="/tags/v8/">V8</a><a class="tag -link" href="/tags/호이스팅/">호이스팅</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2019/06/22/my-home-to-google/">
+                <i class="fas fa-chevron-left"></i> 우리 집에서 구글까지 가는 길
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2019/06/16/jira-customizing-issue/">
+                JIRA 프로젝트 이슈 커스터마이징하기 <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#var-키워드" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>var 키워드</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#변수의-중복-선언이-가능하다" data-link-name="toc">
+        <span class="has-mr-6">1.1</span>
+        <span>변수의 중복 선언이 가능하다.</span>
+        </a></li><li>
+        <a class="is-flex" href="#호이스팅-당한다" data-link-name="toc">
+        <span class="has-mr-6">1.2</span>
+        <span>호이스팅 당한다.</span>
+        </a></li><li>
+        <a class="is-flex" href="#함수-레벨-스코프" data-link-name="toc">
+        <span class="has-mr-6">1.3</span>
+        <span>함수 레벨 스코프</span>
+        </a></li><li>
+        <a class="is-flex" href="#var-키워드-생략-가능" data-link-name="toc">
+        <span class="has-mr-6">1.4</span>
+        <span>var 키워드 생략 가능</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#let과-const-키워드의-등장" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>let과 const 키워드의 등장</span>
+        </a></li><li>
+        <a class="is-flex" href="#let과-const-키워드의-특징" data-link-name="toc">
+        <span class="has-mr-6">3</span>
+        <span>let과 const 키워드의 특징</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#변수의-중복-선언이-불가능하다" data-link-name="toc">
+        <span class="has-mr-6">3.1</span>
+        <span>변수의 중복 선언이 불가능하다.</span>
+        </a></li><li>
+        <a class="is-flex" href="#호이스팅-당한다-1" data-link-name="toc">
+        <span class="has-mr-6">3.2</span>
+        <span>호이스팅 당한다?</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#변수-선언-키워드에-따라-다른-에러가-발생한다" data-link-name="toc">
+        <span class="has-mr-6">3.2.1</span>
+        <span>변수 선언 키워드에 따라 다른 에러가 발생한다</span>
+        </a></li><li>
+        <a class="is-flex" href="#V8-엔진을-뜯어보자" data-link-name="toc">
+        <span class="has-mr-6">3.2.2</span>
+        <span>V8 엔진을 뜯어보자</span>
+        </a></li><li>
+        <a class="is-flex" href="#초기화가-필요한-상태는-무엇을-의미할까" data-link-name="toc">
+        <span class="has-mr-6">3.2.3</span>
+        <span>초기화가 필요한 상태는 무엇을 의미할까?</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#블록-레벨-스코프를-사용한다" data-link-name="toc">
+        <span class="has-mr-6">3.3</span>
+        <span>블록 레벨 스코프를 사용한다</span>
+        </a></li><li>
+        <a class="is-flex" href="#let-const-키워드는-생략이-불가능하다" data-link-name="toc">
+        <span class="has-mr-6">3.4</span>
+        <span>let, const 키워드는 생략이 불가능하다.</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#const-키워드의-특징" data-link-name="toc">
+        <span class="has-mr-6">4</span>
+        <span>const 키워드의 특징</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#상수를-선언할-때-사용한다" data-link-name="toc">
+        <span class="has-mr-6">4.1</span>
+        <span>상수를 선언할 때 사용한다</span>
+        </a></li><li>
+        <a class="is-flex" href="#반드시-선언과-동시에-초기화-해줘야-한다" data-link-name="toc">
+        <span class="has-mr-6">4.2</span>
+        <span>반드시 선언과 동시에 초기화 해줘야 한다</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#결론" data-link-name="toc">
+        <span class="has-mr-6">5</span>
+        <span>결론</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="JavaScript의 let과 const, 그리고 TDZ" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

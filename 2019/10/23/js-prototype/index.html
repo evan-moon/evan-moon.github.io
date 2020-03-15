@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>[JS 프로토타입] 자바스크립트의 프로토타입 훑어보기 - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="이번 포스팅에서는 자바스크립트(JavaScript)하면 빠질 수 없는 프로토타입(Prototype)에 대해서 한번 이야기해보려고 한다. 프로토타입은 자바스크립트를 ES5 시절부터 사용해오던 분들에게는 매우 익숙하지만 ES6부터 시작하신 분들은 대부분 클래스를 사용하기 때문에 익숙한 개념은 아닐 것이라고 생각한다.">
+<meta name="keywords" content="JavaScript,프로토타입,자바스크립트,Prototype">
+<meta property="og:type" content="article">
+<meta property="og:title" content="[JS 프로토타입] 자바스크립트의 프로토타입 훑어보기">
+<meta property="og:url" content="https://evan-moon.github.io/2019/10/23/js-prototype/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="이번 포스팅에서는 자바스크립트(JavaScript)하면 빠질 수 없는 프로토타입(Prototype)에 대해서 한번 이야기해보려고 한다. 프로토타입은 자바스크립트를 ES5 시절부터 사용해오던 분들에게는 매우 익숙하지만 ES6부터 시작하신 분들은 대부분 클래스를 사용하기 때문에 익숙한 개념은 아닐 것이라고 생각한다.">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2019/10/23/js-prototype/thumbnail.png">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.419Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="[JS 프로토타입] 자바스크립트의 프로토타입 훑어보기">
+<meta name="twitter:description" content="이번 포스팅에서는 자바스크립트(JavaScript)하면 빠질 수 없는 프로토타입(Prototype)에 대해서 한번 이야기해보려고 한다. 프로토타입은 자바스크립트를 ES5 시절부터 사용해오던 분들에게는 매우 익숙하지만 ES6부터 시작하신 분들은 대부분 클래스를 사용하기 때문에 익숙한 개념은 아닐 것이라고 생각한다.">
+<meta name="twitter:image" content="https://evan-moon.github.io/2019/10/23/js-prototype/thumbnail.png">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2019/10/23/js-prototype/">
+
+
+<link rel="alternative" href="/feed.xml" title="[JS 프로토타입] 자바스크립트의 프로토타입 훑어보기" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="[JS 프로토타입] 자바스크립트의 프로토타입 훑어보기" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2019/10/23/js-prototype/thumbnail.png" alt="[JS 프로토타입] 자바스크립트의 프로토타입 훑어보기">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-10-23T12:29:01.000Z">2019-10-23</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/programming/">Programming</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/programming/javascript/">JavaScript</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                [JS 프로토타입] 자바스크립트의 프로토타입 훑어보기
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>이번 포스팅에서는 자바스크립트(JavaScript)하면 빠질 수 없는 <code>프로토타입(Prototype)</code>에 대해서 한번 이야기해보려고 한다.</p>
+<p>프로토타입은 자바스크립트를 ES5 시절부터 사용해오던 분들에게는 매우 익숙하지만 ES6부터 시작하신 분들은 대부분 클래스를 사용하기 때문에 익숙한 개념은 아닐 것이라고 생각한다.</p>
+<a id="more"></a>
+<p>필자가 처음 프론트엔드 개발을 시작했을때는 자바스크립트의 <code>ES5</code> 버전에서 막 <code>ES6</code>로 넘어가고 있던 시절이었는데, 기존에는 자바(Java)를 주로 사용하고 있던 필자가 프론트엔드 개발로 넘어오면서 제일 애먹었던 부분이 바로 이 프로토타입이었다.<small>(물론 애먹는 건 현재진행형이다)</small></p>
+<p>물론 지금은 자바스크립트의 위상이 많이 올라가면서 프로토타입 패턴에 대한 관심도 많아지기 시작했지만, 그래도 당시나 지금이나 여전히 주류는 C 계열 언어나 Java에서 사용하는 클래스를 기반으로한 객체 생성 방식이다. </p>
+<p>그래서 자바스크립트를 처음 접하는 개발자에게 프로토타입 기반 프로그래밍은 상대적으로 낯선 방식일 수 밖에 없고, 이로 인해 기존 개발자들이 자바스크립트로 진입하는데 어려움이 있었다. 그런 이유로 ES6에서는 <code>class</code> 예약어가 등장한 것이다.</p>
+<p>사실 필자도 아직 클래스 기반의 객체 생성 방식이 익숙하기 때문에 프로토타입에 대한 공부가 더 필요하다.</p>
+<p>그래서 이번 포스팅에서는 프로토타입 패턴이 무엇인지, 자바스크립트 내에서 프로토타입이 어떤 방식으로 사용되고 있는지에 집중해서 한번 이야기해보려고 한다.</p>
+<h2 id="ES6부터-클래스를-지원하는데도-프로토타입을-굳이-알아야-하나요"><a href="#ES6부터-클래스를-지원하는데도-프로토타입을-굳이-알아야-하나요" class="headerlink" title="ES6부터 클래스를 지원하는데도 프로토타입을 굳이 알아야 하나요?"></a>ES6부터 클래스를 지원하는데도 프로토타입을 굳이 알아야 하나요?</h2><p>자바스크립트는 ES6부터 <code>class</code> 키워드를 사용하여 클래스를 지원하고 있다. 정확히 말하면 프로토타입으로 클래스를 흉내내서 구현한 것이라고 말하는 것이 맞다.</p>
+<p>그런 이유로 많은 개발자들이 자바스크립트의 클래스를 단순한 <code>문법 설탕(Syntactic Sugar)</code>라고 이야기하지만, 사실 개인적으로 자바스크립트의 클래스는 ES5 시절 프로토타입을 사용하여 객체를 생성했던 방법보다 더 엄격한 제약을 가지고 있기 때문에 단순한 문법 설탕이라기보다는 <code>상위 요소(Superset)</code>라고 하는게 맞지 않나 싶다.</p>
+<p>그러면 그냥 클래스를 쓰면 되는데 왜 프로토타입을 알아야 하는 것일까?</p>
+<p>그 이유는 ES6에서 <code>class</code> 키워드를 통해 클래스를 지원하고 있기는 하지만, 이건 자바스크립트가 클래스 기반 언어가 되었다는 의미는 아니기 때문이다. 결국 자바스크립트 안에서의 클래스는 클래스의 탈을 쓴 프로토타입이다.</p>
+<p>그리고 예전에 작성된 레거시 프론트엔드 코드의 경우에는 ES5로 작성된 것도 많기 때문에 아직까지 프론트엔드 개발자들은 ES5를 만져야하는 경우가 왕왕 있는 것이 현실이다. 물론 ES5를 ES6 이상의 버전으로 마이그레이션하려고 해도 기존의 프로토타입 기반의 객체 생성이나 상속이 구현된 코드를 이해할 수 없다면 마이그레이션 또한 불가능하다.</p>
+<h2 id="프로토타입은-디자인-패턴이다"><a href="#프로토타입은-디자인-패턴이다" class="headerlink" title="프로토타입은 디자인 패턴이다"></a>프로토타입은 디자인 패턴이다</h2><p><code>프로토타입</code>이라고 하면 일반적으로 자바스크립트를 떠올리지만, 사실 프로토타입은 자바스크립트에서만 사용되는 것은 아니고, 그냥 일종의 디자인 패턴 중 하나이다. 자바스크립트 뿐만 아니라 <code>ActionScript</code>, <code>Lua</code>, <code>Perl</code> 등 프로토타입 기반 프로그래밍을 지원하는 다른 언어도 많다.</p>
+<p>그래서 자바스크립트의 프로토타입을 자세히 알아보기 전에 디자인 패턴으로써의 프로토타입을 먼저 알아볼까 한다.</p>
+<p>프로토타입 패턴은 <code>객체를 효율적으로 생성하는 방법</code>을 다루는 패턴 중 하나인데, 주로 객체를 생성하는 비용이 클 때 이를 회피하기 위해 사용된다.</p>
+<p>객체를 생성할 때의 비용이 크다는 말은, 말 그대로 객체를 생성할 때마다 뭔가 일을 많이 해야한다는 뜻이다.</p>
+<p>예를 들어 RPG 게임의 캐릭터를 하나 구현해본다고 생각해보자. 이 캐릭터는 여러가지 장비를 장착할 수 있는 기능을 가지고 있는데, 처음 캐릭터가 생성될 때 딸랑 맨 몸으로 시작하면 유저들이 싫어할 것 같으니 기본적인 장비 몇 가지를 장착한 상태로 생성될 수 있도록 만들어주려고 한다.</p>
+<figure class="highlight java hljs"><figcaption><span>Player.java</span></figcaption><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Weapon</span> </span>{}</span><br><span class="line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Armor</span> </span>{}</span><br><span class="line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BasicSward</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Weapon</span> </span>{}</span><br><span class="line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">BasicArmor</span> <span class="hljs-keyword">extends</span> <span class="hljs-title">Armor</span> </span>{}</span><br><span class="line"></span><br><span class="line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Player</span> </span>{</span><br><span class="line">    <span class="hljs-keyword">public</span> Weapon weapon;</span><br><span class="line">    <span class="hljs-keyword">public</span> Armor armor;</span><br><span class="line"></span><br><span class="line">    <span class="hljs-function"><span class="hljs-keyword">public</span> <span class="hljs-title">Player</span><span class="hljs-params">()</span> </span>{</span><br><span class="line">        <span class="hljs-keyword">this</span>.weapon = <span class="hljs-keyword">new</span> BasicSward(); <span class="hljs-comment">// 초심자의 목도</span></span><br><span class="line">        <span class="hljs-keyword">this</span>.armor = <span class="hljs-keyword">new</span> BasicArmor(); <span class="hljs-comment">// 초보자용 갑주</span></span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>간단하게 만들어보면 대충 이런 느낌이다. <code>Player</code> 객체는 자신이 생성될 때 <code>BasicSward</code> 객체와 <code>BasicArmor</code> 객체까지 함께 생성해야한다.</p>
+<p>이런 경우 그냥 <code>Player</code> 객체만 생성하는 상황보다는 <code>객체의 생성 비용이 높다</code>고 할 수 있다. 게다가 캐릭터 생성 시 처음 부여하는 아이템의 종류가 많아질수록 <code>Player</code>의 객체의 생성 비용 또한 계속 높아질 것이다.</p>
+<p>음… 근데 곰곰히 생각해보니 캐릭터가 처음 생성되며 가지고 있는 아이템이 항상 같다는 전제 조건이 있다면 생성 비용이 높은 <code>Player</code>객체를 딱 한번만 생성하고 그 다음부터는 생성된 객체를 복사해서 사용해도 될 것 같다는 생각이 든다.</p>
+<figure class="highlight java hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// 이건 너무 객체 생성 비용이 높으니까...</span></span><br><span class="line">Player evan = <span class="hljs-keyword">new</span> Player();</span><br><span class="line">Player john = <span class="hljs-keyword">new</span> Player();</span><br><span class="line">Player wilson = <span class="hljs-keyword">new</span> Player();</span><br><span class="line"></span><br><span class="line"><span class="hljs-comment">// 이런 방법으로 접근해보는 것은 어떨까?</span></span><br><span class="line">Player player = <span class="hljs-keyword">new</span> Player();</span><br><span class="line">Player evan = player.clone();</span><br><span class="line">Player john = player.clone();</span><br><span class="line">Player wilson = player.clone();</span><br></pre></td></tr></tbody></table></figure>
+<p>이런 관점으로 접근하는 것이 바로 프로토타입 패턴이라고 할 수 있다. 프로토타입, 즉 <code>원본 객체</code>가 존재하고 그 객체를 복제해서 새로운 객체를 생성하는 방법인 것이다.</p>
+<p>실제로 자바에서 프로토타입 패턴을 사용할때, 복제 대상이 되는 클래스는 보통 <code>Cloneable</code> 인터페이스를 사용하여 구현한다. Cloneable 인터페이스에는 <code>clone</code> 메소드가 정의되어 있기 때문에, 이 인터페이스를 사용하는 클래스는 반드시 <code>clone</code> 메소드를 오버라이딩해서 구현해야한다.</p>
+<figure class="highlight java hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-class"><span class="hljs-keyword">class</span> <span class="hljs-title">Player</span> <span class="hljs-keyword">implements</span> <span class="hljs-title">Cloneable</span> </span>{</span><br><span class="line">    <span class="hljs-comment">//...</span></span><br><span class="line">    <span class="hljs-meta">@Override</span></span><br><span class="line">    <span class="hljs-function"><span class="hljs-keyword">public</span> Player <span class="hljs-title">clone</span> <span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> CloneNotSupportedException </span>{</span><br><span class="line">      <span class="hljs-keyword">return</span> (Player)<span class="hljs-keyword">super</span>.clone();</span><br><span class="line">    }</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p><code>clone</code> 메소드를 구현하고나면 이제 <code>Player</code> 객체는 복사 가능한 객체가 된다. 즉, 다른 객체들의 원본 객체가 될 수 있는 기능을 가지게 되었다는 것이다.</p>
+<p>이제부터는 <code>Player</code> 객체를 추가로 생성하고 싶을 때는 기존에 생성되어 있던 객체를 그대로 복사하면 되기 때문에 높은 객체 생성 비용이 드는 것을 피할 수 있다.</p>
+<figure class="highlight java hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Player evan = <span class="hljs-keyword">new</span> Player();</span><br><span class="line">Player evanClone = evan.clone();</span><br></pre></td></tr></tbody></table></figure>
+<p>또한 <code>Player</code> 객체는 복사되어 새로운 메모리 공간을 할당받지만, 깊은 복사를 하지 않는 이상 <code>Player</code>객체가 가지고 있는 <code>BasicSward</code> 객체와 <code>BasicArmor</code> 객체는 새롭게 생성되지 않고 기존에 이 객체들이 할당된 메모리 공간을 참조하기만 한다.</p>
+<p>즉, 잘만 쓴다면 메모리 공간을 아낄 수도 있다는 것이다. 자바스크립트에서 원시 자료형은 <code>Call by value</code>, 그 외 자료형은 <code>Call by reference</code>를 사용하는 것과 동일한 원리이다.</p>
+<p>여기까지 듣고 나서 예상하신 분들도 있겠지만, 그 말인 즉슨 잠깐 정신줄 놓고 코딩하다보면 이런 슬픈 상황도 발생할 수 있다는 뜻이다.</p>
+<figure class="highlight java hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Player evan = <span class="hljs-keyword">new</span> Player();</span><br><span class="line"><span class="hljs-keyword">try</span> {</span><br><span class="line">    Player evanClone = evan.clone();</span><br><span class="line">    evanClone.weapon.attackPoint = <span class="hljs-number">40</span>;</span><br><span class="line"></span><br><span class="line">    System.out.println(<span class="hljs-string">"에반 무기 공격력 -> "</span> + evan.weapon.attackPoint);</span><br><span class="line">    System.out.println(<span class="hljs-string">"에반 복사본 무기 공격력 -> "</span> + evanClone.weapon.attackPoint);</span><br><span class="line">}</span><br><span class="line"><span class="hljs-keyword">catch</span> (Exception e) {</span><br><span class="line">    System.err.println(e);</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight plain hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">에반 무기 공격력 -> 40</span><br><span class="line">에반 복사본 무기 공격력 -> 40</span><br></pre></td></tr></tbody></table></figure>
+<center><br>  <img src="/2019/10/23/js-prototype/overtime_work.jpg" width="400"><br>  <small>디버깅 지옥이 펼쳐진다…</small><br>  <br><br></center>
+
+<p>정리해보자면 프로토타입 패턴이란, <code>객체를 생성할 때 원본이 되는 객체를 복사해서 생성하는 패턴</code>이라고 할 수 있다.</p>
+<p>물론 자바스크립트의 프로토타입은 단순히 몇 개의 객체가 복제 관계를 가지는 것이 아니라, 자바스크립트 내의 모든 객체 전체가 복제 관계로 얽혀있기 때문에 이것보다는 약간 더 복잡하긴 하지만, 근본적인 원리 자체는 프로토타입 패턴을 따라간다.</p>
+<p>그럼 이제 자바스크립트가 객체를 생성할 때 프로토타입 패턴을 어떤 식으로 사용하고 있는 지 한번 알아보도록 하자.</p>
+<h2 id="자바스크립트의-프로토타입"><a href="#자바스크립트의-프로토타입" class="headerlink" title="자바스크립트의 프로토타입"></a>자바스크립트의 프로토타입</h2><p>앞서 설명했듯이 프로토타입 패턴은 객체를 생성할 때 사용하는 패턴이다. 필자가 위에서 예시로 사용한 언어인 자바는 클래스 기반 프로그래밍을 지원하기 때문에, 특수한 패턴을 사용해야지만 프로토타입이라는 개념을 사용할 수 있다.</p>
+<p>그러나 애초에 프로토타입 기반 프로그래밍을 지원하는 자바스크립트의 경우에는 애초에 모든 객체를 생성할 때 프로토타입을 사용하기 때문에, 객체를 생성하기만 해도 위에서 필자가 설명한 프로토타입 패턴이 적용된다.</p>
+<p>그렇기 때문에 우선 자바스크립트에서 말하는 <code>객체(Object)</code>가 무엇인지, 그리고 그 객체가 생성된다는 것이 무엇을 의미하는 것인지 알아볼 필요가 있다.</p>
+<h3 id="자바스크립트가-객체를-생성하는-방법"><a href="#자바스크립트가-객체를-생성하는-방법" class="headerlink" title="자바스크립트가 객체를 생성하는 방법"></a>자바스크립트가 객체를 생성하는 방법</h3><p>컴퓨터 공학에서의 <code>객체(Object)</code>는 <code>현실의 사물을 프로그램에 반영한 것</code>이다. 즉, 여러 개의 프로퍼티(특징)와 메소드(행위)를 가지고 현실의 사물을 흉내내는 존재인 것이다.</p>
+<p>클래스 기반 언어에서는 클래스를 생성하고 그 클래스를 사용하여 객체를 생성해야하지만, 자바스크립트는 간단한 문법만으로 객체를 생성할 수 있다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> evan = {</span><br><span class="line">  name: <span class="hljs-string">'Evan'</span>,</span><br><span class="line">  age: <span class="hljs-number">29</span>,</span><br><span class="line">  say: <span class="hljs-function"><span class="hljs-keyword">function</span> (<span class="hljs-params"></span>) </span>{</span><br><span class="line">    <span class="hljs-built_in">console</span>.log(<span class="hljs-string">`Hi, I am <span class="hljs-subst">${<span class="hljs-keyword">this</span>.name}</span>!`</span>);</span><br><span class="line">  }</span><br><span class="line">};</span><br></pre></td></tr></tbody></table></figure>
+<p>이런 방식을 우리는 <code>리터럴(Literal)</code>로 객체를 선언한다고 한다. 리터럴은 소스 코드의 고정된 값을 대표하는 일종의 단축어 같은 개념이기 때문에, 우리는 간단한 문법만으로 객체를 생성했다고 느끼지만 내부적으로는 객체를 생성하는 일련의 매커니즘이 작동하고 있다.</p>
+<p>예를 들어, 다른 언어에서는 이런 리터럴 문법을 사용하여 객체를 생성할 때 내부적으로 <code>클래스</code>를 사용하게된다. 파이썬 같은 경우, 딕셔너리를 리터럴로 선언하고 타입을 찍어보면 <code>dict</code> 클래스가 출력되는 것을 볼 수 있다.</p>
+<figure class="highlight python hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">my_dict = {</span><br><span class="line">    <span class="hljs-string">'name'</span>: <span class="hljs-string">'Evan'</span>,</span><br><span class="line">    <span class="hljs-string">'age'</span>: <span class="hljs-number">29</span></span><br><span class="line">}</span><br><span class="line">type(my_dict)</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight plain hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><class 'dict'></class></span><br></pre></td></tr></tbody></table></figure>
+<p>우리는 <code>dict({ 'name': 'Evan', 'age': 29 })</code>와 같이 클래스를 명시적으로 사용하지않고 리터럴로 딕셔너리를 생성했지만 내부적으로는 제대로 <code>dict</code> 클래스를 사용해서 객체를 생성했다는 것이다.</p>
+<p>자바 또한 리터럴 문법을 지원하는 <code>배열(Array)</code>을 선언한 후 출력해보면 결국 클래스를 기반으로 배열 객체를 생성한다는 것을 알 수 있다.</p>
+<figure class="highlight java hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">String[] array = {<span class="hljs-string">"Evan"</span>, <span class="hljs-string">"29"</span>};</span><br><span class="line">System.out.println(array);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight plain hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[Ljava.lang.String;@7852e922</span><br></pre></td></tr></tbody></table></figure>
+<p>이 말인 즉슨, 다른 언어와 마찬가지로 자바스크립트의 객체도 갑자기 혼자서 뿅 하고 생성되는 것이 아니라 분명히 뭔가를 사용해서 만들어내고 있다는 말이다.</p>
+<p>하지만 자바스크립트에는 클래스라는 개념 자체가 없는데 뭘 사용해서 객체를 만들어내고 있는 것일까?</p>
+<blockquote>
+<p>답은 바로 <code>함수(Function)</code>이다.</p>
+</blockquote>
+<p>자바스크립트에서 객체가 생성되는 원리를 조금 더 파헤쳐보기 위해서 위에서 리터럴로 선언했던 <code>evan</code> 객체를 이번에는 다른 방법으로 선언해보도록 하겠다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> evan = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Object</span>({</span><br><span class="line">  name: <span class="hljs-string">'Evan'</span>,</span><br><span class="line">  age: <span class="hljs-number">29</span>,</span><br><span class="line">});</span><br></pre></td></tr></tbody></table></figure>
+<p>왠지 클래스 기반 언어에서 클래스를 사용하여 객체를 생성하는 것과 유사한 문법이 나타났다. 이런 방식을 <code>생성자(Constructor)</code>를 사용하여 객체를 생성한다고 한다.</p>
+<p>클래스 기반 언어라면 <code>Object</code>는 클래스겠지만, 자바스크립트에서는 클래스가 아닌 함수이다.</p>
+<p>즉, 자바스크립트에서의 생성자는 함수가 가지고 있다는 것이다. 저게 진짜 함수인지 알고 싶으니, 브라우저 콘솔 창을 열고 <code>Object</code>를 한번 출력해보도록 하겠다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-built_in">console</span>.log(<span class="hljs-built_in">Object</span>);</span><br><span class="line"><span class="hljs-built_in">console</span>.log(<span class="hljs-keyword">typeof</span> <span class="hljs-built_in">Object</span>);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">ƒ <span class="hljs-built_in">Object</span>() { [native code] }</span><br><span class="line"><span class="hljs-string">"function"</span></span><br></pre></td></tr></tbody></table></figure>
+<p>음, 콘솔로 찍어보니 <code>Object</code>는 확실하게 빼박캔트 함수가 맞다.</p>
+<p>필자가 처음 자바스크립트를 사용하기 시작했을 때 받아들이기 어려웠던 부분이 바로 이 부분이었다.</p>
+<p>클래스 기반 프로그래밍에 익숙했던 필자에게 <code>new</code> 키워드와 생성자는 클래스만 가질 수 있는 것이었는데 갑자기 뜬금없이 함수가 나와버리니 받아들이기 힘들었던 것 같다.<small>(머리로는 알겠는데 마음이…)</small></p>
+<p>어쨌든 이제 자바스크립트가 객체를 생성할 때 함수를 사용해서 생성한다는 것을 알게되었다. 지금까지 알아낸 내용을 정리해보자면 다음과 같다.</p>
+<blockquote><ol>
+<li>프로토타입 패턴이란 객체를 생성할 때 원본 객체를 복제하여 생성하는 방법이다.</li>
+<li>자바스크립트는 객체를 생성할 때 프로토타입 패턴을 사용한다.</li>
+<li>자바스크립트는 객체를 생성할 때 함수를 사용한다.</li>
+</ol>
+</blockquote>
+<p>그렇다는 것은 자바스크립트가 함수를 사용하여 객체를 생성할 때 <code>뭔가</code>를 참조하고 복제해서 객체를 생성한다는 말이다. 이제부터 그 <code>뭔가</code>를 알아 볼 시간이다.</p>
+<h3 id="도대체-뭘-복제해서-객체를-만드는-걸까"><a href="#도대체-뭘-복제해서-객체를-만드는-걸까" class="headerlink" title="도대체 뭘 복제해서 객체를 만드는 걸까?"></a>도대체 뭘 복제해서 객체를 만드는 걸까?</h3><p>사실 디자인 패턴으로써의 프로토타입 패턴은 생각보다 그렇게 어렵지 않다. 그저 객체를 생성할 때 원본 객체를 <code>복제</code>해서 생성한다는 개념이기 때문이다.</p>
+<p>마찬가지로 자바스크립트 또한 뭔가를 복제해서 새로운 객체를 생성하고 있다. 그럼 이제 자바스크립트가 도대체 뭘 복제해서 객체를 생성하고 있는 것인지 알아보기 위해 간단한 함수를 하나 선언해보도록 하겠다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">User</span> (<span class="hljs-params"></span>) </span>{}</span><br><span class="line"></span><br><span class="line"><span class="hljs-keyword">const</span> evan = <span class="hljs-keyword">new</span> User();</span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.log(evan);</span><br><span class="line"><span class="hljs-built_in">console</span>.log(<span class="hljs-keyword">typeof</span> evan);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">User { <span class="hljs-attr">__proto__</span>: <span class="hljs-built_in">Object</span> }</span><br><span class="line">object</span><br></pre></td></tr></tbody></table></figure>
+<p>위에서 이야기했듯이 자바스크립트는 함수를 사용하여 객체를 생성하기 때문에, 이렇게 클래스를 사용하는 것과 유사한 느낌으로 객체를 생성할 수 있다.</p>
+<p>그렇다면 <code>evan</code> 객체는 무엇으로부터 복제된 것일까? 간단하게 생각하면 <code>User</code> 함수라고 생각해볼수 있겠지만, 사실은 <code>User</code> 함수를 복제한 것이 아니라 <code>User 함수의 프로토타입 객체</code>를 복제한 것이다.</p>
+<center><br>  <img src="/2019/10/23/js-prototype/surprise.jpeg" width="400"><br>  <small>이렇게 갑자기 프로토타입이 나온다고…?</small><br>  <br><br></center>
+
+<p>뜬금없어서 바로 이해가 안될 수도 있겠지만, 단순하게 생각해보면 쉽다. 만약 객체를 생성하면서 함수를 복제했다면 생성된 객체는 <code>object</code> 타입이 아니라 <code>function</code> 타입이어야 하지 않겠는가?</p>
+<p>하지만 <code>evan</code> 객체는 <code>object</code> 타입을 가지고 있다. 즉, 이 함수 자체가 아니라 다른 객체 타입의 무언가를 복제했다는 것이고, 그 원본 객체가 <code>User 함수의 프로토타입 객체</code>인 것이다.</p>
+<p>필자는 <code>User</code> 함수의 프로토타입을 명시적으로 선언하지 않았지만, 자바스크립트는 함수가 생성될 때 자동으로 그 함수의 <code>프로토타입 객체(Prototype Object)</code>도 함께 생성하고 해당 함수의 <code>prototype</code> 프로퍼티에 연결해둔다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">User</span> (<span class="hljs-params"></span>) </span>{}</span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.log(User.prototype);</span><br><span class="line"><span class="hljs-built_in">console</span>.log(<span class="hljs-keyword">typeof</span> User.prototype);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">{ <span class="hljs-attr">constructor</span>: f User(), <span class="hljs-attr">__proto__</span>: <span class="hljs-built_in">Object</span> }</span><br><span class="line">object</span><br></pre></td></tr></tbody></table></figure>
+<p>분명히 필자는 함수만 선언했는데, <code>User.prototype</code> 프로퍼티에 뭔가 이것저것 가지고 있는 객체 녀석이 1+1으로 붙어나왔다. 함수를 생성하면 무조건 그 함수의 프로토타입 객체도 함께 생성된다는 것이 키포인트다.</p>
+<p>그리고 이 프로토타입 객체는 함수를 사용해서 새로운 객체를 생성할 때 원본 객체 역할을 해줄 객체를 의미한다.</p>
+<p>즉, <code>new User()</code>라는 문법을 사용하여 새로운 객체를 만들게 되면 <code>User</code> 함수 자체가 아니라 <code>User</code> 함수가 생성될 때 함께 생성된 <code>User 함수의 프로토타입 객체</code>를 복제해서 새로운 객체를 만든다는 것이다.</p>
+<center><br>  <img src="/2019/10/23/js-prototype/prototype.png" width="500"><br>  <small>evan 객체야, 내가 아니라 내 프로토타입 객체를 복제하렴</small><br>  <br><br></center>
+
+<p>이때 <code>User</code> 함수가 생성되며 함께 생성된 User 함수의 프로토타입 객체를 <code>프로토타입 프로퍼티(Prototype Property)</code>라고 한다.</p>
+<p>그럼 이 프로토타입 객체가 가지고 있는 프로퍼티인 <code>constructor</code>와 <code>__proto__</code>는 뭘 의미하는 걸까?</p>
+<h4 id="constructor-NaN"><a href="#constructor-NaN" class="headerlink" title="constructor"></a>constructor</h4><p>함수가 생성되며 함께 생성된 프로토타입 객체는 모두 <code>constructor</code>라는 프로퍼티를 가지고 있다. 그리고 이 프로퍼티에는 이 프로토타입 객체가 생성될 때 선언했던 함수가 들어있다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-built_in">console</span>.log(User.prototype);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">{</span><br><span class="line">  <span class="hljs-keyword">constructor</span>: f User(),</span><br><span class="line">  __proto__: Object</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>함수를 선언하면 함수와 함께 해당 함수의 프로토타입 객체도 함께 생성되며 이 둘을 연결하게 된다. 이때 함수는 프로토타입 객체의 <code>constructor</code> 프로퍼티로 연결되고, 프로토타입 객체는 함수의 <code>prototype</code> 프로퍼티로 연결되는 것이다.</p>
+<center><br>  <img src="/2019/10/23/js-prototype/prototype_connection.png" width="500"><br>  <small>함수와 프로토타입 객체는 서로 연결되어있다</small><br>  <br><br></center>
+
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-built_in">console</span>.log(User.prototype.constructor === User);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-literal">true</span></span><br></pre></td></tr></tbody></table></figure>
+<p>이 생성자 프로퍼티는 이 함수를 통해 생성된 객체 입장에서 보았을 때 <code>나를 만들 때 어떤 함수가 호출되었냐?</code>를 의미한다. 만약 이 연결이 없다면 새로 생성된 객체는 자신을 만들 때 어떤 생성자 함수가 호출되었는지 알 수가 없다.</p>
+<p>새롭게 생성된 객체는 자신을 생성할 때 어떤 원본 객체를 복사했는지에 대한 링크는 가지고 있지만 어떤 생성자가 호출되었는지에 대한 링크는 가지고 있지 않기 때문이다.</p>
+<p>하지만 원본 객체의 <code>constuctor</code> 프로퍼티에 생성자 함수가 연결되어있기 때문에 새롭게 만들어진 객체는 자신의 원본 객체에 접근해서 이 프로퍼티를 참조함으로써 자신이 만들어질때 어떤 생성자 함수가 호출되었는지를 알 수 있다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> evan = <span class="hljs-keyword">new</span> User();</span><br><span class="line"><span class="hljs-built_in">console</span>.log(evan.__proto__.constructor === User);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-literal">true</span></span><br></pre></td></tr></tbody></table></figure>
+<p>이때 생성된 객체가 자신의 원본 객체에 접근할 수 있는 프로퍼티가 바로 <code>__proto__</code> 프로퍼티이다.</p>
+<h4 id="proto"><a href="#proto" class="headerlink" title="__proto__"></a>__proto__</h4><p>방금 생성자를 설명하면서 함수를 통해 새롭게 생성된 객체는 원본 객체와의 연결을 가지고 있다고 했다. 이때 이 연결을 <code>프로토타입 링크(Prototype Link)</code>라고 한다.</p>
+<p><code>Object.prototype</code>을 제외한 자바스크립트 내의 모든 객체는 원본 객체를 기반으로 복사되어 생성되었기 때문에, 자신의 원본 객체로 연결되어있는 프로토타입 링크 또한 모든 객체가 가지고 있다. 이때 이 링크가 담기는 프로퍼티가 <code>__proto__</code> 프로퍼티이다.</p>
+<p><code>Object.prototype.__proto__</code>가 존재하지 않는 이유는 밑에서 후술하도록 하겠다. 우선은 객체들이 자신의 원본 객체로 통하는 프로토타입 링크를 가지고 있다는 사실에만 집중하자.</p>
+<blockquote>
+<p>이 포스팅에서는 이해를 돕기위해 <code>__proto__</code> 프로퍼티를 그대로 사용하고 있다.<br>그러나 해당 프로퍼티는 ECMAScript 2015에서는 표준이었지만 현재는 표준이 아니므로 <code>Object.getPrototypeOf()</code>를 사용하는 것을 추천한다.</p>
+</blockquote>
+<p>즉 <code>User</code> 함수를 사용하여 생성한 객체는 <code>User.prototype</code> 객체를 복사하여 생성된 객체이기 때문에, 이 객체들은 원본인 <code>User.prototype</code> 객체를 자신의 <code>__proto__</code> 프로퍼티에 연결해두는 것이다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">User</span> (<span class="hljs-params"></span>) </span>{}</span><br><span class="line"><span class="hljs-keyword">const</span> evan = <span class="hljs-keyword">new</span> User();</span><br><span class="line"><span class="hljs-built_in">console</span>.log(evan.__proto__ === User.prototype);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-literal">true</span></span><br></pre></td></tr></tbody></table></figure>
+<p>그렇다면 이 프로토타입 링크를 사용해서 계속 해서 원본 객체를 추적하다보면, 결국은 자바스크립트 내의 모든 객체들이 최종적으로 어떤 원본 객체를 복사해서 생성된 것인지 알 수 있지 않을까?</p>
+<h2 id="프로토타입-체인"><a href="#프로토타입-체인" class="headerlink" title="프로토타입 체인"></a>프로토타입 체인</h2><p>자바스크립트 내의 사용되는 모든 객체들은 전부 이런 프로토타입 기반 방식으로 정의되고 생성된다. 즉, <code>String</code>, <code>Boolean</code>, <code>Array</code>와 같이 우리가 일반적으로 사용하고 있는 빌트인 객체들도 모두 같은 방식을 사용해서 만들었다는 것이다.</p>
+<p>그렇다면 이 객체들은 어떤 프로토타입 객체를 복사해서 만들어진 것일까?</p>
+<p>String, Boolean, Array든 뭐가 됐든 자바스크립트 내에 존재하는 모든 것들은 바로 <code>Object</code> 함수의 프로토타입인 <code>Object.prototype</code>을 시작으로 해서 복제된다.</p>
+<p>위에서 <code>__proto__</code>를 설명하면서 <code>Object.prototype</code> 객체는 프로토타입 링크, 즉 원본 객체로 통하는 링크가 없다고 이야기했었는데, 그 이유는 바로 <code>Object.prototype</code>이 모든 객체들의 조상님이기 때문이다.</p>
+<p>이게 정말인지 확인해보고 싶다면, 아무 객체나 골라잡아서 그 객체의 <code>__proto__</code> 프로퍼티를 통해 쭉쭉 올라가보면 된다.</p>
+<p>일단 만만한 <code>String</code>을 사용해서 조상을 추적해보려고 하는데, <code>String</code> 객체를 생성하는 함수부터 출발할 것인지, <code>String</code> 함수를 통해 생성된 객체부터 출발할 것인지에 따라 조상까지 올라가는 길이 달라진다.</p>
+<p>String <code>함수</code>와 String <code>객체</code>는 당연히 원본이 되는 객체도 다르기 때문이다. 필자는 그 중 String 객체를 생성할 수 있는 String 생성자 함수를 선택했다.</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> first = <span class="hljs-built_in">String</span>.__proto__;</span><br><span class="line"><span class="hljs-keyword">const</span> second = first.__proto__;</span><br><span class="line"></span><br><span class="line"><span class="hljs-built_in">console</span>.log(<span class="hljs-string">'첫번째 조상 -> '</span>, first.constructor.name);</span><br><span class="line"><span class="hljs-built_in">console</span>.log(<span class="hljs-string">'두번째 조상 -> '</span>, second.constructor.name);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight plain hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">첫 번째 조상 -> Function</span><br><span class="line">두 번째 조상 -> Object</span><br></pre></td></tr></tbody></table></figure>
+<p>자바스크립트의 모든 함수는 자신의 원본으로 <code>Function.prototype</code> 객체를 원본으로 가진다. 그리고 Function.prototype은 결국 객체이기 때문에, 당연히 원본으로 <code>Object.prototype</code> 객체를 원본으로 가진다.</p>
+<p>그럼 여기서 한번 더 올라가면 어떻게 될까?</p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-keyword">const</span> third = second.__proto__;</span><br><span class="line"><span class="hljs-built_in">console</span>.log(third.constructor.name);</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight plain hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Uncaught TypeError: Cannot read property 'constructor' of null at <anonymous>:1:28</anonymous></span><br></pre></td></tr></tbody></table></figure>
+<p>앗, <code>TypeError</code>가 발생했다. 에러메세지를 보아하니 <code>Object.prototype</code> 객체의 원본 객체인 <code>Object.prototype.__proto__</code>는 <code>null</code>인 모양이다.</p>
+<p>즉, <code>Object</code>의 위로는 더 이상 조상이 없는 것이다. 지금 살펴본 이 관계를 간단한 다이어그램으로 나타내어보면 다음과 같다.</p>
+<center><br>  <img src="/2019/10/23/js-prototype/prototype-chain.png"><br>  <br><br></center>
+
+<p>뭔가 복잡해보이지만 별 것 없다. String <code>함수</code>의 원본 객체는 <code>Function.prototype</code>이다. 그리고 <code>const a = 'evan'</code>과 같이 선언된 String 객체는 자신을 생성한 String 함수의 <code>String.prototype</code>을 원본으로 가질 것이고, <code>String.prototype</code>은 객체이기 때문에 당연히 <code>Object.prototype</code>을 원본으로 가지는 것이다.</p>
+<p>이렇게 프로토타입으로 이루어진 객체들의 관계를 <code>프로토타입 체인(Prototype Chain)</code>이라고 한다.</p>
+<h2 id="마치며"><a href="#마치며" class="headerlink" title="마치며"></a>마치며</h2><p>사실 필자가 프로토타입에 대한 포스팅을 쓰려고 했던 이유는 얼마 전 면접에서 자바스크립트의 프로토타입을 사용하여 <code>Private Static 메소드</code>를 구현하라는 문제를 받았다가 결국 못 풀었기 때문이다.</p>
+<p>자바스크립트의 클로저와 프로토타입을 활용하여 풀어야하는 문제였는데, 필자는 기본기가 부족한 나머지 풀어내지 못했다.</p>
+<p>그래서 원래는 프로토타입을 사용한 다양한 상속 기법들과 클로저를 사용한 멤버의 은닉 등도 함께 소개해보려고 했지만, 늘 그렇듯 분량 조절 실패로 인해 다른 포스팅에서 별도로 다뤄야할 것 같다.</p>
+<center><br>  <img src="/2019/10/23/js-prototype/no_think.jpeg" width="300"><br>  <small>사실 애초에 분량 조절 따위를 생각하고 쓰지 않는다</small><br>  <br><br></center>
+
+<p>필자처럼 기존의 클래스 기반 객체 생성방식에 익숙한 개발자들에게 자바스크립트의 프로토타입은 꽤나 복잡하게 느껴진다. 디자인 패턴으로써의 프로토타입은 단순히 객체를 복제해서 새로운 객체를 생성한다는 정도의 개념에 그치지만 자바스크립트의 프로토타입 체인은 그것보다 훨씬 더 복잡하게 연결되어있기 때문이다.</p>
+<p>하지만 프로토타입 체인이나 프로토타입을 사용한 각종 상속 기법은 어렵게 느껴질 수 있어도, 프로토타입의 뼈대 자체는 그렇게 어렵지 않다고 생각한다.</p>
+<blockquote><ol>
+<li>객체는 함수를 사용해서 만들어지고, 객체는 함수의 프로토타입 객체를 복제하여 생성된다.</li>
+<li>모든 객체는 자신이 어떤 원본 객체를 복제하여 생성된 것인지에 대한 정보를 가지고 있다.</li>
+</ol>
+</blockquote>
+<p>물론 원본 객체에 대한 정보를 런타임에 동적으로 변경할 수 있는 등 변태같은 짓들이 가능하기도 하고, 이를 사용한 다양한 기법들도 있기는 하지만 기본은 결국 저 두 가지라고 할 수 있을 것 같다. 다음 포스팅에서는 본격적으로 프로토타입을 사용한 상속 기법과 객체의 프로퍼티를 탐색하는 방법인 프로토타입 룩업 등에 대해서 설명하도록 하겠다.</p>
+<p>이상으로 자바스크립트의 프로토타입 훑어보기 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/10/27/inheritance-with-prototype/" title="[JS 프로토타입] 프로토타입을 사용하여 상속하기" rel="bookmark">[JS 프로토타입] 프로토타입을 사용하여 상속하기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/08/19/javascript-audio-effectors-gain/" title="[JavaScript로 오디오 이펙터를 만들어보자] 소리의 흐름을 파악하자" rel="bookmark">[JavaScript로 오디오 이펙터를 만들어보자] 소리의 흐름을 파악하자</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/06/gravity-via-js-1/" title="[JavaScript로 중력 구현하기] 1. 중력이란 무엇일까?" rel="bookmark">[JavaScript로 중력 구현하기] 1. 중력이란 무엇일까?</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2017/05/06/gravity-via-js-2/" title="[JavaScript로 중력 구현하기] 2. 코딩하기" rel="bookmark">[JavaScript로 중력 구현하기] 2. 코딩하기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/06/15/diving-into-js-array/" title="JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기" rel="bookmark">JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/javascript/">JavaScript</a><a class="tag -link" href="/tags/prototype/">Prototype</a><a class="tag -link" href="/tags/자바스크립트/">자바스크립트</a><a class="tag -link" href="/tags/프로토타입/">프로토타입</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2019/10/27/inheritance-with-prototype/">
+                <i class="fas fa-chevron-left"></i> [JS 프로토타입] 프로토타입을 사용하여 상속하기
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2019/10/12/introduction-data-structure-heap/">
+                최소 값과 최대 값을 빠르게 찾을 수 있게 도와주는 힙(Heap) <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#ES6부터-클래스를-지원하는데도-프로토타입을-굳이-알아야-하나요" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>ES6부터 클래스를 지원하는데도 프로토타입을 굳이 알아야 하나요?</span>
+        </a></li><li>
+        <a class="is-flex" href="#프로토타입은-디자인-패턴이다" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>프로토타입은 디자인 패턴이다</span>
+        </a></li><li>
+        <a class="is-flex" href="#자바스크립트의-프로토타입" data-link-name="toc">
+        <span class="has-mr-6">3</span>
+        <span>자바스크립트의 프로토타입</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#자바스크립트가-객체를-생성하는-방법" data-link-name="toc">
+        <span class="has-mr-6">3.1</span>
+        <span>자바스크립트가 객체를 생성하는 방법</span>
+        </a></li><li>
+        <a class="is-flex" href="#도대체-뭘-복제해서-객체를-만드는-걸까" data-link-name="toc">
+        <span class="has-mr-6">3.2</span>
+        <span>도대체 뭘 복제해서 객체를 만드는 걸까?</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#constructor-NaN" data-link-name="toc">
+        <span class="has-mr-6">3.2.1</span>
+        <span>constructor</span>
+        </a></li><li>
+        <a class="is-flex" href="#proto" data-link-name="toc">
+        <span class="has-mr-6">3.2.2</span>
+        <span>__proto__</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#프로토타입-체인" data-link-name="toc">
+        <span class="has-mr-6">4</span>
+        <span>프로토타입 체인</span>
+        </a></li><li>
+        <a class="is-flex" href="#마치며" data-link-name="toc">
+        <span class="has-mr-6">5</span>
+        <span>마치며</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">45</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="[JS 프로토타입] 자바스크립트의 프로토타입 훑어보기" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>
