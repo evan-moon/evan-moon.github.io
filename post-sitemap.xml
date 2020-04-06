@@ -8,8 +8,16 @@
     </url>
 
     <url>
+        <loc>https://evan-moon.github.io/2020/04/07/about-restful-api/</loc>
+        <lastmod>2020-04-06T18:24:22.448Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://evan-moon.github.io/2020/03/15/about-http-status-code/</loc>
-        <lastmod>2020-03-15T13:27:12.283Z</lastmod>
+        <lastmod>2020-03-22T08:48:09.384Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 

@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>AWS와 함께 간단하게 HTTP/2 적용하기 - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="이번 포스팅에서는 AWS(Amazon Web Service) 환경에서 HTTP/2 프로토콜을 적용하는 방법에 대해서 설명하려고 한다. AWS의 Cloud Front와 Application Load Balancer는 자체적으로 HTTP/2 프로토콜을 사용할 수 있는 기능들을 제공해주고 있기 때문에 별도의 작업 없이 간단하게 HTTP/2 프로토콜을 적용할 수">
+<meta name="keywords" content="Web,Aamazon Web Service,HTTP,HTTP&#x2F;2,Network">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AWS와 함께 간단하게 HTTP&#x2F;2 적용하기">
+<meta property="og:url" content="https://evan-moon.github.io/2019/06/13/http2-with-aws/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="이번 포스팅에서는 AWS(Amazon Web Service) 환경에서 HTTP/2 프로토콜을 적용하는 방법에 대해서 설명하려고 한다. AWS의 Cloud Front와 Application Load Balancer는 자체적으로 HTTP/2 프로토콜을 사용할 수 있는 기능들을 제공해주고 있기 때문에 별도의 작업 없이 간단하게 HTTP/2 프로토콜을 적용할 수">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2019/06/13/http2-with-aws/aws.png">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.092Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="AWS와 함께 간단하게 HTTP&#x2F;2 적용하기">
+<meta name="twitter:description" content="이번 포스팅에서는 AWS(Amazon Web Service) 환경에서 HTTP/2 프로토콜을 적용하는 방법에 대해서 설명하려고 한다. AWS의 Cloud Front와 Application Load Balancer는 자체적으로 HTTP/2 프로토콜을 사용할 수 있는 기능들을 제공해주고 있기 때문에 별도의 작업 없이 간단하게 HTTP/2 프로토콜을 적용할 수">
+<meta name="twitter:image" content="https://evan-moon.github.io/2019/06/13/http2-with-aws/aws.png">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2019/06/13/http2-with-aws/">
+
+
+<link rel="alternative" href="/feed.xml" title="AWS와 함께 간단하게 HTTP/2 적용하기" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="AWS와 함께 간단하게 HTTP/2 적용하기" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2019/06/13/http2-with-aws/aws.png" alt="AWS와 함께 간단하게 HTTP/2 적용하기">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-06-13T12:44:00.000Z">2019-06-13</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/programming/">Programming</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/programming/network/">Network</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                AWS와 함께 간단하게 HTTP/2 적용하기
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>이번 포스팅에서는 AWS(Amazon Web Service) 환경에서 HTTP/2 프로토콜을 적용하는 방법에 대해서 설명하려고 한다. AWS의 <code>Cloud Front</code>와 <code>Application Load Balancer</code>는 자체적으로 HTTP/2 프로토콜을 사용할 수 있는 기능들을 제공해주고 있기 때문에 별도의 작업 없이 간단하게 HTTP/2 프로토콜을 적용할 수 있다.</p>
+<a id="more"></a>
+<h2 id="HTTP-2란"><a href="#HTTP-2란" class="headerlink" title="HTTP/2란?"></a>HTTP/2란?</h2><p><code>HTTP/1</code>은 이미 세상에 나온지 30년이 다 되어가는 프로토콜로, 웹 어플리케이션을 위한 프로토콜이라기 보다는 문서를 위한 프로토콜로 설계되었기 때문에 모던 웹 어플리케이션과 같이 무거운 페이로드, 빈번한 통신 등의 환경에서는 여러 가지 비효율적인 점이 많다.</p>
+<p>그래서 <code>HTTP/2</code>는 현대적인 통신을 지원하기 위해 다음과 같은 목표를 가지고 고안되었다.</p>
+<hr>
+<ul>
+<li>전체 요청, 응답 다중화를 통한 지연 시간 단축</li>
+<li>비대한 HTTP 헤더 필드의 효율적인 압축을 통해 프로토콜 오버헤드를 최소화</li>
+<li>요청 우선 순위 지정</li>
+<li>서버 푸시 지원</li>
+</ul>
+<hr>
+<p>HTTP/2는 기존 HTTP/1 프로토콜을 사용하고 있는 어플리케이션을 수정하지 않고도 모든 핵심 개념(메소드, 상태 코드, URI 및 헤더 필드)을 공유하도록 설계되었다. 대신 HTTP/2는 클라이언트와 서버 간 데이터 프레임과 전송 방식을 수정하는 방식으로 통신 효율을 높였다.</p>
+<p>또한 클라이언트와 서버 간 통신에서 가장 효과가 큰 것은 <code>응답 다중화</code>가 정식으로 지원된다는 것이다. 이 말은 하나의 연결만 으로 여러 리소스를 주고 받을 수 있다는 뜻이다.</p>
+<center><br>  <img src="/2019/06/13/http2-with-aws/multiplexing.gif" width="500"><br>  <sub>[출처] csstrick.com<sub><br>  <br><br></sub></sub></center>
+
+<p>HTTP/1에서는 프로토콜 차원의 응답 다중화가 지원되지않았고 응답의 병렬 처리는 브라우저가 책임을 가졌다. 그렇기 때문에 브라우저의 정책에 따라 요청의 병렬처리가 가능한 개수가 달랐다.</p>
+<hr>
+<ul>
+<li>Internet Explorer: 출처 별 10개~11개</li>
+<li>Chrome: 출처 별 6개</li>
+<li>Firefox: 출처 별 6개</li>
+<li>Opera: 출처 별 6개</li>
+</ul>
+<hr>
+<p>그렇기 때문에 프론트엔드 개발자들은 어플리케이션 초기화 시 최대한 리소스 요청을 줄이기 위해 모든 JavaScript와 CSS 파일을 하나의 번들로 묶어 <code>index.js</code>나 <code>style.css</code>와 같은 파일로 만들고 <code>Minify</code>나 <code>Uglify</code> 등의 기법을 사용하여 용량을 최대한 줄이기도 하고, 여러 개의 이미지를 요청하지 않기 위해 하나의 커다란 이미지를 다운로드받아 마스킹해서 사용하는 스프라이트 방식과 같은 방식을 사용했다.</p>
+<p>하지만 HTTP/2는 <code>출처 별로 최대 128개</code>의 병렬 요청을 처리할 수 있으므로, 이제 우리는 하나의 큰 파일이 아닌 작은 여러 개의 파일로 나눠서 동시에 요청하고 받아올 수 있는 등의 HTTP/1.1에서는 하지 못했던 성능 개선의 여지를 만들 수 있게되었다.</p>
+<h2 id="AWS-Cloud-Front에서-HTTP-2-사용하기"><a href="#AWS-Cloud-Front에서-HTTP-2-사용하기" class="headerlink" title="AWS Cloud Front에서 HTTP/2 사용하기"></a>AWS Cloud Front에서 HTTP/2 사용하기</h2><p>AWS는 2016년 9월부터 Cloud Front에서 HTTP/2를 지원해주기 시작했다. 간단한 세팅 만으로 HTTP/1.1에서 HTTP/2로 변경할 수 있다. 또한 HTTP/2를 지원하지않는 하위 버전의 브라우저에서 요청을 받는다면 HTTP/1.1으로 프로토콜을 변경하여 응답하는 기능 또한 가지고 있다.</p>
+<p><a href="https://aws.amazon.com/blogs/aws/new-http2-support-for-cloudfront/" target="_blank" rel="external nofollow noopener noreferrer">AWS CloudFront HTTP/2 세팅 메뉴얼</a>에서 HTTP/2를 세팅할 수 있는 방법을 자세히 설명해주고 있기 때문에 프로토콜을 변경하는 과정은 전혀 어려움이 없었다.</p>
+<h3 id="CloudFront-Distributions-변경하기"><a href="#CloudFront-Distributions-변경하기" class="headerlink" title="CloudFront Distributions 변경하기"></a>CloudFront Distributions 변경하기</h3><p>먼저 Cloud Front 대시보드로 이동하면 현재 등록되어있는 배포판들의 목록이 보인다. 이 중 HTTP/2 프로토콜을 적용하고 싶은 배포판을 선택한 후 상단의 <code>Distribution Settings</code>을 선택한다.</p>
+<center><br>  <img src="/2019/06/13/http2-with-aws/cloudfront1.png" width="500"><br>  <br><br></center>
+
+<p><code>Distribution Settings</code>을 클릭해서 배포판 설정 화면으로 들어가면 현재 배포판에 대한 여러 가지 정보가 있는 화면이 나온다. 이 정보들 중 이 배포판이 지원하고 있는 프로토콜에 대한 정보도 함께 담겨있다.</p>
+<center><br>  <img src="/2019/06/13/http2-with-aws/cloudfront2.png" width="600"><br>  <br><br></center>
+
+<p>이제 상단의 <code>Edit</code> 버튼을 눌러 배포판의 설정을 변경하도록 하자. 밑으로 쭉 내리다보면 <code>Supported HTTP Versions</code>라는 항목이 있다.</p>
+<img src="/2019/06/13/http2-with-aws/cloudfront3.png" title="Supported HTTP Versions">
+<p>이미 저 스샷이 모든 걸 설명해주고 있기 때문에 마무리는 스킵하겠다.</p>
+<center><br>  <img src="/2019/06/13/http2-with-aws/skip.jpg" title="생략"><br>  <br><br></center>
+
+<h2 id="Elastic-Beanstalk에서-HTTP-2-사용하기"><a href="#Elastic-Beanstalk에서-HTTP-2-사용하기" class="headerlink" title="Elastic Beanstalk에서 HTTP/2 사용하기"></a>Elastic Beanstalk에서 HTTP/2 사용하기</h2><p>Elastic Beanstalk은 Web 서버나 Worker와 같이 친숙한 웹 어플리케이션이나 서비스를 간편하게 배포하거나 컨트롤할 수 있는 서비스이다. Elastic Beanstalk에서 환경을 생성할 때 사용할 언어나 서버 엔진등을 설정해놓으면 해당 설정을 사용하여 다른 환경으로 복사할 수도 있고 Auto Scaling이나 Load Balancing과 같은 귀찮은 설정이 필요한 작업들도 간단한 몇개의 설정만 건드려주면 알아서 다 해주기 때문에 꿀이 따로 없다.</p>
+<p>또한 프로젝트의 루트에 <code>.ebextensions</code> 디렉토리를 생성하고 내부에 쉘 스크립트 파일을 넣어놓으면 파일 정렬 순서에 따라서 배포할 때마다 해당 스크립트들을 실행시킬 수도 있어서 굉장히 유연하다.<small><del>(node-sass가 말썽부려서 rebuild 해야할 때 아주 유용하다)</del></small></p>
+<p>환경을 생성할 때 <code>Classic Load Balancer</code>와 <code>Application Load Balancer</code> 중 하나의 로드 밸런서를 선택할 수 있는데 Classic Load Balancer는 기존의 ELB를 의미한다. Elastic Beanstalk에서 HTTP/2를 사용하고 싶다면 <code>Application Load Balancer</code>를 선택하도록 하자. 물론 ELB를 고르고 직접 세팅하는 방법도 있지만 필자는 굳이 어려운 길을 선택하지 않았다.</p>
+<h3 id="Application-Load-Balancer란"><a href="#Application-Load-Balancer란" class="headerlink" title="Application Load Balancer란?"></a>Application Load Balancer란?</h3><p>AWS는 지난 2016년에 L7(Application) 계층에서 작동하는 <a href="https://aws.amazon.com/ko/blogs/korea/new-aws-application-load-balancer/" target="_blank" rel="external nofollow noopener noreferrer">Application Load Balancer(ALB)</a>를 공개하였다. 기존에 사용되던 로드밸런서인 Elastic Load Balancer(ELB)는 L4(Network) 계층에서 동작하기 때문에 HTTP나 HTTPS와 같은 Application Layer에서 사용되는 프로토콜을 인지하지도 못하고 이에 따라서 유연하게 처리하지도 못했지만 ALB는 Application 계층에서 작동하기 때문에 직접 HTTP 헤더를 까보고 이에 따른 유연한 부하 분산이 가능한 것이 장점이다.<br>예를 들면 동일한 호스트로 요청을 보내더라도 <code>/a</code> 경로로 요청을 보내면 a 서버로 보내고 <code>/b</code> 경로로 요청을 보내면 b 서버로 보내는 등의 유연한 라우팅이 가능하게 된다는 것이다.</p>
+<p>하지만 무엇보다 좋은 점은 위에서 설명했듯이 <code>HTTP/2</code> 프로토콜과 <code>WebSocket</code>을 자체적으로 지원한다는 것이다. 만약 기존에 ELB, 즉 Classic Load Balancer를 사용하고 있던 환경에서 HTTP/2 프로토콜을 사용하고 싶다면 직접 세팅하거나 ALB로 마이그레이션 해야한다.<br>하지만 로드 밸런서를 마이그레이션해도 기존 ELB에 연결되어있던 인스턴스들과 자동으로 연결해주지는 않기 때문에 Elastic Beanstalk을 사용하고 있다면 그냥 환경을 다시 만드는 게 정신건강에 이롭다.<small><del>(처음에 쉽게 가보려다가 안되서 실망한 1인)</del></small></p>
+<h3 id="설정하기"><a href="#설정하기" class="headerlink" title="설정하기"></a>설정하기</h3><p>먼저 Elastic Beanstalk 환경에 접속하여 새로운 환경을 생성하자.</p>
+<center><br>  <img src="/2019/06/13/http2-with-aws/eb1.png" width="500" title="Elastic Beanstalk 환경 생성"><br>  <br><br></center>
+
+<p>이후 <code>Web server environment</code>를 선택하면 환경 이름이나 사용할 언어등 간단한 세팅을 할 수 있는 화면으로 이동한다.</p>
+<center><br>  <img src="/2019/06/13/http2-with-aws/eb2.png" width="500" title="Elastic Beanstalk Platform 설정"><br>  <br><br></center>
+
+<p>Elastic Beanstalk에서는 다양한 언어를 제공해주고 있으니 입맛대로 골라담아보자. 이렇게 기본적인 세팅을 하고서 하단의 <code>Configure more options</code>를 클릭하면 좀 더 디테일한 설정을 할 수 있는 화면으로 이동할 수 있다.</p>
+<center><br>  <img src="/2019/06/13/http2-with-aws/eb3.png" width="500" title="Configure more option"><br>  <br><br></center>
+
+<p>만약 손이 미끄러져서 <code>Create environment</code>를 클릭하면 환경이 생성되는 동안 10분 정도는 그냥 날리게 되므로 눈 크게 뜨고 클릭하도록 하자. 제대로 클릭했다면 디테일 설정화면으로 이동하게 되는데 상단의 <code>Configuration presets</code>를 확인해보면 아마 기본 값으로 <code>Low cost</code>가 선택되어 있을 것이다. 이 옵션에서는 로드 밸런서를 사용할 수 없으므로 우리는 <code>Custom configuration</code>을 선택해야한다.</p>
+<center><br>  <img src="/2019/06/13/http2-with-aws/eb4.png" width="500" title="Configuration presets"><br>  <br><br></center>
+
+<p><code>Custom configuration</code> 옵션을 선택하면 하단의 Load balancer 카드에 <code>Modify</code> 버튼이 활성화 되었을 것이다. 해당 버튼을 클릭하면 이제 드디어 로드 밸런서를 선택할 수 있는 화면이 나타난다.</p>
+<center><br>  <img src="/2019/06/13/http2-with-aws/eb5.png" width="500" title="로드 밸런서 선택화면"><br>  <br><br></center>
+
+<p>3개 다 맛있어보이지만 한번에 하나만 먹을 수 있으므로 욕심 부리지말고 <code>Application Load Balancer</code>를 선택하자. 그리고 밑으로 스크롤을 조금만 내려보면 로드 밸런서 설정 메뉴들이 보인다. 우리는 이 중 <code>Listener</code>를 생성해주어야한다. ALB의 리스너는 구성한 프로토콜이나 포트를 사용한 요청을 확인하는 프로세스라고 보면 된다. 기본 설정에는 <code>HTTP 프로토콜을 사용하여 80포트</code>로 들어오는 요청에 대한 리스너만 있기 때문에 우리는 <code>HTTPS 프로토콜을 사용하여 443포트</code>로 들어오는 요청에 대한 리스너를 만들어주면 된다.</p>
+<center><br>  <img src="/2019/06/13/http2-with-aws/eb6.png" width="500" title="로드 밸런서 리스너 생성화면"><br>  <br><br></center>
+
+<p>리스너를 생성했다면 하단의 <code>Save</code> 버튼을 눌러 로드 밸런서 설정을 저장하고 나머지 설정도 입맛대로 설정한 후 <code>Create environment</code>를 클릭하면 드디어 환경이 올라가기 시작한다. 참고로 좀 오래 걸린다.</p>
+<h3 id="서버에-별도-설정을-안했는데"><a href="#서버에-별도-설정을-안했는데" class="headerlink" title="서버에 별도 설정을 안했는데?"></a>서버에 별도 설정을 안했는데?</h3><p>따로 안해도 된다. ALB에 HTTPS 리스너를 가지고 있다면 이 리스너가 알아서 해준다. 만약 브라우저가 HTTP/2를 지원하는 브라우저라면 리스너도 HTTP/2로 응답할 것이고 만약 HTTP/1.1만 지원하는 브라우저<small><del>인터넷익스플로러</del></small>라면 리스너도 HTTP/1.1 프로토콜로 응답할 것이다.</p>
+<p>그리고 HTTPS 리스너가 HTTP/2 요청을 받더라도 로드 밸런서에 연결된 인스턴스들과는 각각의 HTTP/1.1 프로토콜로 통신하기 때문에 서버에서는 그냥 평소대로 HTTP/1.1에 대한 처리만 하면 된다.</p>
+<p>자세한 내용은 <a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/userguide/how-elastic-load-balancing-works.html#http-connections" target="_blank" rel="external nofollow noopener noreferrer">Elastic Load Balancing 사용 설명서의 HTTP Connections</a>을 읽어보도록 하자.</p>
+<h2 id="HTTP-2-잘-적용-됐니"><a href="#HTTP-2-잘-적용-됐니" class="headerlink" title="HTTP/2, 잘 적용 됐니?"></a>HTTP/2, 잘 적용 됐니?</h2><p>환경을 생성했다면 이제 끝이다. 가장 간단하게 테스트해볼 수 있는 방법은 역시 <code>curl</code>을 사용하는 것이다. 여러분이 생성한 환경에 요청을 해봐도 되고 아니면 그냥 아무데나 찔러보자. 생각보다 많은 서비스들이 HTTP/2를 사용하고 있다.</p>
+<figure class="highlight plain hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">$ curl --http2 -I https://www.naver.com/</span><br><span class="line"></span><br><span class="line">HTTP/2 200</span><br><span class="line">server: NWS</span><br><span class="line">date: Thu, 13 Jun 2019 14:59:09 GMT</span><br><span class="line">content-type: text/html; charset=UTF-8</span><br><span class="line">cache-control: no-cache, no-store, must-revalidate</span><br><span class="line">pragma: no-cache</span><br></pre></td></tr></tbody></table></figure>
+<p>크롬 브라우저를 사용한다면 <a href="https://chrome.google.com/webstore/detail/http2-and-spdy-indicator/mpbpobfflnpcgagjijhmgnchggcjblin?utm_source=chrome-ntp-icon" target="_blank" rel="external nofollow noopener noreferrer">HTTP/2 and SPDY indicator 크롬익스텐션</a>을 설치하는 방법도 있다.</p>
+<center><br>  <img src="/2019/06/13/http2-with-aws/http2-plugin.png" width="200" title="HTTP/2 and SPDY indicator"><br>  <br><br></center>
+
+<p>이런 귀여운 아이콘이 <code>HTTP/2</code>나 <code>SPDY</code> 프로토콜 사용 여부를 알려줄 것이다. 근데 SPDY는 아직까지 구글말고는 쓰는 곳을 본 적이 없는듯…?</p>
+<p>또는 크롬 브라우저의 개발자 도구 <code>Network</code> 탭에서 테이블 헤드에 마우스 우클릭을 하면 <code>Protocol</code> 컬럼을 활성화 시킬 수도 있다.</p>
+<center><br>  <img src="/2019/06/13/http2-with-aws/network.png" width="300" title="네트워크 탭의 Protocol 컬럼 활성화"><br>  <br><br></center>
+
+<p>그러면 네트워크 탭에서 HTTP/2 프로토콜로 통신하여 받아온 리소스는 <code>h2</code>라고 표시가 된다.</p>
+<center><br>  <img src="/2019/06/13/http2-with-aws/http2-check.png" width="300" title="네트워크 탭의 Protocol 컬럼 모습"><br>  <br><br></center>
+
+<h2 id="Waterfall로-비교해보자"><a href="#Waterfall로-비교해보자" class="headerlink" title="Waterfall로 비교해보자"></a>Waterfall로 비교해보자</h2><p>왼쪽이 <code>HTTP/1.1</code>, 오른쪽이 <code>HTTP/2</code>이다. HTTP/2 쪽의 붉은 라인은 이미지 요청 에러인데, 스테이징 환경에서 리소스 출처 문제로 인해 발생하는 403에러이기 때문에 무시해도된다.</p>
+<center><br><img src="/2019/06/13/http2-with-aws/result-http1.png" class="inline" width="200"><img src="/2019/06/13/http2-with-aws/result-http2.png" class="inline" width="200"><br><style>.inline { display: inline !important; vertical-align: top; }</style><br></center>
+
+<p>HTTP/2 쪽의 Waterfall은 상당히 많은 수의 요청이 동시에 처리되고 있는 것을 확인할 수 있다. HTTP/2의 이런 특징을 이용하면 기존에 하나로 번들링하고 있던 JavaScript 파일을 여러 개로 Chunking하여 파일 용량을 줄이거나, 기존에 스프라이트로 사용하던 이미지도 개별 요청을 통해 동시에 받아옴으로써 로딩 속도를 조금 더 단축시킬 수도 있다.</p>
+<p>이상으로 AWS와 함께 간단하게 HTTP/2 적용하기 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2018/09/25/universal-ssr/" title="Universal Server Side Rendering이란?" rel="bookmark">Universal Server Side Rendering이란?</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2018/09/25/vue-ssr/" title="Vue Server Side Rendering" rel="bookmark">Vue Server Side Rendering</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2020/03/15/about-http-status-code/" title="서버의 상태를 알려주는 HTTP 상태 코드" rel="bookmark">서버의 상태를 알려주는 HTTP 상태 코드</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/06/22/my-home-to-google/" title="우리 집에서 구글까지 가는 길" rel="bookmark">우리 집에서 구글까지 가는 길</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/aamazon-web-service/">Aamazon Web Service</a><a class="tag -link" href="/tags/http/">HTTP</a><a class="tag -link" href="/tags/http-2/">HTTP/2</a><a class="tag -link" href="/tags/network/">Network</a><a class="tag -link" href="/tags/web/">Web</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2019/06/15/diving-into-js-array/">
+                <i class="fas fa-chevron-left"></i> JavaScript 배열(Array)의 발전과 성능에 대해서 자세히 알아보기
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2019/06/06/what-is-good-programmer/">
+                좋은 프로그래머란 무엇일까? <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#HTTP-2란" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>HTTP/2란?</span>
+        </a></li><li>
+        <a class="is-flex" href="#AWS-Cloud-Front에서-HTTP-2-사용하기" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>AWS Cloud Front에서 HTTP/2 사용하기</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#CloudFront-Distributions-변경하기" data-link-name="toc">
+        <span class="has-mr-6">2.1</span>
+        <span>CloudFront Distributions 변경하기</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#Elastic-Beanstalk에서-HTTP-2-사용하기" data-link-name="toc">
+        <span class="has-mr-6">3</span>
+        <span>Elastic Beanstalk에서 HTTP/2 사용하기</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#Application-Load-Balancer란" data-link-name="toc">
+        <span class="has-mr-6">3.1</span>
+        <span>Application Load Balancer란?</span>
+        </a></li><li>
+        <a class="is-flex" href="#설정하기" data-link-name="toc">
+        <span class="has-mr-6">3.2</span>
+        <span>설정하기</span>
+        </a></li><li>
+        <a class="is-flex" href="#서버에-별도-설정을-안했는데" data-link-name="toc">
+        <span class="has-mr-6">3.3</span>
+        <span>서버에 별도 설정을 안했는데?</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#HTTP-2-잘-적용-됐니" data-link-name="toc">
+        <span class="has-mr-6">4</span>
+        <span>HTTP/2, 잘 적용 됐니?</span>
+        </a></li><li>
+        <a class="is-flex" href="#Waterfall로-비교해보자" data-link-name="toc">
+        <span class="has-mr-6">5</span>
+        <span>Waterfall로 비교해보자</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">47</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">9</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="AWS와 함께 간단하게 HTTP/2 적용하기" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

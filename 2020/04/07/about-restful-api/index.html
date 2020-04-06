@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>프론트엔드와 백엔드가 소통하는 엔드포인트, RESTful API - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="이번 포스팅에서는 프론트엔드 개발자와 백엔드 개발자가 만나는 지점인 API에 대한 이야기를 해보려고한다. 일반적으로 앱이나 웹 상에서 작동하는 어플리케이션을 개발할 때는 주로 HTTP나 HTTPS 프로토콜을 사용하여 API를 만들게 되는데, 이 API의 정의가 얼마나 직관적이고 명확하냐에 따라 프로젝트의 복잡도가 크게 낮아지게 될 만큼 시스템 설계에 있어서">
+<meta name="keywords" content="네트워크,REST,RESTful API,HTTP 메소드,REST API">
+<meta property="og:type" content="article">
+<meta property="og:title" content="프론트엔드와 백엔드가 소통하는 엔드포인트, RESTful API">
+<meta property="og:url" content="https://evan-moon.github.io/2020/04/07/about-restful-api/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="이번 포스팅에서는 프론트엔드 개발자와 백엔드 개발자가 만나는 지점인 API에 대한 이야기를 해보려고한다. 일반적으로 앱이나 웹 상에서 작동하는 어플리케이션을 개발할 때는 주로 HTTP나 HTTPS 프로토콜을 사용하여 API를 만들게 되는데, 이 API의 정의가 얼마나 직관적이고 명확하냐에 따라 프로젝트의 복잡도가 크게 낮아지게 될 만큼 시스템 설계에 있어서">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2020/04/07/about-restful-api/thumbnail.png">
+<meta property="og:updated_time" content="2020-04-06T18:24:22.448Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="프론트엔드와 백엔드가 소통하는 엔드포인트, RESTful API">
+<meta name="twitter:description" content="이번 포스팅에서는 프론트엔드 개발자와 백엔드 개발자가 만나는 지점인 API에 대한 이야기를 해보려고한다. 일반적으로 앱이나 웹 상에서 작동하는 어플리케이션을 개발할 때는 주로 HTTP나 HTTPS 프로토콜을 사용하여 API를 만들게 되는데, 이 API의 정의가 얼마나 직관적이고 명확하냐에 따라 프로젝트의 복잡도가 크게 낮아지게 될 만큼 시스템 설계에 있어서">
+<meta name="twitter:image" content="https://evan-moon.github.io/2020/04/07/about-restful-api/thumbnail.png">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2020/04/07/about-restful-api/">
+
+
+<link rel="alternative" href="/feed.xml" title="프론트엔드와 백엔드가 소통하는 엔드포인트, RESTful API" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="프론트엔드와 백엔드가 소통하는 엔드포인트, RESTful API" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2020/04/07/about-restful-api/thumbnail.png" alt="프론트엔드와 백엔드가 소통하는 엔드포인트, RESTful API">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2020-04-06T17:56:16.000Z">2020-04-07</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/programming/">Programming</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/programming/network/">Network</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                프론트엔드와 백엔드가 소통하는 엔드포인트, RESTful API
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>이번 포스팅에서는 프론트엔드 개발자와 백엔드 개발자가 만나는 지점인 API에 대한 이야기를 해보려고한다.</p>
+<p>일반적으로 앱이나 웹 상에서 작동하는 어플리케이션을 개발할 때는 주로 HTTP나 HTTPS 프로토콜을 사용하여 API를 만들게 되는데, 이 API의 정의가 얼마나 직관적이고 명확하냐에 따라 프로젝트의 복잡도가 크게 낮아지게 될 만큼 시스템 설계에 있어서 꽤나 중요한 자리를 차지하고 있다.</p>
+<a id="more"></a>
+<p>그래서 우리는 일종의 약속을 통해 이 API가 어떤 동작을 수행하는 API인지를 명확하게 정의해야 하며, 이 API 정의 과정에서 우리가 사용할 수 있는 요소들이 바로 <code>HTTP 메소드</code>와 <code>URI(Uniform Resource Identifiers)</code>이다.</p>
+<figure class="highlight hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET https://evan.com/users/1</span><br></pre></td></tr></tbody></table></figure>
+<p>HTTP API의 엔드포인트는 위와 같이 HTTP 메소드와 URI를 사용하여 이 API가 어떠한 동작을 수행하는 API인지를 표현하게 된다.</p>
+<p>여기서 중요한 포인트는 사용자가 이 표현을 읽고난 뒤 API에게 기대하는 동작과 실제로 서버가 수행하는 동작이 명확하게 일치되어야 한다는 것이다. 우리가 서버에게 “앞으로 한 걸음 가줘!”라고 요청했는데 서버가 응답으로 “ㅇㅋ 뒤로 한 걸음 갔음!”이라고 한다면 꽤나 당황스럽지 않겠는가?</p>
+<center><br>  <img src="/2020/04/07/about-restful-api/doesnt_know.jpg"><br>  <small>사람끼리든 컴퓨터끼리든 표현을 제대로 안하면 못 알아먹는다</small><br>  <br><br></center>
+
+<p>그래서 우리는 <a href="https://ko.wikipedia.org/wiki/REST" rel="external nofollow noopener noreferrer" target="_blank">REST</a>와 같은 가이드라인을 사용한다. REST는 지난 2000년, 로이 필딩(Roy Fielding) 아저씨가 자신의 박사학위 논문에서 소개한 API 아키텍처 가이드라인이며, 무려 20년이 지난 현재까지도 널리 사용되고 있다.</p>
+<p>하지만 지난 번 <a href="/2020/03/15/about-http-status-code/" title="서버의 상태를 알려주는 HTTP 상태 코드">서버의 상태를 알려주는 HTTP 상태 코드</a> 포스팅에서 이야기했듯이, 이건 말 그대로 가이드라인이기 때문에 지키지 않는다고 해서 에러가 발생하거나 하는 게 아니지만, 그렇다고해서 이런 가이드라인을 무시하고 마음대로 개발해도 된다는 것은 아니다. REST라는 용어와 개념은 이미 업계에 널리 퍼져있기 때문에, 많은 개발자들이 HTTP API를 만났을 때 이 API가 당연히 RESTful하게 작성되었을 것이라고 생각하기 때문이다. <small>(사실 상 표준이라고 봐도 무방할 정도의 영향력이다)</small></p>
+<p>그런 이유로 이번 포스팅에서는 이 REST라는 것이 도대체 왜 나오게 된 것인지, 또 REST가 뭘 의미하길래 사람들이 매번 RESTful, RESTful 하는 것인지에 대한 이야기를 나눠보려고 한다.</p>
+<h2 id="REST가-의미하는-것이-무엇인가요"><a href="#REST가-의미하는-것이-무엇인가요" class="headerlink" title="REST가 의미하는 것이 무엇인가요?"></a>REST가 의미하는 것이 무엇인가요?</h2><p>REST는 <strong>RE</strong>presentational <strong>S</strong>tate <strong>T</strong>ransfer의 약자이다. 이 거창해보이는 단어의 핵심은 바로 Representational State, 한국말로 간단히 직역하면 대표적인 상태 정도의 뜻을 가진 단어이며, 이를 조금 더 유연하게 번역해보자면 <code>표현된 상태</code>라고 할 수 있다. 이때 이야기하는 상태라 함은 서버가 가지고 있는 리소스의 상태를 이야기한다.</p>
+<p>즉, REST는 통신을 통해 자원의 표현된 상태를 주고받는 것에 대한 아키텍처 가이드라인이라고 할 수 있다.</p>
+<p>REST에 대한 이야기를 할 때, 많은 분들이 이 표현된 상태(Representational State)에 대한 이해를 어려워하는데, 이는 클라이언트와 서버가 API 통신을 통해 주고 받고 있는 것들이 리소스 그 자체라고 생각하기 때문이다.</p>
+<p>하지만 조금만 생각해보면 우리가 통신을 통해 리소스를 직접 주고받고 있지 않다는 사실을 알 수 있다.</p>
+<h3 id="사실-주고-받는-것은-리소스가-아니다"><a href="#사실-주고-받는-것은-리소스가-아니다" class="headerlink" title="사실 주고 받는 것은 리소스가 아니다."></a>사실 주고 받는 것은 리소스가 아니다.</h3><p>우리가 API를 통해 주고 받는 리소스는 어떤 문서일수도 있고, 이미지 또는 단순한 JSON 데이터일 수도 있다. 하지만 사실 우리는 리소스를 직접 주고 받는 것이 아니다. 한번 간단한 예시를 통해 이 말이 어떤 의미인지 살펴보도록 하자.</p>
+<p>자, 여기 클라이언트가 서버에게 특정 유저의 정보를 받아오는 API 엔드포인트를 통해 요청을 보냈다고 가정해보자.</p>
+<figure class="highlight http hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GET https://iamserver.com/api/users/2</span><br><span class="line"><span class="hljs-attribute">Host</span>: iamserver.com</span><br><span class="line"><span class="hljs-attribute">Accept</span>: application/json</span><br></pre></td></tr></tbody></table></figure>
+<p>클라이언트는 이 API 엔드포인트를 사용하여 서버에게 2번 유저의 자원을 요청했고, 서버가 요청을 성공적으로 처리했다면 클라이언트는 서버로부터 대략 이런 느낌의 응답을 받을 수 있다.</p>
+<figure class="highlight hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">HTTP/1.1 <span class="hljs-number">200</span> OK</span><br><span class="line"><span class="hljs-attribute">Content-Length</span>: 45</span><br><span class="line"><span class="hljs-attribute">Content-Type</span>: application/json</span><br><span class="line"></span><br><span class="line">{</span><br><span class="line">  id: 2,</span><br><span class="line">  name: 'Evan',</span><br><span class="line">  org: 'Viva Republica',</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>자, 서버가 보내준 응답의 바디에는 2번 유저의 데이터가 담겨있다. 일반적으로 우리는 이 상황을 <code>/api/users/2</code>라는 엔드포인트를 통해서 2번 유저 데이터 리소스를 받아왔다고 표현하고는 한다. 사실 필자도 편의상 이런 표현을 자주 사용하고는 한다.</p>
+<p>그런데…정말로 지금 서버가 보내준 저 JSON 데이터가 리소스 자체일까?</p>
+<center><br>  <img src="/2020/04/07/about-restful-api/no.jpg" width="500"><br>  <small>땡. 저건 2번 유저의 리소스가 아니다!</small><br>  <br><br></center>
+
+<p>사실 서버에서 보내준 저 JSON은 리소스 원본이 아니라 데이터베이스에 저장된 2번 유저의 데이터 리소스를 표현한 것에 불과하다. 서버는 클라이언트의 요청을 받고 2번 유저의 정보를 데이터베이스에서 조회한 후 요청의 헤더에 담겨있던 <code>application/json</code>이라는 방식으로 표현하여 응답에 담아준 것이다.</p>
+<p>곰곰히 생각해보면 당연한 이야기인 것이, 서버가 접근하는 진짜 리소스 원본은 그저 데이터베이스에 담겨있는 하나의 로우이거나 파일에 작성된 데이터일 것이다. 물론 서버의 로컬 시스템에 리소스를 JSON 파일로 저장하고 있을 수도 있지만 어쨌든 포인트는 서버가 보내준 저 JSON이 원본 리소스가 아니라는 것이다.</p>
+<p>서버가 보내준 JSON은 단지 데이터베이스에 저장되어있는 원본 데이터 리소스의 현재 상태를 표현한 것이다.</p>
+<h3 id="리소스를-표현한-상태라는-것의-의미"><a href="#리소스를-표현한-상태라는-것의-의미" class="headerlink" title="리소스를 표현한 상태라는 것의 의미"></a>리소스를 표현한 상태라는 것의 의미</h3><p>앞서 이야기했듯이 REST가 이야기하는 Representation State라는 단어는 원본 리소스를 표현한 상태라는 것을 의미한다. 원본 리소스는 데이터베이스에 저장된 하나의 로우로써 존재하지만 클라이언트에게 이걸 그대로 넘겨줄 수는 없으니 서버가 원본 리소스를 읽어와서 적당한 상태로 표현해주는 것이다.</p>
+<p>그리고 이 적당한 상태에 대한 힌트는 HTTP 요청 헤더나 응답 헤더에 전부 나와있다.</p>
+<figure class="highlight http hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">GET https://iamserver.com/api/users/2</span><br><span class="line"><span class="hljs-attribute">Host</span>: iamserver.com</span><br><span class="line"><span class="hljs-attribute">Accept</span>: application/json</span><br></pre></td></tr></tbody></table></figure>
+<p>위에서 예시로 들었던 상황에서 클라이언트는 서버에게 2번 유저의 리소스를 요청하며 요청 헤더의 <code>Accept</code>라는 키에 <code>application/json</code>이라는 값을 담아서 보냈다. 클라이언트가 서버에게 “2번 유저의 상태를 json으로 표현해줘”라는 요청을 보낸 것이다. 만약 클라이언트가 <code>application/json</code>이 아닌 <code>application/xml</code>을 담아보냈고, 서버가 XML 포맷의 표현을 지원하도록 작성되어있다면 2번 유저의 리소스는 XML 형태로 표현되어 내려왔을 것이다.</p>
+<p>그리고 서버는 응답 헤더에 <code>Content-Type</code>이나 <code>Content-Language</code>와 같은 키를 사용하여 이 리소스가 어떤 방식으로 표현된 상태인지 클라이언트에게 알려주고, 클라이언트 또한 이 정보를 읽은 후 각 컨텐츠 타입에 맞게 정보를 파싱한다.</p>
+<p>즉, 클라이언트는 2번 유저의 리소스를 받은 것이 아니다. JSON으로 표현된 2번 유저 리소스의 현재 상태를 받은 것이다. 이처럼 REST는 클라이언트와 서버가 리소스의 타입이나 원하는 언어 등을 사용하여 자원을 자유롭고 명확하게 표현할 수 있는 것에 집중한다.</p>
+<h2 id="RESTful-API"><a href="#RESTful-API" class="headerlink" title="RESTful API"></a>RESTful API</h2><p>앞서 이야기했듯이, REST는 결국 리소스를 어떻게 하면 명확하게 표현할 수 있을지에 대한 것에 집중하는 아키텍처 스타일이다. 하지만 우리가 HTTP API를 사용할 때는 단순히 리소스의 표현 상태만으로는 클라이언트가 API를 호출했을 때 서버에서 정확히 어떤 일이 발생하는지 알기가 어렵다.</p>
+<p>REST는 단지 리소스가 표현된 상태만을 이야기할 뿐, 어떠한 “행위”에 대해서는 이야기하고 있지 않기 때문이다. 하지만 클라이언트가 서버의 API를 사용할 때 원하는 것은 소스를 생성하거나 삭제하거나 수정하는 등 명백히 어떠한 행위이다.</p>
+<p>그래서 RESTful API에서는 REST 아키텍처를 통해 표현된 리소스와 더불어 어떠한 행위를 명시할 수 있는 HTTP 메소드와 URI까지 활용하게 되며, 각 요소들이 표현하고 있는 것들은 다음과 같다.</p>
+<hr>
+<ol>
+<li>리소스가 어떻게 표현되는지? - <strong>REST</strong></li>
+<li>어떤 리소스인지? - <strong>URI</strong></li>
+<li>어떤 행위인지? - <strong>HTTP 메소드</strong></li>
+</ol>
+<hr>
+<p>즉, 이 요소들을 사용하여 명확하게 정의된 API를 사용하는 클라이언트는 굳이 API에 대한 구구절절한 설명이 없이 <code>GET /users/2</code>와 같은 엔드포인트만 보고도 “음, 2번 유저의 정보를 가져오는 API겠군”이라고 추측할 수 있게 되는 것이다.</p>
+<p>이 3가지 요소 중 리소스를 표현하는 방법인 REST에 대해서는 앞서 이미 이야기했으니, 이번 섹션에서는 어떤 리소스인지를 표현하는 URI와 어떤 행위인지를 표현하는 HTTP 메소드에 대해 알아보도록 하자.</p>
+<h3 id="URI를-사용하여-어떤-리소스인지-표현하자"><a href="#URI를-사용하여-어떤-리소스인지-표현하자" class="headerlink" title="URI를 사용하여 어떤 리소스인지 표현하자"></a>URI를 사용하여 어떤 리소스인지 표현하자</h3><p>RESTful API의 URI는 이 API가 어떤 리소스에 대한 API인지를 나타내는 요소이다. 예를 들어, 서비스를 사용하는 유저의 목록을 가져오는 API가 있다고 생각해보자. 이 API를 사용하는 클라이언트가 접근하고자 하는 리소스는 <code>유저</code>가 될 것이고, 이 API의 URI는 명확하게 유저를 표현하고 있어야한다.</p>
+<figure class="highlight hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /users</span><br></pre></td></tr></tbody></table></figure>
+<p>솔직히 이 정도 URI면 지나가던 중학생이 봐도 뭔가 유저와 관련이 있다는 것을 알 수 있을 정도로 명확하다. 그런데 유저라는 리소스를 왜 <code>user</code>라고 표현하지 않고 굳이 <code>users</code>라는 복수형으로 표현하고 있는 것일까?</p>
+<p>그 이유는 유저라는 리소스가 특정한 하나의 객체가 아니기 때문이다. 이건 영어로 “나는 고양이를 좋아해!”라는 문장을 이야기할 때 “I love <strong>a cat</strong>“가 아닌 “I love <strong>cats</strong>“라고 하는 것과 같은 맥락이다.</p>
+<p>나는 어떤 특정한 고양이를 좋아하는 것이 아니라 고양이라는 생물 자체를 좋아하는 것이고, 이때 고양이라는 단어는 우리 아파트 앞에서 쓰레기통 뒤지고 있는 점박이 고양이, 이름 모를 사람이 인스타그램에 이쁘다고 자랑하는 지네 집 고양이, 길 가다가 우연히 마주치는 고양이까지 모두 포함되는 다소 추상적인 리소스를 의미하는 것이기 때문이다.</p>
+<p>자, 그럼 유저들이라는 추상적인 리소스에서 한 단계 더 구체화 시켜보도록 하자. 유저라는 추상적인 리소스를 조금 더 구체화한 다음 레벨의 리소스는 <code>특정 유저</code>이다.</p>
+<h4 id="리소스의-계층을-표현하기"><a href="#리소스의-계층을-표현하기" class="headerlink" title="리소스의 계층을 표현하기"></a>리소스의 계층을 표현하기</h4><p>일반적으로 유저들은 각각 고유한 ID를 가지고 있는 경우가 많으니, 이 ID를 사용하면 특정한 유저를 대충 이런 URI로 표현할 수 있을 것 같다.</p>
+<figure class="highlight hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">GET /users/2</span><br></pre></td></tr></tbody></table></figure>
+<p>굳이 설명하지 않더라도 다들 눈치채셨겠지만, 이 URI는 유저들을 의미하던 <code>/users</code>라는 URI 뒤 쪽에 각 유저들이 고유하게 가지고 있는 ID를 추가하여 특정한 유저를 식별할 수 있도록 만든 것이다.</p>
+<p>또한 이 URI가 표현하고 있는 리소스인 <code>2번 유저</code>는 <code>유저</code>라는 리소스의 하위 집합이라고 할 수 있고, RESTful API는 이러한 리소스 간의 계층 구조를 <code>/</code>를 사용하여 표현할 것을 권장하고 있다.</p>
+<center><br>  <img src="/2020/04/07/about-restful-api/resource_layer.png" width="400"><br>  <small><code>유저</code> > <code>특정 유저</code> > <code>특정 유저의 프로필 사진</code>으로 이어지는 계층 구조<small><br>  <br><br></small></small></center>
+
+<p>이러한 리소스 간의 계층 구조는 어플리케이션에서 사용하는 리소소들의 관계를 어떻게 설정할 것이냐에 대한 문제이기 때문에 API를 설계할 때 굉장히 중요하고 예민한 요소인데다가, 대부분의 설계 패턴이 그러하듯이 이건 정답이 정해져있는 것도 아니기 때문에 고민을 깊게 할 수 밖에 없는 문제다.</p>
+<p>정답이 정해져있지 않다는 것은 프로필 사진이라는 리소스를 <code>/users/2/profile-image</code>라는 계층 구조가 아니라 <code>/profile-images/users/2</code>와 같은 계층으로 설계해도 논리 상으로는 아무런 문제가 없다는 것을 의미한다. 여기에는 단지 프로필 사진이라는 리소스가 어떤 의미를 가질 것이냐의 차이만 있을 뿐이다.</p>
+<hr>
+<center><br><code>/users/2/profile-image</code><br><small>유저들 중 2번 유저의 프로필 사진</small><br></center>
+
+<center><br><code>/profile-images/users/2</code><br><small>프로필 사진들 중 유저들의 프로필 사진 중 2번 유저의 프로필 사진</small><br></center>
+
+<hr>
+<p>이처럼 같은 프로필 사진이지만 리소스의 계층을 어떻게 설계하냐에 따라 의미가 완전히 달라지게 된다. 이 케이스의 경우 유저 외에 프로필 사진을 가질 수 있는 다른 리소스가 존재하지 않는다면 <code>/users/2/profile-image</code>가 적당하지만 유저 외에도 다양한 리소스가 프로필 사진을 가져야 하는 상황이라면 <code>profile-images/users/2</code>라는 계층 구조도 고민해볼 수 있을 것이다.</p>
+<p>결국 우리가 고민해야 할 문제는 특정 유저의 프로필 사진이라는 리소스를 포함하는 상위 계층 리소스가 “유저가 더 명확하냐”, “프로필 사진이 더 명확하냐”인 것이다.</p>
+<p>물론 앞서 이야기했듯이 정답은 없으니, 항상 빠르게 변화하는 비즈니스 상황에 유연하게 대처할 수 있도록 팀원들과 협의해보고 URI를 설계하도록 하자.</p>
+<h4 id="URI에는-행위가-표현되면-안된다"><a href="#URI에는-행위가-표현되면-안된다" class="headerlink" title="URI에는 행위가 표현되면 안된다"></a>URI에는 행위가 표현되면 안된다</h4><p>RESTful API의 URI를 설계할 때 또 한 가지 중요한 것은 URI에 어떠한 행위를 의미하는 표현이 포함되어서는 안된다는 것이다. 예를 들어 유저를 삭제하는 엔드포인트가 하나 있다고 생각해보자. 이때 HTTP 메소드에 익숙하지 않다면, 대략 이런 느낌의 엔드포인트를 설계할 수도 있다.</p>
+<figure class="highlight hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">POST /users/2/delete</span><br></pre></td></tr></tbody></table></figure>
+<p>이 엔드포인트의 URI에는 삭제 행위를 의미하는 <code>delete</code>라는 표현이 포함되어 있다. 뭐 사실 이대로도 이 API가 어떤 역할을 수행하는 API인지 인지하기에는 큰 무리가 없지만, RESTful API는 URI를 사용하여 행위를 표현하지 않을 것을 권고한다. URI가 가지는 의미는 철저히 어떤 리소스인지, 그리고 리소스의 계층 구조에 대한 것 뿐이어야한다.</p>
+<p>API가 수행하는 행위는 되도록이면 올바른 HTTP 메소드를 사용하여 표현해주는 것이 좋다. 그리고 단순히 이건 RESTful API가 이런 설계를 권고하기 때문인 것도 있지만, RESTful API의 가이드라인을 지키지 않도록 개발된 여러분의 어플리케이션이 이미 RESTful API의 가이드라인을 지키며 개발된 다른 어플리케이션들과 통신할 때 어떤 부작용이 발생할지 모르기 때문이기도 하다. <small>(당장 웹 브라우저만 해도 HTTP 메소드와 상태 코드에 상당히 종속되어 설계되어 있다)</small></p>
+<p>그리하여 올바르게 작성된 엔드포인트는 삭제를 의미하는 HTTP 메소드인 <code>DELETE</code>를 사용한 요런 엔드포인트가 될 것이다.</p>
+<figure class="highlight hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">DELETE /users/2</span><br></pre></td></tr></tbody></table></figure>
+<p>자, 지금까지 URI를 사용하여 리소스를 표현하는 방법에 대해 살펴보았으니, 이제는 API의 행위를 표현하는 방법에 대해서 알아볼 차례이다.</p>
+<h3 id="HTTP-메소드를-사용하여-어떤-행위인지-표현하자"><a href="#HTTP-메소드를-사용하여-어떤-행위인지-표현하자" class="headerlink" title="HTTP 메소드를 사용하여 어떤 행위인지 표현하자"></a>HTTP 메소드를 사용하여 어떤 행위인지 표현하자</h3><p>RESTful API는 HTTP 메소드를 사용하여 API가 수행하는 행위를 표현하도록 권고하고있다. HTTP 메소드는 나름 <a href="https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html" rel="external nofollow noopener noreferrer" target="_blank">RFC-2616</a>에서 정의된 표준이기 때문에 상황에 맞지 않는 메소드를 사용하게 되면 어플리케이션이 예상하지 못한 동작을 일으킬 수 있다는 사실을 기억하도록 하자.</p>
+<p>사실 API를 사용하여 하게되는 행위는 대부분 <code>CRUD(Create, Read, Update, Delete)</code> 이기 때문에, 몇 가지 특수한 경우를 제외하면 단 5가지의 HTTP 메소드만으로도 대부분의 API를 정의할 수 있다.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td>리소스를 조회한다</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td>리소스를 대체한다</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td>리소스를 삭제한다</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>리소스를 생성한다</td>
+</tr>
+<tr>
+<td>PATCH</td>
+<td>리소스의 일부를 수정한다</td>
+</tr>
+</tbody>
+</table>
+<p>이 외에도 <code>HEAD</code>, <code>OPTION</code>, <code>TRACE</code> 등의 메소드도 존재하기는 하지만, 사실 이 5가지의 메소드가 가지는 역할만 확실히 알고 있어도 HTTP 메소드를 사용하여 올바른 행위를 표현하거나 RESTful API를 설계하기에는 전혀 무리가 없다.</p>
+<p>여기서 한 가지 헷갈릴만한 것은 바로 <code>PUT</code>과 <code>PATCH</code> 메소드인데, 이 메소드들은 동일하게 “리소스를 수정한다”라는 의미로 해석되는 경우가 많기 때문에 정확히 어떤 경우에 <code>PUT</code>을 사용하고 어떤 경우에 <code>PATCH</code>를 사용해야 하는지 구분하기 어려운 경우가 많다.</p>
+<h4 id="PUT과-PATCH의-차이는-무엇인가요"><a href="#PUT과-PATCH의-차이는-무엇인가요" class="headerlink" title="PUT과 PATCH의 차이는 무엇인가요?"></a>PUT과 PATCH의 차이는 무엇인가요?</h4><p>흔히들 <code>PUT</code> 메소드를 리소스를 수정한다는 개념으로 설명하고는 하지만, 실제 <code>PUT</code> 메소드가 의미하는 것은 리소스를 수정하는 것이 아니라 리소스를 요청 바디에 담긴 것으로 대체하는 것이다.</p>
+<p>한번 <code>{ id: 1, name: 'evan' }</code>이라는 유저 리소스의 이름을 <code>ethan</code>으로 수정해야하는 상황을 생각해보자. 만약 우리가 <code>PUT</code> 메소드를 사용하여 이 리소스를 수정한다면 우리는 반드시 요청 바디에 유저 리소스 전체를 표현하여 보내야한다.</p>
+<p>즉, 수정할 사항만 보내는 것이 아니라 수정하지 않을 사항까지도 모두 보내야한다는 것이다.</p>
+<figure class="highlight hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PUT /users/1</span><br><span class="line">{ id: 1, name: 'ethan' }</span><br></pre></td></tr></tbody></table></figure>
+<center><br>  <img src="/2020/04/07/about-restful-api/put_method.png"><br>  <small>PUT 메소드는 리소스를 수정하는 것이 아니라 대체하는 것이다</small><br>  <br><br></center>
+
+<p>이렇게 리소스를 대체한다는 <code>PUT</code> 메소드의 특성 상, 실수로 <code>{ id: null, name: 'ethan' }</code>과 같은 리소스를 전송해버리기라도 하면 이 유저는 영영 ID를 잃어버린 비운의 유저가 되어버리는 경우도 발생할 수 있다. <small>(사실 이 정도 예외처리는 다들 기본적으로 해놓긴 한다.)</small></p>
+<p>하지만 그냥 리소스를 받아서 대체하면 된다는 동작 자체가 워낙 심플하기 때문에 리소스를 수정하는 쪽이든 받아서 처리하는 쪽이든 이것저것 신경써줘야 할 일이 별로 없어서 편하기는 하다.</p>
+<p>반면 우리가 <code>PATCH</code> 메소드를 사용하여 방금과 동일한 행위를 하려고 하면 어떨까?</p>
+<figure class="highlight hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PATCH /users/1</span><br><span class="line">{ name: 'ethan' }</span><br></pre></td></tr></tbody></table></figure>
+<center><br>  <img src="/2020/04/07/about-restful-api/patch_method.png" width="500"><br>  <small>PATCH 메소드는 리소스의 일부분을 수정하는 것이다</small><br>  <br><br></center>
+
+<p><code>PUT</code> 메소드와 다르게 <code>PATCH</code> 메소드는 진짜로 현재 저장되어 있는 리소스에 수정을 가하는 행위를 의미하기 때문에 굳이 수정하지 않은 사항을 요청 바디에 담아줄 필요도 없다.</p>
+<p><code>PATCH</code>메소드는 <code>PUT</code>처럼 수정하지 않을 사항까지 보낼 필요가 없고 진짜 수정하고 싶은 사항만 깔끔하게 보내면 되기 때문에, 쓸데없이 큰 요청 바디를 만들지 않을 수 있다.</p>
+<p>또한 실제로 이러한 수정 동작을 수행하는 API를 사용할 때는 SQL의 <code>UPDATE</code>와 동일한 의미를 떠올리는 경우가 많기 때문에, 리소스를 대체하는 <code>PUT</code> 메소드보다 리소스의 일부를 수정하는 <code>PATCH</code> 메소드가 수정이라는 의미를 가지기에도 더 적합하다고 할 수 있다.</p>
+<p>아직까지는 리소스를 수정하는 행위를 표현할 때 <code>PUT</code> 메소드를 주로 사용하는 경우가 많기는 하지만, <code>PUT</code> 메소드와 <code>PATCH</code> 메소드의 의미적인 차이는 분명히 존재하므로 API의 엔드포인트를 설계할 때 <code>리소스를 대체</code>, <code>리소스를 수정</code> 중 원하는 행위와 일치하는 메소드를 사용하는 것을 권장한다.</p>
+<p>그러나 <code>PUT</code> 메소드와 <code>PATCH</code> 메소드의 진짜 중요한 차이점은 이런 행위의 의미가 아니라, <code>PUT</code> 메소드는 반드시 멱등성을 보장하지만 <code>PATCH</code> 메소드는 멱등성을 보장하지 않을 수도 있다는 것이다.</p>
+<h4 id="메소드가-멱등성을-보장하는가"><a href="#메소드가-멱등성을-보장하는가" class="headerlink" title="메소드가 멱등성을 보장하는가?"></a>메소드가 멱등성을 보장하는가?</h4><p><code>멱등성</code>이란, 수학이나 전산학에서 어떤 대상에 같은 연산을 여러 번 적용해도 결과가 달라지지 않는 성질을 이야기한다. 즉, 단순히 HTTP 메소드에만 국한된 이야기는 아니고 이는 데이터베이스나 파일에 자원을 읽고 쓰는 등 컴퓨터가 수행하는 모든 연산에 해당되는 이야기이다.</p>
+<p>가장 대표적으로 멱등성이 보장되는 연산은 바로 어떠한 수에 1을 곱하는 연산이다. <code>x => x * 1</code>과 같은 함수는 어떠한 값에 1번을 적용하든, 10,000번을 적용하든 항상 <code>x</code>를 반환한다.</p>
+<p>그러나 1을 곱하는 것이 아니라 1을 더하거나 빼는 함수라면 한번 호출될 때마다 인자로 주어진 값을 계속 증가시키거나 감소시킬 것이므로 항상 같은 값을 반환하지 않는다. 이러한 성질의 연산이 바로 멱등성을 보장하지 않는 연산의 대표적인 예이다.</p>
+<p>HTTP 메소드 또한 결국 어떠한 자원을 읽고 쓰고 수정하고 지우는 CRUD에 대한 의미를 가지기 때문에, 우리는 어떤 행위가 멱등성을 보장하고 어떤 행위가 멱등성을 보장하는지 알고 있어야 어플리케이션이 예상하지 못한 방향으로 동작하는 것을 방지할 수 있다.</p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>멱등성 보장</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GET</td>
+<td>O</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td>O</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td>O</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>X</td>
+</tr>
+<tr>
+<td>PATCH</td>
+<td>X</td>
+</tr>
+</tbody>
+</table>
+<p>일단 깊게 생각하지말고 위 테이블을 한번 보자. <code>GET</code> 메소드는 단지 리소스를 읽어 오는 행위를 의미하기에 아무리 여러 번 수행해도 결과가 변경되거나 하지는 않을 것이다. 마찬가지로 요청에 담긴 리소스로 기존 리소스를 그대로 대체해버리는 <code>PUT</code> 메소드 또한 여러 번 수행한다한들 요청에 담긴 리소스가 변하지 않는 이상 연산 결과가 동일할 것이다.</p>
+<p>즉, 어떤 리소스를 읽어오거나 대체하는 연산은 멱등성을 보장한다고 이야기할 수 있다. 그렇다면 멱등성이 보장되지 않는 케이스는 어떤 것이 있을까?</p>
+<p><code>POST</code> 메소드의 경우 리소스를 새롭게 생성하는 행위를 의미하기 때문에 여러 번 수행하게 되면 매번 새로운 리소스가 생성될 것이고, 그 말인 즉슨 결국 연산을 수행하는 결과가 매번 달라진다는 것을 의미한다. <code>POST</code> 메소드와 같이 멱등성을 보장하지 않는 동작은 한 번 수행될 때마다 어플리케이션의 상황이 전혀 다르게 변화시킬 수도 있다.</p>
+<p>이러한 HTTP 메소드의 멱등성에 대한 지식은 에러에 대한 정보가 별로 없는 상태에서 디버깅을 진행할 때도 활용될 수 있기 때문에 여러모로 알고 있는 편이 좋다고 생각한다. 똑같이 통신 후에 발생하는 에러라고 해도 <code>GET</code>을 여러 번 수행했을 때 발생하는 에러와 <code>POST</code>를 여러 번 수행했을 때 발생하는 에러는 전혀 다른 컨텍스트를 가지고 있을 수 있다는 것이다.</p>
+<h4 id="PATCH는-왜-멱등성이-보장되지-않는다는걸까"><a href="#PATCH는-왜-멱등성이-보장되지-않는다는걸까" class="headerlink" title="PATCH는 왜 멱등성이 보장되지 않는다는걸까?"></a>PATCH는 왜 멱등성이 보장되지 않는다는걸까?</h4><p>위 테이블에서 <code>PATCH</code> 메소드는 <code>POST</code> 메소드와 동일하게 멱등성이 보장되지 않는 메소드로 표기되어있다. 그러나 사실 정확하게 이야기하면 <code>PATCH</code> 메소드는 구현 방법에 따라서 <code>PUT</code> 메소드처럼 멱등성이 보장될 수도 있고, 혹은 보장되지 않을 수도 있다고 할 수 있다.</p>
+<p><code>PATCH</code> 메소드는 <code>PUT</code> 메소드처럼 리소스를 대체하는 행위가 아니기 때문에 요청을 어떤 방식으로 사용하는지에 대한 제한이 딱히 없기 때문이다. RFC 스펙 상의 <code>PATCH</code> 메소드는 단지 리소스의 일부를 수정한다는 의미만을 가질 뿐이다.</p>
+<p>예를 들어, 앞서 필자가 설명했던 예시처럼 <code>PATCH</code> 메소드에 수정할 리소스의 일부분만 담아서 보내는 경우에는 당연히 멱등성이 보장된다. </p>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// 기존 리소스</span></span><br><span class="line">{</span><br><span class="line">  id: <span class="hljs-number">1</span>,</span><br><span class="line">  name: <span class="hljs-string">'evan'</span>,</span><br><span class="line">  age: <span class="hljs-number">30</span>,</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">PATCH users/1</span><br><span class="line">{ age: 31 }</span><br></pre></td></tr></tbody></table></figure>
+<figure class="highlight js hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="hljs-comment">// 새로운 리소스</span></span><br><span class="line">{</span><br><span class="line">  id: <span class="hljs-number">1</span>,</span><br><span class="line">  name: <span class="hljs-string">'evan'</span>,</span><br><span class="line">  age: <span class="hljs-number">31</span>, <span class="hljs-comment">// 변경!</span></span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>이 <code>PATCH</code> 요청은 명확하게 <code>age</code>라는 필드를 <code>31</code>로 수정하는 행위만을 의미하므로 아무리 여러 번 수행한다고 해도 늘 <code>age</code>는 <code>31</code>이라는 값을 가질 것이기 때문이다. 이건 굉장히 일반적인 <code>PATCH</code> 메소드의 구현 방법이고, 실제로 필자도 <code>PATCH</code> 메소드를 사용해야한다면 이렇게 구현한다.</p>
+<p>근데 왜 <code>PATCH</code> 메소드는 멱등성 보장이 안될 수도 있다는 것일까?</p>
+<center><br>  <img src="/2020/04/07/about-restful-api/hm.jpg" width="500"><br>  <small>어쩌면 이게 <code>PATCH</code>를 구현하는 올바른 방법이 아닐 수도 있을 것이라는 킹리적 갓심이 들기 시작했다</small><br>  <br><br></center>
+
+<p>뭐든지 원조가 중요하니 <code>PATCH</code> 메소드를 처음으로 정의해놓은 <a href="https://tools.ietf.org/html/rfc5789" rel="external nofollow noopener noreferrer" target="_blank">RFC-5789</a> 문서를 한번 까보도록 하자. 보통 RFC 문서에는 정의된 개념에 대한 설명과 간략한 예시도 포함되어 있는 경우가 많으니, <code>PATCH</code> 메소드의 올바른 구현 방법 또한 적혀있을 것 같다.</p>
+<center><br>.<br>.<br>.<br></center>
+
+<center><br>  <img src="/2020/04/07/about-restful-api/patch_example.png" width="300"><br>  <small>…는 그딴 건 없었습니다</small><br>  <br><br></center>
+
+<p>놀랍게도<small><strike>어이없게도</strike></small> <a href="https://tools.ietf.org/html/rfc5789" rel="external nofollow noopener noreferrer" target="_blank">RFC-5789</a> 문서에 있는 예시 요청의 바디에는 단지 <code>description of changes</code>라는 설명만 적혀있을 뿐, 어떤 제약 조건도 적혀있지 않다. 즉, 별다른 제약없이 개발자 마음대로 API의 인터페이스를 정의해도 된다는 의미이기 때문에 이런 느낌으로 API를 구현하는 것도 가능하다는 것이다.</p>
+<figure class="highlight hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">PATCH users/1</span><br><span class="line">{</span><br><span class="line">  $increase: 'age',</span><br><span class="line">  value: 1,</span><br><span class="line">}</span><br></pre></td></tr></tbody></table></figure>
+<p>이 요청의 <code>$increase</code> 필드의 값은 증가시키고 싶은 속성을 의미하고, <code>value</code> 필드의 값은 그 속성을 얼마나 증가시킬 것인지를 나타내고 있다. 이 경우 API가 호출될 때마다 에반의 나이는 1씩 증가<smal><strike>(…😢)</strike>할 것이기 때문에 이 API는 멱등성을 보장하지 않는다.</smal></p>
+<p>물론 필자도 <code>PATCH</code> 메소드를 이렇게 사용하는 경우를 실제로 보지는 못했지만, 앞서 이야기했듯이 <a href="https://tools.ietf.org/html/rfc5789" rel="external nofollow noopener noreferrer" target="_blank">RFC-5789</a>에는 <code>PATCH</code> 메소드를 어떻게 구현해야 하는지에 대한 제약이 존재하지 않으니 이런 방식으로 사용한다고 해서 표준을 어기는 것도 아니다.</p>
+<p>즉, 자세한 스펙 상 구현 방법에 대한 제약이 없으니 API를 어떻게 구현하느냐에 따라서 <code>PATCH</code> 메소드는 멱등성을 보장할 수도 있고 아닐 수도 있는 것이다.</p>
+<h2 id="마치며"><a href="#마치며" class="headerlink" title="마치며"></a>마치며</h2><p>사실 REST는 <code>네트워크 아키텍처</code>를 설계하는 가이드라인이기 때문에 필자가 이야기했던 리소스의 표현 상태는 REST의 일부분에 불과하다. 그러나 애초에 이 포스팅은 RESTful API를 설명하는 것이 목적이었기 때문에 더 자세한 내용을 굳이 이야기하지는 않았다. 혹시 REST에 대해 더 관심이 가시는 분들은 로이 필딩 아저씨의 논문 중 <a href="https://www.ics.uci.edu/~fielding/pubs/dissertation/rest_arch_style.htm" rel="external nofollow noopener noreferrer" target="_blank">REST 챕터</a>을 한번 읽어보는 것을 추천한다.</p>
+<p>RESTful API는 필자가 지금까지 프론트엔드 개발자로 일을 하면서 백엔드 개발자와 가장 많은 논의를 했던 주제였다. 그렇게 논의를 했던 이유는 개발자로써 명확한 API를 정의하고 싶다는 욕심이기도 했고, 어떻게 하면 명확한 API를 정의해서 새로 조직에 합류한 개발자들이 바로 API에 익숙해지게 만들 수 있을지에 대한 욕심이기도 했다. <small>(오늘도 역시 사무실에서 이런 이야기를 나누다 왔다)</small></p>
+<p>필자는 개인적으로 가장 좋은 API는 기능이 많은 API도 아니고 공짜로 사용할 수 있는 API도 아닌, 어떠한 정보도 없는 누군가가 구구절절 다른 설명 없이  엔드포인트만 봐도 어떤 동작을 하는 API인지 바로 이해할 수 있을 정도로 명확한 API가 가장 좋은 API라고 생각한다.</p>
+<p>물론 RESTful API와 같은 아키텍쳐 가이드라인을 학습하고 준수하는 것이 다소 번거로울 수는 있지만, 이런 표준이나 가이드라인이 가지는 의미가 전 세계의 수 많은 개발자들이 소통할 수 있는 획일화된 교통 정리인 만큼 가이드라인을 준수하기 위한 개개인의 작은 노력이 모여서 거대한 웹 아키텍처를 유지할 수 있게 만드는 것은 아닐까.</p>
+<p>이상으로 프론트엔드와 백엔드가 소통하는 엔드포인트, RESTful API 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/06/22/my-home-to-google/" title="우리 집에서 구글까지 가는 길" rel="bookmark">우리 집에서 구글까지 가는 길</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2020/03/15/about-http-status-code/" title="서버의 상태를 알려주는 HTTP 상태 코드" rel="bookmark">서버의 상태를 알려주는 HTTP 상태 코드</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/10/08/what-is-http3/" title="HTTP/3는 왜 UDP를 선택한 것일까?" rel="bookmark">HTTP/3는 왜 UDP를 선택한 것일까?</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/http-메소드/">HTTP 메소드</a><a class="tag -link" href="/tags/rest/">REST</a><a class="tag -link" href="/tags/rest-api/">REST API</a><a class="tag -link" href="/tags/restful-api/">RESTful API</a><a class="tag -link" href="/tags/네트워크/">네트워크</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <!-- <div class="level-item card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2020/03/15/about-http-status-code/">
+                서버의 상태를 알려주는 HTTP 상태 코드 <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#REST가-의미하는-것이-무엇인가요" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>REST가 의미하는 것이 무엇인가요?</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#사실-주고-받는-것은-리소스가-아니다" data-link-name="toc">
+        <span class="has-mr-6">1.1</span>
+        <span>사실 주고 받는 것은 리소스가 아니다.</span>
+        </a></li><li>
+        <a class="is-flex" href="#리소스를-표현한-상태라는-것의-의미" data-link-name="toc">
+        <span class="has-mr-6">1.2</span>
+        <span>리소스를 표현한 상태라는 것의 의미</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#RESTful-API" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>RESTful API</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#URI를-사용하여-어떤-리소스인지-표현하자" data-link-name="toc">
+        <span class="has-mr-6">2.1</span>
+        <span>URI를 사용하여 어떤 리소스인지 표현하자</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#리소스의-계층을-표현하기" data-link-name="toc">
+        <span class="has-mr-6">2.1.1</span>
+        <span>리소스의 계층을 표현하기</span>
+        </a></li><li>
+        <a class="is-flex" href="#URI에는-행위가-표현되면-안된다" data-link-name="toc">
+        <span class="has-mr-6">2.1.2</span>
+        <span>URI에는 행위가 표현되면 안된다</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#HTTP-메소드를-사용하여-어떤-행위인지-표현하자" data-link-name="toc">
+        <span class="has-mr-6">2.2</span>
+        <span>HTTP 메소드를 사용하여 어떤 행위인지 표현하자</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#PUT과-PATCH의-차이는-무엇인가요" data-link-name="toc">
+        <span class="has-mr-6">2.2.1</span>
+        <span>PUT과 PATCH의 차이는 무엇인가요?</span>
+        </a></li><li>
+        <a class="is-flex" href="#메소드가-멱등성을-보장하는가" data-link-name="toc">
+        <span class="has-mr-6">2.2.2</span>
+        <span>메소드가 멱등성을 보장하는가?</span>
+        </a></li><li>
+        <a class="is-flex" href="#PATCH는-왜-멱등성이-보장되지-않는다는걸까" data-link-name="toc">
+        <span class="has-mr-6">2.2.3</span>
+        <span>PATCH는 왜 멱등성이 보장되지 않는다는걸까?</span>
+        </a></li></ul></li></ul></li><li>
+        <a class="is-flex" href="#마치며" data-link-name="toc">
+        <span class="has-mr-6">3</span>
+        <span>마치며</span>
+        </a></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">47</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">9</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="프론트엔드와 백엔드가 소통하는 엔드포인트, RESTful API" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>

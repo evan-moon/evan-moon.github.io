@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="utf-8">
+<title>우리 집에서 구글까지 가는 길 - Evan&#39;s Tech Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+
+
+    <meta name="description" content="이번 포스팅에서는 우리 집에서 구글까지 어떤 과정을 통해 통신을 하는지에 대해서 간략하게 얘기해보려고 한다. 필자가 대학에서 배운 것 중 재밌다고 생각했던 것이 몇 개 있는데, 그 중 대표적인 것이 바로 인터넷에 연결되어 있는 모든 컴퓨터는 실제로 케이블을 통해 연결되어있다라는 사실이었다.">
+<meta name="keywords" content="Network,컴퓨터 공학,네트워크,IP,traceroute">
+<meta property="og:type" content="article">
+<meta property="og:title" content="우리 집에서 구글까지 가는 길">
+<meta property="og:url" content="https://evan-moon.github.io/2019/06/22/my-home-to-google/index.html">
+<meta property="og:site_name" content="Evan&#39;s Tech Blog">
+<meta property="og:description" content="이번 포스팅에서는 우리 집에서 구글까지 어떤 과정을 통해 통신을 하는지에 대해서 간략하게 얘기해보려고 한다. 필자가 대학에서 배운 것 중 재밌다고 생각했던 것이 몇 개 있는데, 그 중 대표적인 것이 바로 인터넷에 연결되어 있는 모든 컴퓨터는 실제로 케이블을 통해 연결되어있다라는 사실이었다.">
+<meta property="og:locale" content="ko">
+<meta property="og:image" content="https://evan-moon.github.io/2019/06/22/my-home-to-google/network-structure.png">
+<meta property="og:updated_time" content="2020-02-28T09:06:22.120Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="우리 집에서 구글까지 가는 길">
+<meta name="twitter:description" content="이번 포스팅에서는 우리 집에서 구글까지 어떤 과정을 통해 통신을 하는지에 대해서 간략하게 얘기해보려고 한다. 필자가 대학에서 배운 것 중 재밌다고 생각했던 것이 몇 개 있는데, 그 중 대표적인 것이 바로 인터넷에 연결되어 있는 모든 컴퓨터는 실제로 케이블을 통해 연결되어있다라는 사실이었다.">
+<meta name="twitter:image" content="https://evan-moon.github.io/2019/06/22/my-home-to-google/network-structure.png">
+
+
+
+
+    <meta name="naver-site-verification" content="48beb5f578053c0c5f127b4198a57270bad360ca">
+
+
+<link rel="canonical" href="https://evan-moon.github.io/2019/06/22/my-home-to-google/">
+
+
+<link rel="alternative" href="/feed.xml" title="우리 집에서 구글까지 가는 길" type="application/xml">
+
+
+
+<link rel="icon" href="/img/favicon.ico">
+
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.7.2/css/bulma.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.4.1/css/all.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,600|Source+Code+Pro">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@9.12.0/styles/atom-one-dark.css">
+
+
+    
+    
+    
+    <style>body>.footer,body>.navbar,body>.section{opacity:0}</style>
+    
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.css">
+
+
+    
+    
+    
+    
+
+<link rel="stylesheet" href="/css/back-to-top.css">
+
+
+    
+    
+<link rel="stylesheet" href="/css/progressbar.css">
+<script src="https://cdn.jsdelivr.net/npm/pace-js@1.0.2/pace.min.js"></script>
+
+    
+    
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<link rel="stylesheet" href="/css/style.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-132075145-1"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-132075145-1');
+</script>
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+<script>
+    (adsbygoogle = window.adsbygoogle || []).push({
+        google_ad_client: 'ca-pub-4372275195526937',
+        enable_page_level_ads: true
+    });
+</script>
+
+</head>
+<body class="is-2-column">
+    <nav class="navbar navbar-main">
+    <div class="container">
+        <div class="navbar-brand is-flex-center">
+            <a class="navbar-item navbar-logo" href="/" data-link-name="navigatorLogo">
+            
+                <img src="/img/logo-text.png" alt="우리 집에서 구글까지 가는 길" height="28">
+            
+            </a>
+        </div>
+        <div class="navbar-menu">
+            
+            <div class="navbar-start">
+                
+                <a data-link-name="navigator" class="navbar-item" href="/">Home</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/archives">Archives</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/categories">Categories</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/tags">Tags</a>
+                
+                <a data-link-name="navigator" class="navbar-item" href="/about">About</a>
+                
+            </div>
+            
+            <div class="navbar-end">
+                
+                    
+                    
+                    <a class="navbar-item" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                    
+                
+                
+                <a class="navbar-item is-hidden-tablet catalogue" title="카탈로그" href="javascript:;">
+                    <i class="fas fa-list-ul"></i>
+                </a>
+                
+                
+                <a class="navbar-item search" title="검색" href="javascript:;">
+                    <i class="fas fa-search"></i>
+                </a>
+                
+            </div>
+        </div>
+    </div>
+</nav>
+    
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column is-8-tablet is-8-desktop is-8-widescreen has-order-2 column-main">
+<!-- 아티클 위 광고 -->
+<ins class="adsbygoogle" style="display:block;" data-ad-client="ca-pub-4372275195526937" data-ad-slot="6101119789" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+<div class="card">
+    
+    <div class="card-image">
+        <span class="image is-7by1">
+            <img class="thumbnail" src="/2019/06/22/my-home-to-google/network-structure.png" alt="우리 집에서 구글까지 가는 길">
+        </span>
+    </div>
+    
+    <div class="card-content article ">
+        
+        <div class="level article-meta is-size-7 is-uppercase is-mobile is-overflow-x-auto">
+            <div class="level-left">
+                <time class="level-item has-text-grey" datetime="2019-06-21T23:32:09.000Z">2019-06-22</time>
+                
+                <div class="level-item">
+                <a class="has-link-grey -link" href="/categories/programming/">Programming</a>&nbsp;/&nbsp;<a class="has-link-grey -link" href="/categories/programming/network/">Network</a>
+                </div>
+                
+                
+                
+            </div>
+        </div>
+        
+        <h1 class="title is-size-3 is-size-4-mobile has-text-weight-bold">
+            
+                우리 집에서 구글까지 가는 길
+            
+        </h1>
+        
+        <hr>
+        
+        <div class="content">
+            <html><head><meta name="generator" content="Hexo 3.9.0"></head><body><p>이번 포스팅에서는 우리 집에서 구글까지 어떤 과정을 통해 통신을 하는지에 대해서 간략하게 얘기해보려고 한다. 필자가 대학에서 배운 것 중 재밌다고 생각했던 것이 몇 개 있는데, 그 중 대표적인 것이 바로 <code>인터넷에 연결되어 있는 모든 컴퓨터는 실제로 케이블을 통해 연결되어있다</code>라는 사실이었다.<br><a id="more"></a></p>
+<p>혹자는 당연하다고 생각할 수 있는 이 사실이 그땐 굉장히 신기했던 것 같다. 매일매일 인터넷을 사용하고 있지만 너무 생활 속에 자연스레 녹아있는 요소이다 보니 그 원리에 대해서는 그다지 신경쓰지 않았기 때문이다.</p>
+<p>그러다가 학교에서 네트워크에 대해 점점 자세히 배우면서 <code>내가 당연하게 사용하고 있는 이 혜택들이 사실은 굉장히 체계적이고 복잡한 시스템이구나</code>라는 사실을 알게 되었다.</p>
+<p>그래서 이번 포스팅에서는 필자의 집에서 구글 서버에 접속하는 과정을 통해 그 시스템에 대해서 간단하게 풀어보려고 한다. 물론 IP 주소를 기반으로 대략적인 추정을 하는 것이기 때문에 정확한 정보는 아니겠지만 대략적으로 이런 과정을 통해 해외에 있는 서버에 접속할 수 있다는 사실을 중심으로 풀어갈 것이다.</p>
+<h2 id="IP-Internet-Protocol"><a href="#IP-Internet-Protocol" class="headerlink" title="IP, Internet Protocol"></a>IP, Internet Protocol</h2><p>먼저 우리 집에서 구글까지의 경로를 알기 위해서 인터넷하면 빠질 수 없는 <code>IP</code>에 대해서 간단하게 알아보자. <code>IP 주소</code>라는 단어는 컴퓨터 관련 전공을 하신 분이 아니더라도 굉장히 익숙한 단어이다. 일반적인 환경에서 우리가 인터넷에 접속할 때 이 <code>IP 주소</code>가 <code>우리 집 주소</code>의 역할을 한다고 생각하면 된다. 마찬가지로 우리 집에서 구글까지 가는 길목에 있는 지점들도 모두 IP 주소를 가지고 있고, 우리는 그 IP 주소를 기반으로 이 지점이 어디인지 대략적으로 추측해볼 수 있다.</p>
+<p><code>IP</code>에 관해서 굉장히 기본적인 내용을 설명할 예정이므로 이미 다 아시는 분은 그냥 건너뛰셔도 무방하다.</p>
+<h3 id="IPv4의-구조"><a href="#IPv4의-구조" class="headerlink" title="IPv4의 구조"></a>IPv4의 구조</h3><p>일반적으로 우리가 접할 수 있는 <code>192.168.0.1</code>과 같은 형태는 <code>IPv4</code>이다. IPv4는 <code>8비트</code>로 구성된 4개의 필드로 구성되고 이 하나하나의 필드를 <code>옥탯(Octet)</code>이라고 부른다<small>(참고로 Oct으로 시작하는 용어는 8을 뜻하는 게 많다)</small>. 예를 들어 <code>192.168.0.1</code>은 이진법으로 전환하면 다음과 같이 나타낼 수 있다.</p>
+<figure class="highlight plain hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">10진법: 192.168.0.1</span><br><span class="line">2진법: 11000000.10101000.00000000.00000001</span><br></pre></td></tr></tbody></table></figure>
+<p>한 옥탯에 8비트밖에 가지지 못하기 때문에 옥탯은 <code>00000000 ~ 11111111</code>, 즉 십진법으로는 <code>0~255</code>의 수를 가지게 되는 것이다. 그렇기 때문에 IPv4로 생성할 수 있는 주소의 개수는 $2^{32} = 4,294,967,296$로 약 43억개이다.<br>43억개라니… 꽤 큰 숫자 같아 보인다. 처음에 이 주소 체계를 만들 때만 해도 이런 생각을 했던 것 같다.</p>
+<blockquote>
+<p><em>에이 43억개나 있는데 어느 정도는 버티겠지?</em></p>
+</blockquote>
+<center><br>.<br>.<br>.<br><br><br></center>
+
+<center><br>  <img src="/2019/06/22/my-home-to-google/unexpected-result.jpg" width="450"><br>  <br><br></center>
+
+<p>생각보다 전세계의 인터넷 사용자가 빠르게 늘면서 결국 <code>2011년 2월 4일</code>부로 모든 주소가 소진되어 현재는 IPv4의 할당이 중지되었다. 다행히 그 동안 손놓고 있지는 않았고, 전세계의 똑똑한 분들이 이미 대책을 다 세워두었으니 너무 걱정하진 말자.</p>
+<h3 id="IPv4의-클래스"><a href="#IPv4의-클래스" class="headerlink" title="IPv4의 클래스"></a>IPv4의 클래스</h3><p>이렇게 IP 주소는 무제한으로 막 퍼줄 수 있는 자원이 아니라 유한한 자원이다 보니, 특정 대역마다 사용처를 나누어서 관리하게 된다. 이때 나누어진 대역을 <code>클래스</code>라고 부르며 <code>A~E</code>의 총 5개의 클래스로 나누어서 관리한다. 각 클래스는 이진법으로 표현한 IPv4인 <code>00000000.00000000.00000000.00000000</code> 중 첫번째 필드에 있는 8비트에 제한을 만들어서 표기하기 때문에 첫번째 필드의 숫자만 보면 해당 IPv4 주소가 어느 클래스에 속해있는 지 알 수 있다.</p>
+<p>이 제한은 바로 첫번째 필드의 <code>최상위 비트</code>를 강제하는 방식이다. 예를 들어 <code>A 클래스</code>는 무조건 비트가 <code>0</code>으로 시작해야하기 때문에 <code>00000000(0)</code>에서 <code>01111111(127)</code>사이의 첫번째 필드를 사용할 수 있고 <code>C 클래스</code>는 무조건 비트가 <code>110</code>로 시작해야하기 때문에 <code>11000000(192)</code>부터 <code>11011111(223)</code>까지의 첫번째 필드를 사용할 수 있는 식이다.</p>
+<table>
+<thead>
+<tr>
+<th>클래스</th>
+<th>첫번째필드</th>
+<th>주소범위</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>0xxxxxxx</td>
+<td>0.0.0.0 ~ 127.255.255.255</td>
+<td>대규모 네트워크</td>
+</tr>
+<tr>
+<td>B</td>
+<td>10xxxxxx</td>
+<td>128.0.0.0 ~ 191.255.255.255</td>
+<td>중규모 네트워크</td>
+</tr>
+<tr>
+<td>C</td>
+<td>110xxxxx</td>
+<td>192.0.0.0 ~ 223.255.255.255</td>
+<td>소규모 네트워크</td>
+</tr>
+<tr>
+<td>D</td>
+<td>1110xxxx</td>
+<td>224.0.0.0 ~ 239.255.255.255</td>
+<td>멀티캐스트</td>
+</tr>
+<tr>
+<td>E</td>
+<td>1111xxxx</td>
+<td>240.0.0.0 ~ 255.255.255.255</td>
+<td>연구/개발 또는 미래 대비로 예약</td>
+</tr>
+</tbody>
+</table>
+<h3 id="특수한-목적의-IPv4-주소"><a href="#특수한-목적의-IPv4-주소" class="headerlink" title="특수한 목적의 IPv4 주소"></a>특수한 목적의 IPv4 주소</h3><p>이렇게 클래스를 나누고 그 클래스 내부에서도 특수한 용도를 위해 미리 예약해놓은 IPv4 주소들이 있다. 이 예약 주소들은 <a href="https://tools.ietf.org/html/rfc5735" target="_blank" rel="external nofollow noopener noreferrer">RFC 5735</a>에 의해 정의되어 있으며 목적에 벗어난 용도로 할당 받는 것이 불가능하다. 이 포스팅에서는 간략하게 대표적인 몇가지만 설명하고 넘어가겠다.</p>
+<table>
+<thead>
+<tr>
+<th>클래스</th>
+<th>주소</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A</td>
+<td>0.0.0.0 ~ 0.255.255.255</td>
+<td>할당되지 않은 메타 주소</td>
+</tr>
+<tr>
+<td>A</td>
+<td>10.0.0.0 ~ 10.255.255.255</td>
+<td>대규모 사설 네트워크</td>
+</tr>
+<tr>
+<td>A</td>
+<td>100.64.0.0 ~ 100.127.255.255</td>
+<td>Carrier-grade NAT용 주소</td>
+</tr>
+<tr>
+<td>A</td>
+<td>127.0.0.0 ~ 127.255.255.255</td>
+<td>자기 자신. 일명 루프백(Lookback)</td>
+</tr>
+<tr>
+<td>C</td>
+<td>192.168.0.0 ~ 192.168.255.255</td>
+<td>소규모 사설 네트워크. 공유기를 쓰면 많이 보인다.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="우리-집에서-구글까지의-경로를-보자"><a href="#우리-집에서-구글까지의-경로를-보자" class="headerlink" title="우리 집에서 구글까지의 경로를 보자"></a>우리 집에서 구글까지의 경로를 보자</h2><p>자, 드디어 이 포스팅의 메인 내용을 시작할 수 있게 되었다.</p>
+<p>집에서 맥북을 열고 웹 브라우저에 <code>google.com</code>을 입력하면 웹 브라우저는 전 세계 어딘가에 있는 구글 서버에 페이지를 보내달라는 요청을 보낼 것이다. 하지만 필자의 맥북과 구글 서버까지는 직접 연결되어 있지 않다.</p>
+<p>그렇기 때문에 필자가 보낸 요청은 구글 서버까지 가기 위해 여기저기를 들러가면서 험난한 여정을 겪는다. 그렇다면 이제 필자가 집에서 보낸 요청이 구글 서버까지 도달하기 전에 어디를 들리는 지 한번 알아보자.</p>
+<h3 id="traceroute-사용하기"><a href="#traceroute-사용하기" class="headerlink" title="traceroute 사용하기"></a>traceroute 사용하기</h3><p>필자는 <code>Unix</code> 기반의 MacOS를 사용하고 있기 때문에 MacOS 기준으로 설명하겠다. <code>traceroute</code> 유틸리티를 사용하면 내가 보낸 패킷이 어떤 경로를 통해 구글 서버까지 도달하는 지 알아볼 수 있다.</p>
+<figure class="highlight bash hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">$ traceroute -q 1 google.com</span><br><span class="line">traceroute to google.com (172.217.25.196), 64 hops max, 52 byte packets</span><br><span class="line"> 1  192.168.25.1 (192.168.25.1)  3.077 ms</span><br><span class="line"> 2  211.0.0.0 (211.0.0.0)  5.928 ms</span><br><span class="line"> 3  100.71.51.17 (100.71.51.17)  4.693 ms</span><br><span class="line"> 4  10.44.255.240 (10.44.255.240)  4.328 ms</span><br><span class="line"> 5  10.222.18.10 (10.222.18.10)  7.319 ms</span><br><span class="line"> 6  10.222.16.201 (10.222.16.201)  4.883 ms</span><br><span class="line"> 7  10.222.16.41 (10.222.16.41)  3.853 ms</span><br><span class="line"> 8  72.14.204.124 (72.14.204.124)  34.784 ms</span><br><span class="line"> 9  108.170.242.193 (108.170.242.193)  37.751 ms</span><br><span class="line">10  108.170.233.79 (108.170.233.79)  36.643 ms</span><br><span class="line">11  nrt13s50-in-f4.1e100.net (172.217.25.68)  35.416 ms</span><br></pre></td></tr></tbody></table></figure>
+<p>두번째 홉은 필자의 디테일한 위치가 노출될 수 있는 <code>공인 IP</code>를 출력하므로 보안 상 마스킹했다. 사실 필자가 사용하고 있는 <code>ISP(Internet Service Provider)</code>인 SK 브로드밴드는 관리 지역 내 IP 주소 임대기간이 1시간이기도 하고 필자는 인구밀도가 높은 곳에 거주하고 있으므로 저 IP 주소가 노출된다고 해도 위치를 알기는 쉽지 않지만 그래도 불안하기 때문에 가린다.</p>
+<center><br>  <img src="/2019/06/22/my-home-to-google/meme.jpeg" width="300"><br>  <sub>누가 우리 집 알아내면 어떡해…</sub><br>  <br><br></center>
+
+<p><code>traceroute</code>의 결과로 출력되는 하나의 row를 <code>홉(Hop)</code>이라고 부르는데, 필자의 집에서부터 구글의 서버까지 필자의 패킷이 거쳐간 경로를 의미하는 것이다. 홉의 IP 주소 오른쪽에 출력된 시간은 홉이 응답한 시간을 의미한다. 재밌는 것은 8번 홉부터 갑자기 응답 시간이 한자리 수에서 두자리 수로 확 뛴다는 것인데, 여기서부터는 패킷이 국내를 벗어나 해외로 빠져나간 것이다.</p>
+<p>그렇다면 이 IP 주소들은 어디를 의미하는 걸까?</p>
+<h3 id="좀-더-자세히-알아보자"><a href="#좀-더-자세히-알아보자" class="headerlink" title="좀 더 자세히 알아보자!"></a>좀 더 자세히 알아보자!</h3><p>이제 이 IP 주소들이 각각 어디를 의미하는지, 어떤 회사가 소유하고 있는 어떤 디바이스인지 좀 더 자세히 알아보고 싶다. 간단하게 알아보는 방법은 <code>whois</code> 유틸리티를 사용하는 방법이 있다.</p>
+<figure class="highlight bash hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ whois 172.217.25.68</span><br><span class="line">NetRange:       172.217.0.0 - 172.217.255.255</span><br><span class="line">CIDR:           172.217.0.0/16</span><br><span class="line">NetName:        GOOGLE</span><br><span class="line">NetHandle:      NET-172-217-0-0-1</span><br><span class="line">Parent:         NET172 (NET-172-0-0-0-0)</span><br><span class="line">NetType:        Direct Allocation</span><br></pre></td></tr></tbody></table></figure>
+<p>MacOS의 <code>whois</code> 유틸리티는 5개의 <code>whois</code> 서비스에 요청을 보내 받아온 결과를 출력해주는 방식이다. 참고로 대한민국의 <code>whois</code> 서비스는 KISA(한국인터넷진흥원)의 <a href="https://xn--c79as89aj0e29b77z.xn--3e0b707e/kor/main.jsp" target="_blank" rel="external nofollow noopener noreferrer">후이즈검색</a>에서 제공하고 있다.</p>
+<table>
+<thead>
+<tr>
+<th>whois 도메인</th>
+<th>담당 구역</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>whois.arin.net</td>
+<td>아메리카</td>
+</tr>
+<tr>
+<td>whois.nic.mil</td>
+<td>미국(현재 작동안함)</td>
+</tr>
+<tr>
+<td>whois.ripe.net</td>
+<td>유럽</td>
+</tr>
+<tr>
+<td>whois.apnic.net</td>
+<td>아시아 태평양</td>
+</tr>
+<tr>
+<td>whois.jprs.jp</td>
+<td>일본</td>
+</tr>
+</tbody>
+</table>
+<p>그러나 <code>whois</code> 서비스는 기본적으로 도메인이 등록된 IP 주소의 소유주에 대한 정보를 보여주는 서비스라서 도메인이 등록되지 않은 게이트웨이나 라우터에 대한 정보는 나오지 않는다. 그래서 필자는 <a href="https://www.ip2location.com/demo" target="_blank" rel="external nofollow noopener noreferrer">IP2Location</a>이라는 사이트를 이용하여 한번 찾아볼 것이다.<small><strike>(근데 이것도 잘 나올 것 같지는 않다)</strike></small></p>
+<p>먼저 첫번째 홉인 <code>192.168.25.*</code>은 필자 집의 공유기에서 할당해준 <code>사설 IP</code> 이고 두번째 홉은 <code>ISP(Internet Service Provider)</code>가 필자에게 부여해준 <code>공인 IP</code>이나, 보안 상 마스킹 했으므로 세번째 홉인 <code>100.71.51.17</code>부터 한번 살펴보겠다.</p>
+<h4 id="100-71-51-17"><a href="#100-71-51-17" class="headerlink" title="100.71.51.17"></a>100.71.51.17</h4><center><br>  <img src="https://images.ip2location.com/18399031.png"><br>  <br><br></center>
+
+<p>앗 역시 생각보다 정보가 별로 안나왔다. 대신 해당 IP 주소가 <code>Carrier Grade NAT</code>에 사용된다는 정보를 출력했다. 위에서 설명한 대로 <code>A 클래스</code>의 <code>100.64.0.0 ~ 100.127.255.255</code> 대역이 <code>Carrier Grade NAT</code>에 사용된다는 것은 이미 표준으로 정의된 것이기 때문에 사실 뻔한 결과를 출력한 것이다. 그럼 <code>Carrier Grade NAT</code>이 뭐길래 중간에 필자의 패킷이 들렀다 가는걸까?</p>
+<h5 id="Carrier-Grade-NAT"><a href="#Carrier-Grade-NAT" class="headerlink" title="Carrier Grade NAT"></a>Carrier Grade NAT</h5><p>우선 <code>NAT</code>은 <code>Network Address Translation</code>의 약자로 대개 사설 네트워크에 속한 <code>여러 개의 호스트</code>가 <code>하나의 공인 IP</code>를 사용하여 인터넷에 접속하기 위한 기술이다.<br>필자는 SK 브로드밴드의 IPTV나 Wi-Fi 등 여러 개의 서비스를 사용 중이다. 그렇다고 IP 주소를 가입한 서비스마다 나눠주기에는 주소가 매우 부족한 상황이기 때문에 SK 브로드밴드는 필자에게 단 하나의 공인 IP 주소를 할당해주고 <code>NAT</code> 기능이 있는 공유기를 집에 설치해, 필자의 집에 <code>사설 네트워크(Private Network)</code>를 구축해준 것이다.</p>
+<p><code>Carrier Grade NAT(CGN)</code>은 <code>NAT</code>의 스케일 큰 버전이라고 생각하면 된다. 필자의 집에 설치된 공유기는 필자의 집 내부에 사설망을 구성하는 데에 그치지만 <code>CGN</code>은 <code>백본망에 구성되는 NAT</code>이다. 쉽게 말하면 거대 공유기랄까…?</p>
+<p>필자가 알기로는 원래 스마트폰의 LTE같이 모바일 망에 직접 연결되는 무선 인터넷 디바이스를 <code>NAT</code>로 관리하기 위해 백본망에서 <code>CGN</code>을 운영한다고 알고 있었는데, 왜 집에 있는 공유기를 사용 중인 필자의 패킷이 <code>CGN</code>을 타는지는 잘 모르겠다. SK 브로드밴드가 IPv4가 많은 편은 아니긴 한데… 너무 모자라서 유선 인터넷에도 <code>CGN</code>을 달았나…?<small>(혹시 아시는 분은 좀 알려주세요…궁금해요…)</small></p>
+<h4 id="10-44-255-240-10-222-16-41"><a href="#10-44-255-240-10-222-16-41" class="headerlink" title="10.44.255.240 ~ 10.222.16.41"></a>10.44.255.240 ~ 10.222.16.41</h4><p>여기서부터는 A클래스 사설망에 할당되는 IP이므로, 추측하건데 SK 브로드밴드의 백본망 내부인 것 같다. ISP들은 자신들의 망 구조를 자세히 알려주지 않기 때문에 정확히 어디에 위치한 노드인지는 알 수 없지만 SK 브로드밴드의 망 구조 상 대략 이쯤 되는 것 같다.</p>
+<center><br>  <img src="/2019/06/22/my-home-to-google/skb-network.gif" width="500"><br>  <sub>여기서 부터 다른 국내 ISP와 연결되거나 해외망으로 연결된다</sub><br>  <br><br></center>
+
+<h4 id="72-14-204-124-108-170-233-79"><a href="#72-14-204-124-108-170-233-79" class="headerlink" title="72.14.204.124 ~ 108.170.233.79"></a>72.14.204.124 ~ 108.170.233.79</h4><center><br>  <img src="https://images.ip2location.com/60603511.png"><br>  <br><br></center>
+
+<p>드디어 구글이 소유하고 있는 디바이스가 나타났다! 근데 위치가 네덜란드 암스테르담이다. 구글은 미국 캘리포니아에 있는 회사인데 왜 뜬금없이 암스테르담이 출현했는지 모르겠다. 뭔가 이상하기 때문에 유럽을 담당하는 <code>whois</code> 서비스인 <code>whois.ripe.net</code>에 물어봐야겠다.</p>
+<figure class="highlight bash hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">whois -h whois.ripe.net 72.14.204.124</span><br><span class="line"></span><br><span class="line">inetnum:        69.194.128.0 - 76.255.255.255</span><br><span class="line">netname:        NON-RIPE-NCC-MANAGED-ADDRESS-BLOCK</span><br><span class="line">descr:          IPv4 address block not managed by the RIPE NCC</span><br></pre></td></tr></tbody></table></figure>
+<p>역시 여기서 관리하고 있는 주소가 아니라고 한다. 그렇다면 아메리카를 담당하는 <code>whois.arin.net</code>에 물어보자.</p>
+<figure class="highlight bash hljs"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">whois -h whois.arin.net 72.14.204.124</span><br><span class="line"></span><br><span class="line">NetRange:       72.14.192.0 - 72.14.255.255</span><br><span class="line">CIDR:           72.14.192.0/18</span><br><span class="line">NetName:        GOOGLE</span><br><span class="line">NetHandle:      NET-72-14-192-0-1</span><br><span class="line">Parent:         NET72 (NET-72-0-0-0-0)</span><br><span class="line">NetType:        Direct Allocation</span><br><span class="line">OriginAS:</span><br><span class="line">Organization:   Google LLC (GOGL)</span><br><span class="line">RegDate:        2004-11-10</span><br><span class="line">Updated:        2012-02-24</span><br><span class="line">Ref:            https://rdap.arin.net/registry/ip/72.14.192.0</span><br></pre></td></tr></tbody></table></figure>
+<p>오 이번에는 제대로 된 정보가 나왔다. <code>72.14.204.124</code> 주소를 가진 디바이스는 구글이 소유하고 있는 무언가인듯하다. <code>IP2Location</code>은 이제 필자에게 신뢰를 잃었기 때문에 가차없이 버리기로 하고 <a href="https://db-ip.com" target="_blank" rel="external nofollow noopener noreferrer">DB IP</a>라는 새로운 솔루션을 사용하겠다.<br><code>DB IP</code>를 사용하여 검색해보니 위치가 <code>Ashburn, Loudoun, Virginia, United States</code>로 잡히고 Connection Type은 <code>Hosting</code>으로 되어있다.</p>
+<center><br>  <img src="/2019/06/22/my-home-to-google/db-ip-result.png"><br>  <br><br></center>
+
+<p>그 이후 9번 홉인 <code>108.170.242.193</code>과 10번 홉인 <code>108.170.233.79</code> 또한 버지니아 주에 위치한 호스팅 서버인 것으로 표시되었다. 여기에 도대체 뭐가 있길래 다 여기에 옹기종기 모여있는걸까…?<br>조금 구글링을 해보니 구글이 <code>Ashburn</code>에서 일할 사람을 찾고 있는 공고를 발견했다. 또한 같은 버지니아 주의 옆 동네인 <code>Sterling</code>과 <code>Reston</code>으로도 채용공고가 많이 올라와있다.</p>
+<center><br>  <img src="/2019/06/22/my-home-to-google/google-hiring.png" width="500"><br>  <sub>날 뽑아줘요…엉엉</sub><br></center>
+
+<p>공고를 쭉 스캔해보니 주로 <code>Network Engineer</code>, <code>Administrative Business Partner, Data Center</code>, <code>Google Cloud</code>와 같은 키워드가 많이 보이는 걸로 봐서는 아무래도 여기에 구글 데이터센터가 있나보다. 좀 더 정보를 찾아보니 <a href="https://wtop.com/business-finance/2019/02/google-to-double-its-virginia-workforce/" target="_blank" rel="external nofollow noopener noreferrer">구글이 버지니아에서 일하는 인원을 두배 늘린다는 기사</a>도 올해 2월에 작성되었었다.</p>
+<p>여기에 구글 데이터센터가 있는 것은 아무래도 확실한 것 같다.</p>
+<h4 id="172-217-25-68-google-com"><a href="#172-217-25-68-google-com" class="headerlink" title="172.217.25.68(google.com)"></a>172.217.25.68(google.com)</h4><img src="/2019/06/22/my-home-to-google/final.png">
+<p>자 드디어 마지막 <code>google.com</code> 도메인의 종착점인 <code>172.217.25.68</code> 주소를 가진 서버이다. 이 주소도 역시 <code>DB IP</code>를 통해 검색해본 결과 일본에 있는 서버라고 한다.</p>
+<p>사실 한국에 있는 필자가 미국에 있는 서버에서 계속 정보를 받는 것보다 가까운 일본에 있는 서버에서 정보를 받는 게 훨씬 빠르기 때문에 이건 당연하긴 하다. 필자의 패킷은 태평양을 건너 미국에 갔다가 다시 일본으로 건너가는 기묘한 루트를 그리고 있었다는 것이다…</p>
+<p>자세하게 파고 들어가면 왜 이런 루트를 그리는지 알 수 있겠지만 너무 포스팅이 길어질 것 같아 여기까지만 파보겠다.<small>(다음에 좀 더 자세히 파보는 걸로…)</small><br>늘 아무 생각없이 접속하던 구글도 자세히 들여다보면 이렇게 다양한 경로를 통해 나에게 전달된다. 새삼 신기한 사실이다.</p>
+<p>이상으로 우리 집에서 구글까지 가는 길 포스팅을 마친다.</p>
+</body></html>
+        </div>
+        
+        
+        
+            <div class="related-posts">
+                <h4>관련 포스팅 보러가기</h4>
+                <ul class="popular-posts"><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/06/13/http2-with-aws/" title="AWS와 함께 간단하게 HTTP/2 적용하기" rel="bookmark">AWS와 함께 간단하게 HTTP/2 적용하기</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/07/14/what-is-random/" title="컴퓨터가 만드는 랜덤은 정말로 랜덤할까?" rel="bookmark">컴퓨터가 만드는 랜덤은 정말로 랜덤할까?</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/06/25/hashtable-with-js/" title="JavaScript와 함께 해시테이블을 파헤쳐보자" rel="bookmark">JavaScript와 함께 해시테이블을 파헤쳐보자</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2019/07/10/javascript-audio-waveform/" title="컴퓨터는 어떻게 소리를 들을까?" rel="bookmark">컴퓨터는 어떻게 소리를 들을까?</a></h3></div></li><li class="popular-posts-item"><div class="popular-posts-title"><h3><a href="/2020/03/15/about-http-status-code/" title="서버의 상태를 알려주는 HTTP 상태 코드" rel="bookmark">서버의 상태를 알려주는 HTTP 상태 코드</a></h3></div></li></ul>
+            </div>
+        
+
+        
+        <div class="level is-size-7 is-uppercase post-tags">
+            <div class="level-start">
+                <div class="tags">
+                    <span class="is-size-6 has-text-grey has-mr-7 tag-icon"><i class="fas fa-tag"></i></span>
+                    <a class="tag -link" href="/tags/ip/">IP</a><a class="tag -link" href="/tags/network/">Network</a><a class="tag -link" href="/tags/traceroute/">traceroute</a><a class="tag -link" href="/tags/네트워크/">네트워크</a><a class="tag -link" href="/tags/컴퓨터-공학/">컴퓨터 공학</a>
+                </div>
+            </div>
+        </div>
+        
+
+        
+
+        
+        
+<div class="sharethis-inline-share-buttons"></div>
+<script type="text/javascript" src="https://platform-api.sharethis.com/js/sharethis.js#property=5d0a1a560345900012ec77c4&amp;product=inline-share-buttons" async="async"></script>
+
+        
+    </div>
+</div>
+
+
+
+
+
+<!-- 댓글 위 광고 -->
+<ins class="adsbygoogle card" style="display:block" data-ad-client="ca-pub-4372275195526937" data-ad-slot="7343917257" data-ad-format="auto" data-full-width-responsive="true"></ins>
+<script class="card">
+    (adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+
+
+<div class="card card-transparent">
+    <div class="level post-navigation is-flex-wrap is-mobile">
+        
+        <div class="level-start card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey article-nav-prev" href="/2019/06/25/hashtable-with-js/">
+                <i class="fas fa-chevron-left"></i> JavaScript와 함께 해시테이블을 파헤쳐보자
+            </a>
+        </div>
+        
+        <!-- <div class="with-prev card to-home">
+            <a data-link-name="pagenator" class="level level-item has-link-grey" href="/">
+                <i class="fas fa-home"></i> Home
+            </a>
+        </div> -->
+        
+        <div class="level-end card">
+            <a data-link-name="pagenator" class="level level-item has-link-grey  article-nav-next" href="/2019/06/18/javascript-let-const/">
+                JavaScript의 let과 const, 그리고 TDZ <i class="fas fa-chevron-right"></i>
+            </a>
+        </div>
+        
+    </div>
+</div>
+
+
+</div>
+                
+                
+
+
+
+
+<div class="column is-4-tablet is-4-desktop is-4-widescreen  has-order-3 column-right is-sticky">
+    
+        
+<div class="card widget" id="toc">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카탈로그
+            </h3>
+            <ul class="menu-list"><li>
+        <a class="is-flex" href="#IP-Internet-Protocol" data-link-name="toc">
+        <span class="has-mr-6">1</span>
+        <span>IP, Internet Protocol</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#IPv4의-구조" data-link-name="toc">
+        <span class="has-mr-6">1.1</span>
+        <span>IPv4의 구조</span>
+        </a></li><li>
+        <a class="is-flex" href="#IPv4의-클래스" data-link-name="toc">
+        <span class="has-mr-6">1.2</span>
+        <span>IPv4의 클래스</span>
+        </a></li><li>
+        <a class="is-flex" href="#특수한-목적의-IPv4-주소" data-link-name="toc">
+        <span class="has-mr-6">1.3</span>
+        <span>특수한 목적의 IPv4 주소</span>
+        </a></li></ul></li><li>
+        <a class="is-flex" href="#우리-집에서-구글까지의-경로를-보자" data-link-name="toc">
+        <span class="has-mr-6">2</span>
+        <span>우리 집에서 구글까지의 경로를 보자</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#traceroute-사용하기" data-link-name="toc">
+        <span class="has-mr-6">2.1</span>
+        <span>traceroute 사용하기</span>
+        </a></li><li>
+        <a class="is-flex" href="#좀-더-자세히-알아보자" data-link-name="toc">
+        <span class="has-mr-6">2.2</span>
+        <span>좀 더 자세히 알아보자!</span>
+        </a><ul class="menu-list"><li>
+        <a class="is-flex" href="#100-71-51-17" data-link-name="toc">
+        <span class="has-mr-6">2.2.1</span>
+        <span>100.71.51.17</span>
+        </a></li><li>
+        <a class="is-flex" href="#10-44-255-240-10-222-16-41" data-link-name="toc">
+        <span class="has-mr-6">2.2.2</span>
+        <span>10.44.255.240 ~ 10.222.16.41</span>
+        </a></li><li>
+        <a class="is-flex" href="#72-14-204-124-108-170-233-79" data-link-name="toc">
+        <span class="has-mr-6">2.2.3</span>
+        <span>72.14.204.124 ~ 108.170.233.79</span>
+        </a></li><li>
+        <a class="is-flex" href="#172-217-25-68-google-com" data-link-name="toc">
+        <span class="has-mr-6">2.2.4</span>
+        <span>172.217.25.68(google.com)</span>
+        </a></li></ul></li></ul></li></ul>
+        </div>
+    </div>
+</div>
+
+    
+        
+<div class="card widget">
+    <div class="card-content">
+        <div class="menu">
+            <h3 class="menu-label">
+                카테고리
+            </h3>
+            <ul class="menu-list">
+            <li>
+        <a class="level is-marginless" href="/categories/essay/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Essay</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">14</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Programming</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">47</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/programming/algorithm/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Algorithm</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">8</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/audio/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Audio</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/design/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Design</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">5</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/git/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Git</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/graphics/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Graphics</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/javascript/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">JavaScript</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">7</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/machine-learning/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Machine Learning</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">3</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/network/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Network</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">9</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/programming/web/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Web</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a></li></ul></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Soft Skills</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">4</span>
+            </span>
+        </a><ul><li>
+        <a class="level is-marginless" href="/categories/soft-skills/agile/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Agile</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">2</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/data/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Data</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li><li>
+        <a class="level is-marginless" href="/categories/soft-skills/organization/" data-link-name="category">
+            <span class="level-start">
+                <span class="level-item">Organization</span>
+            </span>
+            <span class="level-end">
+                <span class="level-item tag">1</span>
+            </span>
+        </a></li></ul></li>
+            </ul>
+        </div>
+    </div>
+</div>
+    
+    
+</div>
+
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+    <div class="container">
+        <div class="level">
+            <div class="level-start has-text-centered-mobile">
+                <a class="footer-logo is-block has-mb-6" href="/">
+                
+                    <img src="/img/logo-text.png" alt="우리 집에서 구글까지 가는 길" height="28">
+                
+                </a>
+                <p class="is-size-7">
+                &copy; 2020 Evan Moon&nbsp;
+                Powered by <a href="https://hexo.io/" target="_blank" rel="external nofollow noopener noreferrer">Hexo</a> & <a href="https://github.com/ppoffice/hexo-theme-icarus" target="_blank" rel="external nofollow noopener noreferrer">Icarus</a>
+                
+                </p>
+            </div>
+            <div class="level-end">
+            
+                <div class="field has-addons is-flex-center-mobile has-mt-5-mobile is-flex-wrap is-flex-middle">
+                
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Creative Commons" href="https://creativecommons.org/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="Attribution 4.0 International" href="https://creativecommons.org/licenses/by/4.0/" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-creative-commons-by"></i>
+                        
+                    </a>
+                </p>
+                
+                <p class="control">
+                    <a class="button is-white is-large" target="_blank" title="GitHub" href="https://github.com/evan-moon" rel="external nofollow noopener noreferrer">
+                        
+                        <i class="fab fa-github"></i>
+                        
+                    </a>
+                </p>
+                
+                </div>
+            
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script>console.log("env -> development");</script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.3.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.22.2/min/moment-with-locales.min.js"></script>
+<script>moment.locale("ko");</script>
+
+
+    
+    
+    
+    <script src="/js/animation.js"></script>
+    
+
+    
+    
+    
+    
+
+<div id="outdated">
+    <h6>Your browser is out-of-date!</h6>
+    <p>Update your browser to view this website correctly. <a id="btnUpdateBrowser" href="http://outdatedbrowser.com/" rel="external nofollow noopener noreferrer" target="_blank">Update
+            my browser now </a></p>
+    <p class="last"><a href="#" id="btnCloseUpdateBrowser" title="Close">&times;</a></p>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/outdatedbrowser@1.1.5/outdatedbrowser/outdatedbrowser.min.js" defer></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        outdatedBrowser({
+            bgColor: '#f25648',
+            color: '#ffffff',
+            lowerThan: 'flex'
+        });
+    });
+</script>
+
+
+    
+    
+<script src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/unpacked/MathJax.js?config=TeX-MML-AM_CHTML" defer></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    MathJax.Hub.Config({
+        'HTML-CSS': {
+            matchFontHeight: false
+        },
+        SVG: {
+            matchFontHeight: false
+        },
+        CommonHTML: {
+            matchFontHeight: false
+        },
+        tex2jax: {
+            inlineMath: [
+                ['$','$'],
+                ['\\(','\\)']
+            ]
+        }
+    });
+});
+</script>
+
+    
+    
+
+<a id="back-to-top" title="Back to Top" href="javascript:;">
+    <i class="fas fa-chevron-up"></i>
+</a>
+<script src="/js/back-to-top.js" defer></script>
+
+
+    
+    
+    
+    
+    
+    <script src="https://cdn.jsdelivr.net/npm/clipboard@2.0.4/dist/clipboard.min.js" defer></script>
+    <script src="/js/clipboard.js" defer></script>
+    
+
+    
+    
+
+    
+    
+    
+    
+
+    
+    
+    
+
+
+<script src="/js/main.js" defer></script>
+<script src="/js/gaevents.js" defer></script>
+
+    
+    <div class="searchbox ins-search">
+    <div class="searchbox-container ins-search-container">
+        <div class="searchbox-input-wrapper">
+            <input type="text" class="searchbox-input ins-search-input" placeholder="입력 하세요...">
+            <span class="searchbox-close ins-close ins-selectable"><i class="fa fa-times-circle"></i></span>
+        </div>
+        <div class="searchbox-result-wrapper ins-section-wrapper">
+            <div class="ins-section-container"></div>
+        </div>
+    </div>
+</div>
+<script>
+    (function (window) {
+        var INSIGHT_CONFIG = {
+            TRANSLATION: {
+                POSTS: '포스트',
+                PAGES: '페이지',
+                CATEGORIES: '카테고리',
+                TAGS: '태그',
+                UNTITLED: '(제목없음)',
+            },
+            CONTENT_URL: '/content.json',
+        };
+        window.INSIGHT_CONFIG = INSIGHT_CONFIG;
+    })(window);
+</script>
+<script src="/js/insight.js" defer></script>
+<link rel="stylesheet" href="/css/search.css">
+<link rel="stylesheet" href="/css/insight.css">
+    
+</body>
+</html>
