@@ -3,6 +3,62 @@
 
 
     <url>
+        <loc>https://evan-moon.github.io/tags/atlassian/</loc>
+        <lastmod>2020-04-19T13:33:38.463Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://evan-moon.github.io/tags/%ED%98%91%EC%97%85/</loc>
+        <lastmod>2020-04-19T13:33:38.463Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://evan-moon.github.io/tags/agile/</loc>
+        <lastmod>2020-04-19T13:33:38.463Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://evan-moon.github.io/tags/%EC%95%A0%EC%9E%90%EC%9D%BC/</loc>
+        <lastmod>2020-04-19T13:33:38.463Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://evan-moon.github.io/tags/jira/</loc>
+        <lastmod>2020-04-19T13:33:38.463Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://evan-moon.github.io/tags/google-analytics/</loc>
+        <lastmod>2020-04-19T13:33:26.187Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://evan-moon.github.io/tags/google-tag-manager/</loc>
+        <lastmod>2020-04-19T13:33:26.187Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
+        <loc>https://evan-moon.github.io/tags/gtm/</loc>
+        <lastmod>2020-04-19T13:33:26.187Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.2</priority>
+    </url>
+
+    <url>
         <loc>https://evan-moon.github.io/tags/rest-api/</loc>
         <lastmod>2020-04-06T18:24:22.448Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -976,13 +1032,6 @@
     </url>
 
     <url>
-        <loc>https://evan-moon.github.io/tags/%ED%98%91%EC%97%85/</loc>
-        <lastmod>2020-02-28T09:06:22.223Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
         <loc>https://evan-moon.github.io/tags/%EC%BB%A4%ED%94%BC-%ED%95%9C%EC%9E%94-%EB%A7%88%EC%8B%9C%EB%A9%B0-%EB%81%9D%EB%82%B4%EB%8A%94-vuejs/</loc>
         <lastmod>2020-02-28T09:06:22.206Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -1130,20 +1179,6 @@
     </url>
 
     <url>
-        <loc>https://evan-moon.github.io/tags/agile/</loc>
-        <lastmod>2020-02-28T09:06:22.135Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
-        <loc>https://evan-moon.github.io/tags/%EC%95%A0%EC%9E%90%EC%9D%BC/</loc>
-        <lastmod>2020-02-28T09:06:22.135Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
         <loc>https://evan-moon.github.io/tags/v8/</loc>
         <lastmod>2020-02-28T09:06:22.132Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -1223,20 +1258,6 @@
     <url>
         <loc>https://evan-moon.github.io/tags/temporal-dead-zone/</loc>
         <lastmod>2020-02-28T09:06:22.118Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
-        <loc>https://evan-moon.github.io/tags/atlassian/</loc>
-        <lastmod>2020-02-28T09:06:22.105Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.2</priority>
-    </url>
-
-    <url>
-        <loc>https://evan-moon.github.io/tags/jira/</loc>
-        <lastmod>2020-02-28T09:06:22.105Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.2</priority>
     </url>

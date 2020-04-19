@@ -8,6 +8,22 @@
     </url>
 
     <url>
+        <loc>https://evan-moon.github.io/2019/06/16/jira-customizing-issue/</loc>
+        <lastmod>2020-04-19T13:33:38.463Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
+        <loc>https://evan-moon.github.io/2020/04/19/what-is-gtm-google-tag-manager/</loc>
+        <lastmod>2020-04-19T13:33:26.187Z</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.6</priority>
+
+    </url>
+
+    <url>
         <loc>https://evan-moon.github.io/2020/04/07/about-restful-api/</loc>
         <lastmod>2020-04-06T18:24:22.448Z</lastmod>
         <changefreq>weekly</changefreq>
@@ -394,14 +410,6 @@
     <url>
         <loc>https://evan-moon.github.io/2019/06/18/javascript-let-const/</loc>
         <lastmod>2020-02-28T09:06:22.118Z</lastmod>
-        <changefreq>weekly</changefreq>
-        <priority>0.6</priority>
-
-    </url>
-
-    <url>
-        <loc>https://evan-moon.github.io/2019/06/16/jira-customizing-issue/</loc>
-        <lastmod>2020-02-28T09:06:22.105Z</lastmod>
         <changefreq>weekly</changefreq>
         <priority>0.6</priority>
 
