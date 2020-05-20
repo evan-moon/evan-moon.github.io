@@ -253,7 +253,6 @@
 <url> <loc>https://evan-moon.github.io/tags/hexo/en</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/migration/en</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/retrospective/en</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
-<url> <loc>https://evan-moon.github.io/2020/05/09/gatsby-migration-retrospective/en/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/2020/05/09/gatsby-migration-retrospective/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/2020/04/19/what-is-gtm-google-tag-manager/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/2020/04/07/about-restful-api/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
@@ -321,6 +320,7 @@
 <url> <loc>https://evan-moon.github.io/2017/05/06/gravity-via-js-1/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/2017/05/03/calculate-orbit-2/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/2017/05/03/calculate-orbit-1/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/2020/05/09/gatsby-migration-retrospective/en/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/about/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/categories/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
