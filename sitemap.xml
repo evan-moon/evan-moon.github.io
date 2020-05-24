@@ -40,10 +40,12 @@
 <url> <loc>https://evan-moon.github.io/tags/backpropagation/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/blocking/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/burn-out/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/tags/cors/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/cwnd/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/commit/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/composition/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/congestion-control/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/tags/cross-origin-resource-sharing/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/data-driven/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/data-structure/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/deep-learning/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
@@ -150,6 +152,7 @@
 <url> <loc>https://evan-moon.github.io/tags/객체지향-프로그래밍/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/공동집필/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/공부/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/tags/교차-출처-리소스-공유/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/궤도-구현하기/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/글쓰기/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/나이퀴스트/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
@@ -173,6 +176,7 @@
 <url> <loc>https://evan-moon.github.io/tags/버전관리/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/번아웃/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/범주론/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/tags/보안-정책/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/부트캠프/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/불변성/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/불안감/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
@@ -253,6 +257,7 @@
 <url> <loc>https://evan-moon.github.io/tags/hexo/en</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/migration/en</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/retrospective/en</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/2020/05/21/about-cors/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/2020/05/09/gatsby-migration-retrospective/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/2020/04/19/what-is-gtm-google-tag-manager/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/2020/04/07/about-restful-api/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
