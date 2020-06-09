@@ -126,7 +126,7 @@ However, an origin is permitted to use some kinds of resources retrieved from ot
 <p>하지만 잘 생각해보면 이렇게 출처가 다른 두 개의 어플리케이션이 마음대로 소통할 수 있는 환경은 꽤 위험한 환경이다.</p>
 <p>애초에 클라이언트 어플리케이션, 특히나 웹에서 돌아가는 클라이언트 어플리케이션은 사용자의 공격에 너무나도 취약한 친구라는 사실을 잊지말자. 당장 브라우저의 개발자 도구만 열어도 DOM이 어떻게 작성되어있는지, 어떤 서버와 통신하는지, 리소스의 출처는 어디인지와 같은 각종 정보들을 아무런 제재없이 열람할 수 있지 않은가?</p>
 <p>최근에는 자바스크립트 소스 코드를 난독화해서 읽기 어렵다고 하지만, 난독화는 어디까지나 난독화일 뿐이지 암호화가 아니다. 그리고 아무리 난독화되어있다고 해도 사람이 바로 이해할 수 없는 정도도 아닌데다가, 소스 코드를 직접 볼 수 있다는 것 자체가 보안적으로 상당히 취약한 부분이다. 심지어 아직까지도 소스 코드의 난독화가 안되어 개발자 도구만 열면 <code class="language-text">&lt;script&gt;</code> 태그 안에 날 것 그대로의 소스 코드가 떡하니 노출되는 사이트들도 많다.</p>
-<p>이런 상황 속에서 다른 출처의 어플리케이션이 서로 통신하는 것에 대해 아무런 제약도 존재하지 않는다면, 악의를 가진 사용자가 소스 코드를 쓱 구경한 후 <a href="https://ko.wikipedia.org/wiki/%EC%82%AC%EC%9D%B4%ED%8A%B8_%EA%B0%84_%EC%9A%94%EC%B2%AD_%EC%9C%84%EC%A1%B0" target="_blank" rel="nofollow">CSRF(Cross-Site Request Forgery)</a>나 <a href="https://ko.wikipedia.org/wiki/%EC%82%AC%EC%9D%B4%ED%8A%B8_%EA%B0%84_%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8C%85" target="_blank" rel="nofollow">XSS(Cross-Site Scripting)</a>와 같은 방법을 사용하여 여러분의 어플리케이션에서 코드가 실행된 것처럼 꾸며서 사용자의 정보를 탈취하기가 너무나도 쉬워진다. <small>(그리고 개발자의 신경써야 할 일은 더 많아진다…)</small></p>
+<p>이런 상황 속에서 다른 출처의 어플리케이션이 서로 통신하는 것에 대해 아무런 제약도 존재하지 않는다면, 악의를 가진 사용자가 소스 코드를 쓱 구경한 후 <a href="https://ko.wikipedia.org/wiki/%EC%82%AC%EC%9D%B4%ED%8A%B8_%EA%B0%84_%EC%9A%94%EC%B2%AD_%EC%9C%84%EC%A1%B0" target="_blank" rel="nofollow">CSRF(Cross-Site Request Forgery)</a>나 <a href="https://ko.wikipedia.org/wiki/%EC%82%AC%EC%9D%B4%ED%8A%B8_%EA%B0%84_%EC%8A%A4%ED%81%AC%EB%A6%BD%ED%8C%85" target="_blank" rel="nofollow">XSS(Cross-Site Scripting)</a>와 같은 방법을 사용하여 여러분의 어플리케이션에서 코드가 실행된 것처럼 꾸며서 사용자의 정보를 탈취하기가 너무나도 쉬워진다. <small>(그리고 개발자가 신경써야 할 일은 더 많아진다…)</small></p>
 <center>
   <div style="max-width: 400px">
     <span class="gatsby-resp-image-wrapper" style="position: relative; display: block; margin-left: auto; margin-right: auto;  max-width: 640px;">
@@ -379,7 +379,7 @@ GET https://evan-moon.github.io/feed.xml 200 OK
 <blockquote>
 <p>🚨 Access to fetch at ’<a href="https://evan-moon.github.io/feed.xml" target="_blank" rel="nofollow">https://evan-moon.github.io/feed.xml</a>’ from origin ’<a href="http://localhost:8000" target="_blank" rel="nofollow">http://localhost:8000</a>’ has been blocked by CORS policy: The value of the ‘Access-Control-Allow-Origin’ header in the response must not be the wildcard ’*’ when the request’s credentials mode is ‘include’.</p>
 </blockquote>
-<p>브라우저는 인증 모드가 <code class="language-text">include</code>일 경우, 모든 요청을 허용한다는 의미의 <code class="language-text">*</code>를 <code class="language-text">Access-Control-Allow-Origin</code> 사용하면 안된다고 이야기하고 있다.</p>
+<p>브라우저는 인증 모드가 <code class="language-text">include</code>일 경우, 모든 요청을 허용한다는 의미의 <code class="language-text">*</code>를 <code class="language-text">Access-Control-Allow-Origin</code> 헤더에 사용하면 안된다고 이야기하고 있다.</p>
 <p>이처럼 요청에 인증 정보가 담겨있는 상태에서 다른 출처의 리소스를 요청하게 되면 브라우저는 CORS 정책 위반 여부를 검사하는 룰에 다음 두 가지를 추가하게 된다.</p>
 <hr>
 <ol>
