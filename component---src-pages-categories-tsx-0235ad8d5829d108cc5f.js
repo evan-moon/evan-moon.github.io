@@ -1,2 +1,0 @@
-(window.webpackJsonp=window.webpackJsonp||[]).push([[8],{"4qGM":function(e,t,a){"use strict";a.r(t);var n=a("q1tI"),l=a.n(n),r=a("mpeT"),c=a("1Yd/"),u=a("GZdA"),i=a("5ZT3"),m=a("tl3u");t.default=function(){return l.a.createElement(r.a,{left:l.a.createElement(u.a,null),right:l.a.createElement(m.a,null)},l.a.createElement(c.a,{title:"카테고리"}),l.a.createElement(i.a,null))}}}]);
-//# sourceMappingURL=component---src-pages-categories-tsx-0235ad8d5829d108cc5f.js.map
