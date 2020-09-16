@@ -292,7 +292,7 @@ IP localhost.53920 <span class="token operator">></span> localhost.terabase: Fla
 <p>QUIC은 TCP를 사용하지 않기 때문에 통신을 시작할 때 번거로운 3 Way Handshake 과정을 거치지 않아도 된다. 클라이언트가 보낸 요청을 서버가 처리한 후 다시 클라이언트로 응답해주는 사이클을 <code class="language-text">RTT(Round Trip Time)</code>이라고 하는데, TCP는 연결을 생성하기 위해 기본적으로 <code class="language-text">1 RTT</code>가 필요하고, 여기에 TLS를 사용한 암호화까지 하려고 한다면 TLS의 자체 핸드쉐이크까지 더해져 총 <code class="language-text">3 RTT</code>가 필요하다.</p>
 <p>반면 QUIC은 첫 연결 설정에 <code class="language-text">1 RTT</code>만 소요된다. 클라이언트가 서버에 어떤 신호를 한번 주고, 서버도 거기에 응답하기만 하면 바로 본 통신을 시작할 수 있다는 것이다. 즉, 연결 설정에 소요되는 시간이 반 정도 밖에 안된다.</p>
 <center>
-  <img src="/95f5c7e411d0b7f96d182abe284be551/gcp-cloud-cdn-performance.gif">
+  <img src="/95f5c7e411d0b7f96d182abe284be551/gcp-cloud-cdn-performance.gif" width="100%">
   <br>
 </center>
 <p>어떻게 이게 가능한 걸까? 그 이유는 생각보다 간단하다. 첫번째 핸드쉐이크를 거칠 때, 연결 설정에 필요한 정보와 함께 데이터도 보내버리는 것이다. <code class="language-text">TCP+TLS</code>는 데이터를 보내기 전에 신뢰성있는 연결과 암호화에 필요한 모든 정보를 교환하고 유효성을 검사한 뒤에 데이터를 교환하지만, QUIC은 묻지도 따지지도 않고 그냥 바로 데이터부터 꽂아버리고 시작한다.</p>

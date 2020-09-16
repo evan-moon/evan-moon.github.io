@@ -89,7 +89,7 @@
 </blockquote>
 <p>예전에 필자의 학창시절을 생각해봐도 학교에 1~2명씩 판치기의 절대 고수들이 있었는데 이 친구들은 자신이 원하는 동전만 정확히 뒤집을 수 있는 능력을 보유하고 있었다. 예전에 TV에서도 판치기의 고수라고 나온 분이 있었는데 이 분은 뭐 거의 닥터 스트레인지 수준이었다.</p>
 <center>
-  <img src="/1466f2e049709fb4c86f9b9350d41f00/pan2.gif">
+  <img src="/1466f2e049709fb4c86f9b9350d41f00/pan2.gif" width="100%">
   <br>
 </center>
 <p>사실 판치기도 결국은 물리 법칙 내에서 돌아가는 판이기 때문에 판돈으로 걸린 동전의 무게, 판을 내려치는 힘, 판으로 사용된 교과서의 탄력성 등 몇가지 변수를 알면 어느 동전이 뒤집어 질지도 계산할 수 있을 것이다. 물론 이렇게 계산하는 것이 쉬운 일은 아니기 때문에 우리는 진정한 의미의 <code class="language-text">랜덤</code>이 아니더라도 이 정도면 그냥 <code class="language-text">랜덤</code>하다고 치는 것이다.</p>
@@ -178,7 +178,7 @@ console<span class="token punctuation">.</span><span class="token function">log<
 <p>이때 3번의 <code class="language-text">Twist</code>하는 과정에서 <code class="language-text">GFSR(Generalized Feedback Shift Register</code>라는 방법을 사용한다. <code class="language-text">GFSR</code>은 자료가 많지 않고 대부분 논문같은 학술 자료만 있는 상황이라 필자가 자세히 알아보지는 못했으나, 열심히 구글링하고 논문들을 뜯어본 결과 <code class="language-text">LFSR(Linear Feedback Shift Register)</code>를 약간 변형한 방법이라는 정보를 얻을 수 있었다. <small>(정보가 너무 제한적이라 LFSR 기반이 맞는지는 정확하지 않다.)</small></p>
 <p><code class="language-text">LFSR</code>은 이전 상태 값들을 가져와서 선형 함수를 통해 계산한 후 그걸 사용해서 다음 값을 만들어 내는 방법이다. 이때 사용하는 함수는 보통 <code class="language-text">XOR</code>를 많이 사용하고 맨 처음 값을 <code class="language-text">시드(Seed)</code>라고 부른다.</p>
 <center>
-  <img src="/ad9106cf75abf61d96aea27d0f40cef7/lfsr.gif">
+  <img src="/ad9106cf75abf61d96aea27d0f40cef7/lfsr.gif" width="100%">
   <br>
 </center>
 <p><code class="language-text">LFSR</code>를 간단히 설명하자면, 우선 몇개의 메모리 주소를 골라놓고 초기화된 인풋인 시드를 레지스터에 밀어넣는다. 그러면 오른쪽으로 한칸씩 비트가 밀리게(Shifting) 된다. 그러면 우리는 끝에서 삐져나온 한개의 비트를 아웃풋에서 얻게 된다. 그 다음 미리 골라놨던 메모리 주소에 접근해서 값을 빼온 다음에 순서대로 하단에 위치한 3개의 <code class="language-text">XOR</code> 게이트에 통과시키면 다음 인풋이 나오고 그걸 또 레지스터에 밀어넣는걸 반복하는 것이다.</p>
