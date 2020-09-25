@@ -6,7 +6,6 @@
 <url> <loc>https://evan-moon.github.io/posts/page/4/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/posts/page/5/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/posts/en</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
-<url> <loc>https://evan-moon.github.io/categories/programming/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/categories/그래픽스/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/categories/네트워크/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/categories/머신러닝/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
@@ -379,5 +378,6 @@
 <url> <loc>https://evan-moon.github.io/about/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/categories/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/search-results/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 </urlset>
