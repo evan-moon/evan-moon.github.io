@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
-<url> <loc>https://evan-moon.github.io/posts/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
-<url> <loc>https://evan-moon.github.io/posts/page/2/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
-<url> <loc>https://evan-moon.github.io/posts/page/3/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
-<url> <loc>https://evan-moon.github.io/posts/page/4/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
-<url> <loc>https://evan-moon.github.io/posts/page/5/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
-<url> <loc>https://evan-moon.github.io/posts/en</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/page/2/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/page/3/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/page/4/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/page/5/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/en</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/categories/그래픽스/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/categories/네트워크/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/categories/머신러닝/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
@@ -519,7 +519,6 @@
 <url> <loc>https://evan-moon.github.io/2017/05/03/calculate-orbit-1/en/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/about/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/categories/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
-<url> <loc>https://evan-moon.github.io/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/search-results/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 </urlset>
