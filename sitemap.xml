@@ -79,6 +79,7 @@
 <url> <loc>https://evan-moon.github.io/tags/deep-learning/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/delay/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/digital-to-analog/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/tags/doughnut-chart/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/ecn/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/elb/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/eq/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
@@ -190,6 +191,8 @@
 <url> <loc>https://evan-moon.github.io/tags/solid/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/spa/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/ssr/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/tags/svg/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/tags/svg-호/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/syn/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/sample-rate/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/sampling/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
@@ -278,6 +281,7 @@
 <url> <loc>https://evan-moon.github.io/tags/데이터-기반-의사결정/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/데이터-분석/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/데이터-시각화/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/tags/도넛-차트/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/동기/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/디지털-노마드/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/딥러닝/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
@@ -320,6 +324,7 @@
 <url> <loc>https://evan-moon.github.io/tags/사운드-엔지니어/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/사이드-이펙트/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/산드로-만쿠소/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/tags/삼각함수/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/삼단논법/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/삽입정렬/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/샘플링/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
@@ -387,6 +392,7 @@
 <url> <loc>https://evan-moon.github.io/tags/지라/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/질문하는-법/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/집합/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/tags/차트/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/책-집필/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/체코-여행/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/취업준비/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
@@ -459,6 +465,7 @@
 <url> <loc>https://evan-moon.github.io/tags/yak-shaving/en</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/orbit/en</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/orbit-of-planets/en</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/2020/12/12/draw-arc-with-svg-clippath/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/2020/11/28/making-your-components-extensible-with-typescript/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/2020/10/24/buisiness-with-programming/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/2020/09/27/work-life-balance/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
