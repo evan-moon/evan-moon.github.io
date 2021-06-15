@@ -125,7 +125,7 @@
 <blockquote>
 <p>이때 저 네모 하나하나가 HTML5의 Audio API에서 제공해주는 <code class="language-text">노드</code>와 정확히 같은 개념이다. 즉, 자바스크립트로 저 흐름을 완벽히 동일하게 구현할 수 있다는 뜻이다.</p>
 </blockquote>
-<p>이해를 돕기 위해 저 노드들의 역할에 대해서 조금 더 부가설명을 하자면, 일단 <code class="language-text">Lead Vox</code>는 말 그래도 보컬의 노래 소스를 가진 노드이고 <code class="language-text">LeadVxDbl</code>은 노래를 풍부하게 들리게 하기 위해 같은 멜로디를 한번 더 녹음한 것, 즉 더블링 작업을 한 노드이다. 그리고 <code class="language-text">Vox Fill</code>은 화음을 쌓은 코러스를 담은 노드일 것 같다.</p>
+<p>이해를 돕기 위해 저 노드들의 역할에 대해서 조금 더 부가설명을 하자면, 일단 <code class="language-text">Lead Vox</code>는 말 그대로 보컬의 노래 소스를 가진 노드이고 <code class="language-text">LeadVxDbl</code>은 노래를 풍부하게 들리게 하기 위해 같은 멜로디를 한번 더 녹음한 것, 즉 더블링 작업을 한 노드이다. 그리고 <code class="language-text">Vox Fill</code>은 화음을 쌓은 코러스를 담은 노드이다.</p>
 <p>그리고 보컬이 노래한 이 오디오 소스를 모두 <code class="language-text">Vocal Bus</code>라는 노드로 모으고 있다. 이렇게 하는 이유는 여러 개의 오디오 소스에 이펙터를 각각 사용하면 노드마다 조금씩 소리의 느낌이 달라질 수 있기 때문에 <code class="language-text">Vocal Bus</code>라는 하나의 노드로 오디오 신호를 모은 다음 해당 노드에만 이펙터를 걸어주는 것이다. 이렇게 하면 모든 노드에 이펙터를 사용하지않고 하나의 노드에만 이펙터를 사용해도 되기 때문에 메모리 비용도 아낄 수 있고, <code class="language-text">보컬</code>이라는 하나의 소스에 동일한 느낌을 부여할 수 있다.</p>
 <p>그리고 최종적으로 신호가 들어가는 <code class="language-text">Sub Master</code> 노드는 아마 최종 아웃풋으로 소리가 나가기 전에 한번 더 이펙터 처리를 하고 싶어서 생성한 것일 테고, Sub Master까지 도달한 오디오는 아웃풋, 즉 스피커를 통해 출력되어 우리의 귀로 들어오게 되는 것이다. 결국 <code class="language-text">in -&gt; out -&gt; in -&gt; out</code>의 계속된 반복이라고 보면 된다. 그래서 필자가 오디오의 <code class="language-text">흐름</code>이라고 표현하는 것이다.</p>
 <p>이제 오디오 소스의 흐름이라는 것이 대략 이해가 되었으면 한번 직접 HTML5의 Audio API를 사용해서 이 흐름을 구현해보도록 하자.</p>
