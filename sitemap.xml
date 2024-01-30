@@ -23,6 +23,7 @@
 <url> <loc>https://evan-moon.github.io/categories/프로그래밍/page/2/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/categories/프로그래밍/page/3/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/categories/프로그래밍/page/4/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/categories/프로그래밍/page/5/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/categories/graphics/en</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/categories/network/en</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/categories/programming/en</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
@@ -65,6 +66,7 @@
 <url> <loc>https://evan-moon.github.io/tags/cors/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/cwnd/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/capturing-group/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/tags/category-theory/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/character-class/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/cloud-front/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/commit/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
@@ -489,6 +491,8 @@
 <url> <loc>https://evan-moon.github.io/tags/yak-shaving/en</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/orbit/en</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/tags/orbit-of-planets/en</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/2024/01/30/category-theory-for-programmers-1-category/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
+<url> <loc>https://evan-moon.github.io/2024/01/30/category-theory-for-programmers-0-preface/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/2023/11/21/how-to-overcome-being-self-conscious/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/2023/10/03/how-to-be-a-better-leader/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
 <url> <loc>https://evan-moon.github.io/2023/05/07/improve-my-career/</loc> <changefreq>daily</changefreq> <priority>0.7</priority> </url>
