@@ -53,15 +53,13 @@
 </blockquote>
 <p>포스팅을 시작하기 전에 이 포스팅은 JavaScript 배열의 구문에 관한 것을 알려주거나 예제를 보여주는 등의 기본적인 내용은 아니라고 먼저 얘기해두고 싶다. 이 포스팅에서는 메모리 표현, 최적화, 구문에 따라 달라지는 동작의 차이, 성능 및 최근의 JavaScript 배열이 어떻게 발전했는지에 관해서만 설명할 것이다.</p>
 <p>필자가 JavaScript를 처음 시작했을 때 필자는 이미 C, C++, C# 등의 언어에 익숙한 상태였다. 그래서 다른 C/C++ 개발자들처럼 JavaScript와의 첫 만남이 그리 좋지는 못했다.</p>
-<p>그 중 필자가 JavaScript를 좋아하지 않았던 가장 큰 이유는, 바로 <code class="language-text">배열</code>이다. JavaScript의 배열은 Hash Map이나 Dictionary로 구현되었고 연속적이지 않기 때문에 필자는 이 언어가 배열을 제대로 구현할수도 없는 B급 언어라고 생각했다. 그러나 그 이후 JavaScript에 대한 필자의 이해도는 많이 달라졌다.</p>
+<p>그 중 필자가 JavaScript를 좋아하지 않았던 가장 큰 이유는, 바로 배열이다. JavaScript의 배열은 Hash Map이나 Dictionary로 구현되었고 연속적이지 않기 때문에 필자는 이 언어가 배열을 제대로 구현할수도 없는 B급 언어라고 생각했다. 그러나 그 이후 JavaScript에 대한 필자의 이해도는 많이 달라졌다.</p>
 <blockquote>
 <p>(역주) 기존 언어에서 구현했던 배열은 생성 시에 특정 범위의 메모리를 할당하고 연속적으로 데이터를 저장했지만 JavaScript는 메모리를 미리 할당해놓지 않고 동적 할당하므로 연속적으로 원소가 저장되지 않는다. 리스트와 동일한 방식.</p>
 </blockquote>
 <h2 id="javascript의-배열이-실제로는-배열이-아닌-이유" style="position:relative;">JavaScript의 배열이 실제로는 배열이 아닌 이유<a href="#javascript%EC%9D%98-%EB%B0%B0%EC%97%B4%EC%9D%B4-%EC%8B%A4%EC%A0%9C%EB%A1%9C%EB%8A%94-%EB%B0%B0%EC%97%B4%EC%9D%B4-%EC%95%84%EB%8B%8C-%EC%9D%B4%EC%9C%A0" aria-label="javascript의 배열이 실제로는 배열이 아닌 이유 permalink" class="anchor after"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a></h2>
-<p>자바스크립트에 관한 설명들을 시작하기 전에 <code class="language-text">배열</code>이 무엇인지부터 설명을 먼저 해야할 것 같다.
-배열은 연속적인 메모리 로케이션들의 묶음을 사용하여 값을 저장하는 데 사용된다. 여기서 중요한 포인트는 <code class="language-text">연속성(continuous)</code>과 <code class="language-text">인접성(contiguous)</code>이라는 단어이다.</p>
-<center>
-  <span class="gatsby-resp-image-wrapper" style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 600px; ">
+<p>자바스크립트에 관한 설명들을 시작하기 전에 배열이 무엇인지부터 설명을 먼저 해야할 것 같다. 배열은 연속적인 메모리 로케이션들의 묶음을 사용하여 값을 저장하는 데 사용된다. 여기서 중요한 포인트는 연속성(continuous)과 인접성(contiguous)이라는 단어이다.</p>
+<span class="gatsby-resp-image-wrapper" style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 600px; ">
       <a class="gatsby-resp-image-link" href="/static/c7e180c48ce9b399c40a3fbf9f1333a7/0a47e/actual-array-js.png" style="display: block" target="_blank" rel="noopener">
     <span class="gatsby-resp-image-background-image" style="padding-bottom: 36.25%; position: relative; bottom: 0; left: 0; background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAHCAIAAACHqfpvAAAACXBIWXMAAAsTAAALEwEAmpwYAAABQklEQVR42iVQa2+CMBTl/yfLFo1ErMirUFqgtDzKQ1CnLttc9vhJO27J+XDvzXm11nGsT2MztuX1OHy+nU9DPXf653b5er+8nvc6izHg/n1fp76RH9fD7eUwGPU8G0sXCbGf4oBAf56NiHe1TM9zB8e+ypSgU6cno7CqjHY6A+fQ66pgp8lYLCSxv8kSrxRRnngyDUse5iyoJe/rAkYNUIqhlbVkpaBS0Jz5yJj6ykojFwunO049zIlP0nALQB97ThqSuyOPssTfOYt/sRQRp25X5Za7XlBvDarKmE9W6+XDaNTYqqGRZPUI9txXQM5Cb7M0Shz3bV/nkBid35PRvCqSggUs2EpOcWlKjiOUaITnIRbYtyUaYY19B13AscBg4dYndujaOo/hjfdghgXyQA1cOwlIq4TRGTTUc/5+JC0F/QWWyhqMik1vZQAAAABJRU5ErkJggg=='); background-size: cover; display: block;"></span>
   <img class="gatsby-resp-image-image" alt="Actual Array in JavaScript" title="" src="/static/c7e180c48ce9b399c40a3fbf9f1333a7/0a47e/actual-array-js.png" srcset="/static/c7e180c48ce9b399c40a3fbf9f1333a7/69538/actual-array-js.png 160w,
@@ -69,8 +67,6 @@
 /static/c7e180c48ce9b399c40a3fbf9f1333a7/0a47e/actual-array-js.png 600w" sizes="(max-width: 600px) 100vw, 600px" style="width:100%;height:100%;margin:0;vertical-align:middle;position:absolute;top:0;left:0;" loading="lazy" decoding="async">
   </a>
     </span>
-  <br>
-</center>
 <p>위 그림은 배열의 메모리 상태의 예시를 표현한 것이다. 이 배열은 4 bit로 이루어진 4개의 블록을 가지고 있고 총 16 bit의 메모리 블록을 사용하고 있다.</p>
 <p>이제 필자가 <code class="language-text">tinyInt arr[4];</code>를 선언했고 <code class="language-text">1201</code>부터 시작해서 이 메모리 블록들을 포착했다고 가정해보자. 이제 필자가 어떤 포인트로부터 <code class="language-text">a[2]</code>를 읽으려고 한다면 <code class="language-text">a[2]</code>의 메모리 주소를 찾기 위한 간단한 수학 계산이 이루어진다. <code class="language-text">1201 + (2 x 4)</code>와 같은 식으로 <code class="language-text">1209</code>의 주소를 바로 참조할 수 있다.</p>
 <blockquote>
