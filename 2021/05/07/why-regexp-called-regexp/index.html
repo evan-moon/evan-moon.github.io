@@ -294,7 +294,7 @@ L = (a+b+\epsilon)(a+b+\epsilon)(a+b+\epsilon) \\
 <p>이게 바로 정규 표현식이 구동되는 기계인 유한 오토마타의 대략적인 개념이며, 정규 표현식은 바로 이런 개념의 추상 기계에게 언어를 인지시키는 것을 목표로 만들어졌다. 여기서 분명히 짚고 넘어가야 할 점은 이 유한 오토마타라는 기계는 “기억할 수 있는 상태가 단 하나 밖에 없다는 것”이다.</p>
 <p>바로 이 제약 조건으로 인해서 정규 표현식이라는 언어의 한계가 발생하게 된다.</p>
 <h2 id="정규-표현식의-한계" style="position:relative;">정규 표현식의 한계<a href="#%EC%A0%95%EA%B7%9C-%ED%91%9C%ED%98%84%EC%8B%9D%EC%9D%98-%ED%95%9C%EA%B3%84" aria-label="정규 표현식의 한계 permalink" class="anchor after"><svg aria-hidden="true" focusable="false" height="16" version="1.1" viewBox="0 0 16 16" width="16"><path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path></svg></a></h2>
-<p>이처럼 정규 표현식으로 표현할 수 있는 언어, 즉 유한 오토마타가 이해할 수 있는 언어를 <code class="language-text">정규 언어(Regular Language)</code>라고 부른다.</p>
+<p>이처럼 정규 표현식으로 표현할 수 있는 언어, 즉 유한 오토마타가 이해할 수 있는 언어를 “정규 언어(Regular Language)“라고 부른다.</p>
 <p>앞서 알아보았듯이 애초에 정규 표현식은 수학적으로 표현할 수 있는 규칙이 존재하는 언어를 표현하는 용도인데다가 한 번에 한 가지 상태만 가질 수 있는 유한 오토마타에서 구동되는 것을 전제로 하기 때문에 모든 언어를 다 표현할 수 있는 것이 아니다.</p>
 <p>쉽게 생각해서 정규 표현식으로 문맥이 굉장히 자유로운 한국어나 영어같은 언어는 정규 표현식으로 표현할 수 없는 것을 생각해보면 된다. <small>(애초에 자연어를 정규 표현식으로 표현할 수 있었으면 머신러닝을 쓰지도 않는다)</small></p>
 <p>즉, 정규 표현식으로 표현할 수 있는 언어에는 분명한 한계가 있다는 것이며, 이렇게 정규 표현식으로 표현할 수 있는 언어를 정규 언어라고 부르는 것이다.</p>
@@ -315,7 +315,7 @@ L = (a+b+\epsilon)(a+b+\epsilon)(a+b+\epsilon) \\
   <br>
   <br>
 </center>
-<p>사실 우리가 일반적인 비즈니스 레벨에서 다루는 문자열들 중에도 정규 언어가 아닌 것들이 꽤나 존재하는데, 그 중 대표적인 것이 바로 <code class="language-text">HTML</code> 같은 언어이다. 즉, 어떤 문자열이 제대로 된 HTML인지 아닌지를 정규 표현식으로 알아내는 것은 불가능하다는 것이다.</p>
+<p>사실 우리가 일반적인 비즈니스 레벨에서 다루는 문자열들 중에도 정규 언어가 아닌 것들이 꽤나 존재하는데, 그 중 대표적인 것이 바로 HTML 같은 언어이다. 즉, 어떤 문자열이 제대로 된 HTML인지 아닌지를 정규 표현식으로 알아내는 것은 불가능하다는 것이다.</p>
 <center>
   <span class="gatsby-resp-image-wrapper" style="position: relative; display: block; margin-left: auto; margin-right: auto; max-width: 420px; ">
       <a class="gatsby-resp-image-link" href="/static/7c89426e48dfcc4187fffa597065a5e1/65f94/question.jpg" style="display: block" target="_blank" rel="noopener">
